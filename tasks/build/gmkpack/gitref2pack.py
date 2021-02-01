@@ -29,11 +29,11 @@ class GitRef2Pack(Task, DavaiTaskPlugin):
                 compiler_label = self.conf.gmkpack_compiler_label,
                 crash_witness  = True,
                 engine         = 'algo',
-                git_ref        = self.conf.IA4H_gitref,
+                git_ref        = self.conf.IAL_git_ref,
                 kind           = 'ia4h_gitref2{}pack'.format(self.conf.gmkpack_packtype),
                 packname       = '__guess__',
                 preexisting_pack = self.conf.preexisting_pack,
-                repository     = self.conf.IA4H_repository,
+                repository     = self.conf.IAL_repository,
             )
             print(t.prompt, 'tb02 =', tb02)
             print()
