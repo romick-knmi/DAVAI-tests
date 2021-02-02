@@ -14,7 +14,7 @@ DAVAI_API = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DAVAI_XP_DIRECTORY = os.environ.get('DAVAI_XP_DIRECTORY',
                                     os.path.join(os.environ.get('WORKDIR'), 'davai'))
 DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
-                                      os.path.join(os.environ.get('HOME'), 'repositories', 'davai'))
+                                      os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
 PACKAGES = {'vortex': '/home/mf/dp/marp/verolive/vortex/vortex-olive-dev',
             'epygram': '/home/gmap/mrpe/mary/public/EPyGrAM/next',
             'davai_tbx': '/home/gmap/mrpe/mary/public/davai/dev/davai_tbx',
@@ -36,9 +36,14 @@ def main(IAL_git_ref,
     :param preexisting_xp: if the xp directory supposedly preexists
     :param dev_mode: to link tasks sources rather than to copy them
     """
-    # create XP directory
+    print("=> DAVAI xp creation starts...")
     xpid = '{}@{}'.format(IAL_git_ref, os.environ['LOGNAME'])
-    xp_path = os.path.join(DAVAI_XP_DIRECTORY, xpid)
+    print("* xpid:", xpid)
+    vconf = usecase.lower()
+    print("* usecase:", usecase, "-- vconf:", vconf)
+    ### create XP directory
+    xp_path = os.path.join(DAVAI_XP_DIRECTORY, xpid, 'davai', vconf)
+    print("* xpid path:", xp_path)
     if os.path.exists(xp_path):
         if not preexisting_xp:
             raise FileExistsError('XP directory: {} exists while argument **preexisting_xp** is False'.format(xp_path))
@@ -47,19 +52,19 @@ def main(IAL_git_ref,
     else:
         os.makedirs(xp_path)
     os.chdir(xp_path)
-    # tasks & conf: copy or link in dev mode
+    ### tasks & conf: copy or link in dev mode
     if dev_mode:
         os.symlink(os.path.join(DAVAI_API, 'tasks'), 'tasks')
-        os.symlink(os.path.join(DAVAI_API, 'conf'), 'conf')
     else:
         shutil.copytree(os.path.join(DAVAI_API, 'tasks'), 'tasks')
-        shutil.copytree(os.path.join(DAVAI_API, 'conf'), 'conf')
     # conf: set <git_ref> and others in conf/davai_<vconf>.ini
+    os.makedirs('conf')
+    config_template = 'davai_{}.tpl'.format(vconf)
+    os.symlink(os.path.join(DAVAI_API, 'conf', config_template),
+               os.path.join('conf', config_template))
     set_config = {'<IAL_git_ref>': IAL_git_ref,
                   '<IAL_repository>': IAL_repository,
                   '<usecase>': usecase}
-    vconf = usecase.lower()
-    config_template = 'davai_{}.tpl'.format(vconf)
     config_file = 'davai_{}.ini'.format(vconf)
     with io.open(os.path.join('conf', config_template), 'r') as f:
         config = f.readlines()
@@ -67,7 +72,7 @@ def main(IAL_git_ref,
         if not line.startswith('#'):
             for k, v in set_config.items():
                 if k in line:
-                    config[i] = '='.join([line.split('=')[0], v + '\n'])
+                    config[i] = '='.join([line.split('=')[0], ' {}\n'.format(v)])
     with io.open(os.path.join('conf', config_file), 'w') as f:
         f.writelines(config)
     # runs
@@ -75,9 +80,12 @@ def main(IAL_git_ref,
               'run_singletask.sh',
               'run_{}_tests.sh'.format(usecase)):
         shutil.copy(os.path.join(DAVAI_API, 'runs', r), r)
+    os.symlink('run_{}_tests.sh'.format(usecase), 'run_tests.sh')
     # make links for the useful python packages
-    for package, path in PACKAGES:
+    for package, path in PACKAGES.items():
         os.symlink(path, package)
+    print("... xp setup complete")
+    print("---------------------")
 
 
 if __name__ == '__main__':

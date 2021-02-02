@@ -1,6 +1,7 @@
 #/usr/bin/bash
 
 # build
+export DAVAI_START_BUILD=`python -c "import time; print(time.time())"`
 python vortex/bin/mkjob.py -j profile=rd-belenos-mt name=packbuild task=build.gmkpack.make_compile_link loadedjaplugins=davai
 # wait for build
 export MTOOLDIR=/scratch/mtool/$LOGNAME

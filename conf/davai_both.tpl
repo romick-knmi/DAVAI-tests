@@ -3,8 +3,8 @@ namespace           = vortex.cache.fr
 ref_xpid            = G48Y
 ref_namespace       = vortex.multi.fr
 # git
-IAL_git_ref         = CY48
-IAL_repository      = /home/gmap/mrpe/mary/repositories/arpifs
+IAL_git_ref         = <IAL_git_ref>
+IAL_repository      = <IAL_repository>
 # shelves
 commonenv           = uenv:cy48.commons.03@mary
 appenv_global       = uenv:cy48.global@davai.08@mary
@@ -13,7 +13,7 @@ appenv_clim         = cy43t2_clim-op2.02
 input_store_global  = store_cy47t1_global.01@davai
 input_store_LAM     = store_cy47t1_lam.01@davai
 # Davai options
-usecase             = NRV
+usecase             = <usecase>
 davai_server        = http://intra.cnrm.meteo.fr/gws/davai
 expertise_fatal_exceptions = False
 profiling           = True
@@ -30,6 +30,8 @@ gmkpack_compiler_label = MIMPIIFC1805
 gmkpack_compiler_flag = 2y
 # vortex defaults
 model               = ifs
+
+# === SETUP === #
 
 [ciboulai_xpsetup]
 comment             = Test CY48 nu via mkjob

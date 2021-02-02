@@ -44,7 +44,7 @@ class PackCompileLink(Task, DavaiTaskPlugin):
                 crash_witness  = True,
                 engine         = 'algo',
                 kind           = 'pack_build_executables',
-                packname       = davai.util.guess_packname(self.conf.IA4H_gitref,
+                packname       = davai.util.guess_packname(self.conf.IAL_git_ref,
                                                            self.conf.gmkpack_compiler_label,
                                                            self.conf.gmkpack_packtype,
                                                            compiler_flag=self.conf.gmkpack_compiler_flag),

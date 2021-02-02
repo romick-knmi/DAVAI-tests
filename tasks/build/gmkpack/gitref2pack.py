@@ -6,10 +6,26 @@ import footprints.util
 
 import vortex
 from vortex import toolbox
-from vortex.layout.nodes import Task, Driver
+from vortex.layout.nodes import Task, Driver, Family
 
 import davai
 from davai_tbx.jobs import DavaiTaskPlugin
+
+
+def setup(t, **kw):
+    return Driver(
+        tag     = 'packbuild',
+        ticket  = t,
+        nodes   = [
+            Family(tag = 'packbuild',
+               ticket  = t,
+               nodes   = [
+                   GitRef2Pack(tag='gitref2pack', ticket=t, **kw)
+               ],
+               **kw),
+        ],
+        options=kw
+    )
 
 
 class GitRef2Pack(Task, DavaiTaskPlugin):

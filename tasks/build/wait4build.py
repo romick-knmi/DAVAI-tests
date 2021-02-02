@@ -43,31 +43,30 @@ class Wait4Build(Task):
             return self._gmkpack_build_block
         else:
             raise NotImplementedError("building_system:{}".format(self.conf.building_system))
+    
+    def _check_build(self, expertise_rh):
+        expertise = expertise_rh.contents.data
+        task_OK = expertise['Status']['short'].startswith('Ended')
+        if not task_OK:
+            print("Task failed:", expertise['Exception'])
+            exit(1)
+
 
     def check_build(self, expertise_rh):
         """Check in expertise that executables have been successfully built."""
-        if self.conf.building_system == 'gmkpack':
-            self._gmkpack_check_build(expertise_rh)
-        else:
-            raise NotImplementedError("building_system:{}".format(self.conf.building_system))
+        self._check_build(expertise_rh)
+        #if self.conf.building_system == 'gmkpack':
+        #    self._gmkpack_check_build(expertise_rh)
+        #else:
+        #    raise NotImplementedError("building_system:{}".format(self.conf.building_system))
 
 
-    def get_expertise(self):
+    def get_expertise(self, **expertise_description):
         """Get expertise, waiting for it if necessary."""
         t = self.ticket
         sh = self.sh
-        expertise_description = dict(
-            kind           = 'taskinfo',
-            block          = self.build_block,
-            experiment     = self.conf.xpid,
-            format         = 'json',
-            local          = 'compilation_output.[format]',
-            namespace      = 'vortex.cache.fr',
-            nativefmt      = '[format]',
-            scope          = 'itself',
-            task           = 'expertise',)
         # timings
-        now = time.time()
+        start = float(self.sh.environ.get('DAVAI_START_BUILD', time.time()))
         walltime = self.conf.time
         walltime_in_seconds = sum([60**(2-i) * int(v)
                                    for i,v in enumerate(walltime.split(':'))]
@@ -77,19 +76,22 @@ class Wait4Build(Task):
         def expertise_available():
             ok = False
             exists = bool(toolbox.rload(**expertise_description)[0].check())
+            print(toolbox.rload(**expertise_description)[0].locate())
             if exists:
                 mtime = self.sh.path.getmtime(toolbox.rload(**expertise_description)[0].locate())
-                if mtime > now:
+                print('mtime', mtime)
+                if mtime > start:
                     ok = True
             return ok
  
         # get compilation task time (e.g. 02:00:00) in seconds
-        print("Begin waiting for Compilation expertise, for up to",
+        print("Begin waiting for '{}' expertise, for up to".format(expertise_description['block']),
               "{} == {} seconds".format(walltime, walltime_in_seconds))
         while not expertise_available():
             # wait for compilation expertise to be present in cache
             if walltime_in_seconds <= 0:
-                raise RuntimeError("Could not get Compilation expertise after supposed maximum Elapsed time.")
+                print("Could not get expertise after supposed maximum Elapsed time: check manually. Exit")
+                exit(-1)
             print("Time to expiration: {:5d} (s)".format(walltime_in_seconds))
             wait = 30
             time.sleep(wait)
@@ -103,9 +105,18 @@ class Wait4Build(Task):
         return expertise[0]
 
     def process(self):
-        # get compilation expertise
-        expertise = self.get_expertise()
-        # check that all builds are successful
-        self.check_build(expertise)
-
+        expertise_description = dict(
+            kind           = 'taskinfo',
+            experiment     = self.conf.xpid,
+            format         = 'json',
+            local          = 'compilation_output.[format]',
+            namespace      = 'vortex.cache.fr',
+            nativefmt      = '[format]',
+            scope          = 'itself',
+            task           = 'expertise',)
+        for block in ('gitref2pack', 'pack_compile_link'):
+            # get compilation expertise
+            expertise = self.get_expertise(block=block, **expertise_description)
+            # check that all builds are successful
+            self.check_build(expertise)
 
