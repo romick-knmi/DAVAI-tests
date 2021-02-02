@@ -43,14 +43,18 @@ namespace           = vortex.multi.fr
 # === BUILD === #
 
 [packbuild]
-# date of release of base cycle ?
+# date of release of base cycle ? FIXME: make a new taskinfo with no date attribute and delete meaningless rundate here
 rundate             = 2020090300
 time                = 02:00:00
-building_system     = gmkpack
 
 [gitref2pack]
-# in case of main pack:
-# todo: populate_filter_file & link_filter_file
+# in case of main pack,
+# filter files for populate/link:
+# __inconfig__ : in **ia4h_scm** package, file config/pygmkpack.ignore4{populate|link}[.{release}]
+# __inrepo__ : in IAL repository, file pygmkpack.ignore4{populate|link}
+# or path/to/file
+populate_filter_file = __inconfig__
+link_filter_file = __inconfig__
 # in case of incr pack:
 preexisting_pack    = True
 cleanpack           = True

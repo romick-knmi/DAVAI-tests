@@ -47,7 +47,9 @@ class GitRef2Pack(Task, DavaiTaskPlugin):
                 engine         = 'algo',
                 git_ref        = self.conf.IAL_git_ref,
                 kind           = 'ia4h_gitref2{}pack'.format(self.conf.gmkpack_packtype),
+                link_filter_file = self.conf.link_filter_file,
                 packname       = '__guess__',
+                populate_filter_file = self.conf.populate_filter_file,
                 preexisting_pack = self.conf.preexisting_pack,
                 repository     = self.conf.IAL_repository,
             )
