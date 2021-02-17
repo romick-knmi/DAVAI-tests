@@ -9,3 +9,5 @@ $davai_mkjob_run task=assim.BSM_arpege_4D name=BSM_arpege_4D
 #davai_mkjob_run task=forecasts.series name=fc-canonical-series
 #davai_mkjob_run task=fullpos.series name=fullpos-canonical-series
 
+echo "DAVAI test bench launched through job scheduler !"
+echo "Checkout Ciboulai for results !"

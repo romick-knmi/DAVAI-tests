@@ -7,5 +7,5 @@ if [ "$?" == "1" ];then
   exit 1
 else
   echo "Let's go for the tests !"
-  #./run_tests.sh
+  ./run_tests.sh
 fi

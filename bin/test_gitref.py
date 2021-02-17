@@ -9,6 +9,7 @@ import os
 import shutil
 import io
 import argparse
+import re
 
 DAVAI_API = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DAVAI_XP_DIRECTORY = os.environ.get('DAVAI_XP_DIRECTORY',
@@ -18,7 +19,7 @@ DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
 PACKAGES = {'vortex': '/home/mf/dp/marp/verolive/vortex/vortex-olive-dev',
             'epygram': '/home/gmap/mrpe/mary/public/EPyGrAM/next',
             #'davai_tbx': '/home/gmap/mrpe/mary/public/davai/dev/davai_tbx',
-            'davai_tbx': '/home/gmap/mrpe/mary/repositories/davai_tbx/dev/davai_tbx',
+            'davai_tbx': '/home/gmap/mrpe/mary/repositories/davai_tbx/davai_tbx',
             'ia4h_scm': '/home/gmap/mrpe/mary/public/ia4h-scm/dev/ia4h_scm',
             }
 
@@ -63,8 +64,8 @@ def main(IAL_git_ref,
     ### conf: set <git_ref> and others in conf/davai_<vconf>.ini
     os.makedirs('conf')
     config_file = 'davai_{}.ini'.format(vconf)
-    os.copyfile(os.path.join(DAVAI_API, 'conf', config_file),
-                os.path.join('conf', config_file))
+    shutil.copyfile(os.path.join(DAVAI_API, 'conf', config_file),
+                    os.path.join('conf', config_file))
     set_in_config = {'IAL_git_ref': IAL_git_ref,
                      'IAL_repository': IAL_repository,
                      'usecase': usecase,
@@ -122,7 +123,8 @@ if __name__ == '__main__':
                         action='store_true',
                         help="Assume the experiment directory to already exist")
     parser.add_argument('-d', '--dev_mode',
-                        default='NRV',
+                        default='False',
+                        action='store_true',
                         help="to link tasks sources rather than to copy them")
     args = parser.parse_args()
 
