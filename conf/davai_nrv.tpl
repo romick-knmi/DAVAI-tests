@@ -1,1 +1,0 @@
-davai_both.tpl

@@ -24,7 +24,7 @@ def setup(t, **kw):
 
 
 class Wait4Build(Task):
-    
+
     def _expertise_available(self, start_of_run, **expertise_description):
         """Check if expertise is available and posterior to run start."""
         ok = False
@@ -43,7 +43,7 @@ class Wait4Build(Task):
         if not task_OK:
             print("Task failed:", expertise['Exception'])
             exit(1)
- 
+
     def get_expertise(self, **expertise_description):
         """Get expertise, waiting for it if necessary."""
         t = self.ticket
@@ -76,8 +76,9 @@ class Wait4Build(Task):
             print(t.prompt, 'expertise =', expertise)
         return expertise[0]
 
-    def process(self):
-        expertise_description = dict(
+    @property
+    def _expertise_description(self):
+        return dict(
             kind           = 'taskinfo',
             experiment     = self.conf.xpid,
             format         = 'json',
@@ -85,10 +86,12 @@ class Wait4Build(Task):
             namespace      = 'vortex.cache.fr',
             nativefmt      = '[format]',
             scope          = 'itself',
-            task           = 'expertise',)
+            task           = 'expertise')
+
+    def process(self):
         for block in ('gitref2pack', 'pack_compile_link'):
             # get compilation expertise
-            expertise = self.get_expertise(block=block, **expertise_description)
+            expertise = self.get_expertise(block=block, **self._expertise_description)
             # check that all builds are successful
             self.check_build(expertise)
 

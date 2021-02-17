@@ -2,8 +2,6 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-import footprints.util
-
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
@@ -23,19 +21,20 @@ def setup(t, **kw):
 
 
 class CiboulaiXpSetup(Task):
-    conf2env = ('IA4H_gitref',  # for packname
+    conf2env = ('IAL_git_ref',  # for packname
                 'gmkpack_compiler_label', 'gmkpack_packtype', 'gmkpack_compiler_flag',  # for packname
                 'HOMEPACK',  # for packname (path)
                 'comment', 'usecase', 'ref_xpid',  # the xp itself
                 'appenv_LAM', 'appenv_global', 'commonenv', 'appenv_clim',  # shelves: env
                 'input_store_LAM', 'input_store_global',  # shelves: input stores
                 )
+
     def _set_env_from_conf(self):
         """Export some conf variables to environment."""
         for v in self.conf2env:
             if v in self.conf and v.upper() not in self.env:
                 self.env.setvar(v.upper(), self.conf.get(v))
-    
+
     def process(self):
         t = self.ticket
         sh = self.sh
@@ -59,10 +58,10 @@ class CiboulaiXpSetup(Task):
                 block          = 'summaries_stack',
                 experiment     = self.conf.xpid,
                 format         = 'json',
-                hook_send      = ('davai.hooks.send_to_DAVAI_server', self.conf.expertise_fatal_exceptions),
+                hook_send      = (davai.hooks.send_to_DAVAI_server,
+                                  self.conf.expertise_fatal_exceptions),
                 kind           = 'xpinfo',
                 local          = 'xpinfo.[format]',
-                namespace      = self.conf.namespace,
                 nativefmt      = '[format]',
             )
             print(t.prompt, 'tb02 =', tb02)

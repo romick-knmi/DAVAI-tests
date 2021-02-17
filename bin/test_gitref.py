@@ -17,7 +17,8 @@ DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
                                       os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
 PACKAGES = {'vortex': '/home/mf/dp/marp/verolive/vortex/vortex-olive-dev',
             'epygram': '/home/gmap/mrpe/mary/public/EPyGrAM/next',
-            'davai_tbx': '/home/gmap/mrpe/mary/public/davai/dev/davai_tbx',
+            #'davai_tbx': '/home/gmap/mrpe/mary/public/davai/dev/davai_tbx',
+            'davai_tbx': '/home/gmap/mrpe/mary/repositories/davai_tbx/dev/davai_tbx',
             'ia4h_scm': '/home/gmap/mrpe/mary/public/ia4h-scm/dev/ia4h_scm',
             }
 
@@ -25,6 +26,7 @@ PACKAGES = {'vortex': '/home/mf/dp/marp/verolive/vortex/vortex-olive-dev',
 def main(IAL_git_ref,
          usecase='NRV',
          IAL_repository=DAVAI_IAL_REPOSITORY,
+         comment=None,
          preexisting_xp=False,
          dev_mode=False):
     """
@@ -53,21 +55,21 @@ def main(IAL_git_ref,
     else:
         os.makedirs(xp_path)
     os.chdir(xp_path)
-    ### tasks & conf: copy or link in dev mode
+    ### tasks: copy or link in dev mode
     if dev_mode:
         os.symlink(os.path.join(DAVAI_API, 'tasks'), 'tasks')
     else:
         shutil.copytree(os.path.join(DAVAI_API, 'tasks'), 'tasks')
     ### conf: set <git_ref> and others in conf/davai_<vconf>.ini
     os.makedirs('conf')
-    config_template = 'davai_{}.tpl'.format(vconf)
     config_file = 'davai_{}.ini'.format(vconf)
-    os.symlink(os.path.join(DAVAI_API, 'conf', config_template),
-               os.path.join('conf', config_template))
-    set_in_config = {'<IAL_git_ref>': IAL_git_ref,
-                     '<IAL_repository>': IAL_repository,
-                     '<usecase>': usecase}
-    config_set_from_template(config_template, config_file, set_in_config)
+    os.copyfile(os.path.join(DAVAI_API, 'conf', config_file),
+                os.path.join('conf', config_file))
+    set_in_config = {'IAL_git_ref': IAL_git_ref,
+                     'IAL_repository': IAL_repository,
+                     'usecase': usecase,
+                     'comment':comment if comment is not None else IAL_git_ref}
+    config_set(config_file, set_in_config)
     ### runs: copy
     for r in ('run.sh', 'run_ciboulai_setup.sh', 'run_packbuild.sh',
               'run_singletask.sh',
@@ -81,20 +83,22 @@ def main(IAL_git_ref,
     print("---------------------")
 
 
-def config_set_from_template(config_template, config_file, update_dict):
+def config_set(config_file, update_dict):
     """
-    Replace **update_dict**'s *keys* by *values* from **config_template** into **config_file**.
+    Replace **update_dict**'s *keys* by *values* in **config_file**.
     """
     # we do not use ConfigParser to keep the comments
     # read
-    with io.open(os.path.join('conf', config_template), 'r') as f:
+    with io.open(os.path.join('conf', config_file), 'r') as f:
         config = f.readlines()
     # update
     for i, line in enumerate(config):
-        if not line.startswith('#'):
+        if line[0] not in (' ', '#', '['):  # special lines
             for k, v in update_dict.items():
-                if k in line:
-                    config[i] = '='.join([line.split('=')[0], ' {}\n'.format(v)])
+                pattern = '(?P<k>{}\s*=).*\n'.format(k)
+                match = re.match(pattern, line)
+                if match:
+                    config[i] = match.group('k') + ' {}\n'.format(v)
     # write
     with io.open(os.path.join('conf', config_file), 'w') as f:
         f.writelines(config)
@@ -107,6 +111,9 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--usecase',
                         default='NRV',
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests)")
+    parser.add_argument('-c', '--comment',
+                        default=None,
+                        help="Comment about experiment. Defaults to IAL_git_ref.")
     parser.add_argument('-r', '--IAL_repository',
                         default=DAVAI_IAL_REPOSITORY,
                         help="Path to IFS-Arpege-LAM Git repository")
@@ -121,6 +128,7 @@ if __name__ == '__main__':
 
     main(args.IAL_git_ref,
          usecase=args.usecase,
+         comment=args.comment,
          IAL_repository=args.IAL_repository,
          preexisting_xp=args.preexisting_xp,
          dev_mode=args.dev_mode)

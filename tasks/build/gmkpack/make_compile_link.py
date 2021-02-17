@@ -2,13 +2,10 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-import footprints.util
-
 import vortex
 from vortex import toolbox
-from vortex.layout.nodes import Task, Driver
+from vortex.layout.nodes import Driver
 
-import davai
 from .gitref2pack import GitRef2Pack
 from .compile_link import PackCompileLink
 
