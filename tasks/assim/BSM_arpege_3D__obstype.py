@@ -13,7 +13,7 @@ from .minim import Minim
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            Family(tag='4dvar', ticket=t, nodes=[
+            Family(tag='3dvar', ticket=t, nodes=[
                 LoopFamily(tag='obstype', ticket=t,
                     loopconf='obstypes',
                     loopsuffix='.{}',

@@ -8,33 +8,7 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task
 import davai
-from davai_tbx.jobs import DavaiIALTaskPlugin, IncludesTaskPlugin
-
-
-def hook_adjust_DFI(t, rh, obs_tslots):
-    """
-    Runtime tuning of DFI:
-
-    - unplug DFI in 3D case
-    - or tune number of steps to timestep
-    """
-    if int(obs_tslots[0]) == 1:
-        # because no DFI in 3D screening (and avoiding to duplicate model namelists)
-        print("Unplug DFI")
-        if 'NAMINI' in rh.contents:
-            rh.contents['NAMINI']['LDFI'] = False
-            rh.contents['NAMINI'].delvar('NEINI')
-        if 'NAMDFI' in rh.contents:
-            rh.contents['NAMDFI'].delvar('NEDFI')
-            rh.contents['NAMDFI'].delvar('NTPDFI')
-            rh.contents['NAMDFI'].delvar('TAUS')
-        if 'NAMRIP' in rh.contents:
-            rh.contents['NAMRIP']['CSTOP'] = 'h0'
-    else:
-        # Because timestep is not that of the operational screening
-        print("Adjust NSTDFI to timestep")
-        rh.contents['NAMDFI']['NSTDFI'] = 6
-    rh.save()
+from davai_tbx.jobs import DavaiIALTaskPlugin, IncludesTaskPlugin, hook_adjust_DFI
 
 
 class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
@@ -44,12 +18,12 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
 
     def output_block(self):
         return '.'.join([self.conf.model,
-                         self.ND,
+                         self.NDVar,
                          self.tag])
 
     def obs_input_block(self):
         return '.'.join([self.conf.model,
-                         self.ND,
+                         self.NDVar,
                          'batodb' + self._tag_suffix()])
 
     def process(self):
@@ -210,7 +184,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 binary         = '[model]',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_dfi       = (hook_adjust_DFI, self.conf.obs_tslots),
+                hook_dfi       = (hook_adjust_DFI, self.NDVar),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
@@ -246,49 +220,57 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             self._wrapped_input(
                 role           = 'BackgroundStdError',
                 block          = 'sigmab',
-                date           = '{0:s}/-PT6H'.format(self.conf.rundate.ymdh),
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'grib',
                 kind           = 'bgstderr',
                 local          = 'errgrib.[variable]',
                 stage          = 'scr',
-                term           = '6',
+                term           = self.conf.cyclestep,
                 variable       = 'u,v,t,q,r,lnsp,gh,btmp,vo',
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'SurfaceGuess',
                 block          = 'forecast',
-                date           = '{0:s}/-PT6H'.format(self.conf.rundate.ymdh),
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHSCREINIT.sfx',
                 model          = 'surfex',
-                term           = self.conf.guess_term,
+                term           = self.guess_term(),
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
                 block          = 'forecast',
-                date           = '{0:s}/-PT6H'.format(self.conf.rundate.ymdh),
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHSCREINIT',
-                term           = self.conf.guess_term,
+                term           = self.guess_term(),
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'VarBC',
                 block          = '4dupd2',
-                date           = '{0:s}/-PT6H'.format(self.conf.rundate.ymdh),
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'ascii',
                 intent         = 'inout',
                 kind           = 'varbc',
                 local          = 'VARBC.cycle',
                 stage          = 'traj',
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
 
@@ -336,7 +318,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 iomethod       = '4',
                 kind           = 'screening',
                 npool          = self.conf.obs_npools,
-                slots          = self.conf.obs_tslots,
+                slots          = self.obs_tslots,
                 timestep       = self.conf.timestep,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)

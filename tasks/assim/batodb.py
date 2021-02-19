@@ -19,10 +19,11 @@ class BatorODB(Task, DavaiTaskPlugin):
 
     def output_block(self):
         return '.'.join([self.conf.model,
-                         self.ND,
+                         self.NDVar,
                          self.tag])
 
     def process(self):
+        self._obstype_rundate_association()
         self._tb_input = []
         self._tb_promise = []
         self._tb_exec = []
@@ -76,7 +77,7 @@ class BatorODB(Task, DavaiTaskPlugin):
                 genv           = self.conf.appenv,
                 kind           = 'namutil',
                 local          = '[source]',
-                source         = 'delta-bator_reduction.global.davai.nam',
+                source         = 'delta-bator_reduction.[model].davai.nam',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -90,6 +91,17 @@ class BatorODB(Task, DavaiTaskPlugin):
                 local          = 'NAMELIST',
                 source         = 'namel_bator_assim',
             )
+            #-------------------------------------------------------------------------------
+            if self.conf.LAM:
+                self._wrapped_input(
+                    role           = 'NamelistLamflag',
+                    binary         = 'arpifs',
+                    format         = 'ascii',
+                    genv           = self.conf.appenv,
+                    kind           = 'namelist',
+                    local          = 'NAM_lamflag',
+                    source         = 'OOPS_ARO/namel_lamflag_odb',
+                )
             #-------------------------------------------------------------------------------
 
         # B.2/ Static Resources (executables):
@@ -127,7 +139,9 @@ class BatorODB(Task, DavaiTaskPlugin):
                 local          = 'batodb_map',
                 # if obstype is not specified (in conf or loop), get all obstypes from Bator Map:
                 only           = FPSet([obstype]) if obstype else None,
-                stage          = 'void',
+                stage          = 'extract',
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -140,7 +154,9 @@ class BatorODB(Task, DavaiTaskPlugin):
                 kind           = 'observations',
                 local          = '[actualfmt].[part]',
                 part           = tbmap[0].contents.dataset(),
-                stage          = 'void',
+                stage          = 'extract',
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -151,6 +167,8 @@ class BatorODB(Task, DavaiTaskPlugin):
                 kind           = 'blacklist',
                 local          = 'LISTE_NOIRE_DIAP',
                 scope          = 'global',
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -161,6 +179,8 @@ class BatorODB(Task, DavaiTaskPlugin):
                 kind           = 'blacklist',
                 local          = 'LISTE_LOC',
                 scope          = 'local',
+                vapp           = self.conf.stores_vapp,
+                vconf          = self.conf.stores_vconf,
             )
             #-------------------------------------------------------------------------------
 
@@ -181,10 +201,11 @@ class BatorODB(Task, DavaiTaskPlugin):
                 ioassign       = tbio[0].container.localpath(),
                 iomethod       = '4',
                 kind           = 'raw2odb',
+                lamflag        = self.conf.LAM,
                 npool          = self.conf.obs_npools,
                 ntasks         = self.conf.ntasks,
                 parallel_const = self.conf.obs_paraconst,
-                slots          = self.conf.obs_tslots,
+                slots          = self.obs_tslots,
                 taskset        = 'socketpacked',
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)

@@ -1,5 +1,6 @@
 - find a way to find paths to packages depending on platform
 - implement tests !
 - profiles: find a nomenclature
-- DAVAI_SERVER: cf. LF branch to export env var from conf in JA
 - Loops: cf. LF branch to ignore crashes in loops
+- mechanism to run a single task ?
+- hostname -> template of jobs
