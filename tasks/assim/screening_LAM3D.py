@@ -8,11 +8,13 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task
 import davai
-from davai_tbx.jobs import DavaiIALTaskPlugin, IncludesTaskPlugin, hook_adjust_DFI
+
+from davai_tbx.jobs import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_tbx.hooks import hook_adjust_DFI, hook_gnam
 
 
 # FIXME: had to remove .ymdh from self.conf.rundate (LoopFamily on rundates)
-class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
+class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
     lead_expert = experts[0]
@@ -28,19 +30,22 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                          'batodb' + self._tag_suffix()])
 
     def process(self):
+        self._wrapped_init()
         self._obstype_rundate_association()
-        self._tb_input = []
-        self._tb_promise = []
-        self._tb_exec = []
-        self._tb_output = []
 
-        # A/ Reference resources, to be compared to:
+        # 0./ Promises
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_promise(**self._promised_listing())
+            self._wrapped_promise(**self._promised_expertise())
+            #-------------------------------------------------------------------------------
+
+        # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
 
-        # B.1/ Static Resources:
+        # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
@@ -141,6 +146,9 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 purpose        = 'create,merge',
             )
             #-------------------------------------------------------------------------------
+
+        # 1.1.2/ Static Resources (namelist(s) & config):
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'ChannelsNamelist',
                 binary         = 'arpege',
@@ -153,23 +161,13 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Namelistsurf',
-                binary         = self.conf.model,
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                intent         = 'inout',
-                kind           = 'namelist',
-                local          = 'EXSEG1.nam',
-                source         = 'namel_previ_surfex',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
                 role           = 'Namelist',
                 binary         = '[model]',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_dfi       = (hook_adjust_DFI, self.NDVar),
                 #hook_nprof    = cf. Olive, set NAMNPROF/NOBSPROFS(13)=25 ?
+                hook_nprof     = (hook_gnam, {'NAMNPROF':{'NOBSPROFS(13)':25}}),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
@@ -177,7 +175,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # B.2/ Static Resources (executables):
+        # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             tbio = self._wrapped_executable(
                 role           = 'Binary',
@@ -194,13 +192,13 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 binmap         = 'gmap',
                 format         = 'bullx',
                 kind           = 'mfmodel',
-                local          = 'ARPEGE.EX',
+                local          = 'AROME.EX',
                 remote         = self.guess_pack(),
                 setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
 
-        # C/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'BackgroundStdError',
@@ -221,7 +219,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
-                block          = 'forecast',
+                block          = 'cplguess',
                 date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'fa',
@@ -248,13 +246,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # D/ Promises
-        if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_promise(**self._promised_listing())
-            self._wrapped_promise(**self._promised_expertise())
-            #-------------------------------------------------------------------------------
-
-        # E/ Flow Resources: produced by another task of the same job
+        # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
             tbmap = self._wrapped_input(
                 role           = 'Obsmap',
@@ -280,7 +272,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # F/ Compute step
+        # 2.2/ Compute step
         if 'compute' in self.steps:
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
@@ -302,7 +294,7 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             self.run_expertise()
             #-------------------------------------------------------------------------------
 
-        # G/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
+        # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             self._wrapped_output(
                 role           = 'Observations # CCMA',
@@ -338,13 +330,13 @@ class Screening(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # H/ Davai expertise:
+        # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_expertise())
             self._wrapped_output(**self._output_comparison_expertise())
             #-------------------------------------------------------------------------------
 
-        # I/ Other output resources of possible interest:
+        # 3.0.2/ Other output resources of possible interest:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_listing())
             self._wrapped_output(**self._output_stdeo())

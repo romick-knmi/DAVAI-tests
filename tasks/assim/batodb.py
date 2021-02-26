@@ -9,10 +9,10 @@ from vortex import toolbox
 from vortex.layout.nodes import Task
 from common.util.hooks import update_namelist
 
-from davai_tbx.jobs import DavaiTaskPlugin
+from davai_tbx.jobs import DavaiTaskMixin
 
 
-class BatorODB(Task, DavaiTaskPlugin):
+class BatorODB(Task, DavaiTaskMixin):
 
     experts = [FPDict({'kind':'bator_obscount'}), FPDict({'kind':'bator_profile'})]
     lead_expert = experts[0]
@@ -23,17 +23,19 @@ class BatorODB(Task, DavaiTaskPlugin):
                          self.tag])
 
     def process(self):
+        self._wrapped_init()
         self._obstype_rundate_association()
-        self._tb_input = []
-        self._tb_promise = []
-        self._tb_exec = []
-        self._tb_output = []
 
-        # A/ Reference resources, to be compared to:
+        # 0./ Promises
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_promise(**self._promised_expertise())
+            #-------------------------------------------------------------------------------
+
+        # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
 
-        # B.1/ Static Resources:
+        # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'AvgMasks',
@@ -70,6 +72,9 @@ class BatorODB(Task, DavaiTaskPlugin):
                 local          = 'list_gpssol',
             )
             #-------------------------------------------------------------------------------
+
+        # 1.1.2/ Static Resources (namelist(s) & config):
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
             tbnamreduc = self._wrapped_input(
                 role           = 'BatodbReductionDelta',
                 binary         = 'batodb',
@@ -104,7 +109,7 @@ class BatorODB(Task, DavaiTaskPlugin):
                 )
             #-------------------------------------------------------------------------------
 
-        # B.2/ Static Resources (executables):
+        # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             tbio = self._wrapped_executable(
                 role           = 'Binary',
@@ -127,7 +132,7 @@ class BatorODB(Task, DavaiTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # C/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             obstype = self.conf.get('obstype', None)
             tbmap = self._wrapped_input(
@@ -139,6 +144,7 @@ class BatorODB(Task, DavaiTaskPlugin):
                 local          = 'batodb_map',
                 # if obstype is not specified (in conf or loop), get all obstypes from Bator Map:
                 only           = FPSet([obstype]) if obstype else None,
+                discard        = FPSet([self.conf.discard_obstype]) if 'discard_obstype' in self.conf else None,
                 stage          = 'extract',
                 vapp           = self.conf.stores_vapp,
                 vconf          = self.conf.stores_vconf,
@@ -184,16 +190,11 @@ class BatorODB(Task, DavaiTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # D/ Promises
-        if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_promise(**self._promised_expertise())
-            #-------------------------------------------------------------------------------
-
-        # E/ Flow Resources: produced by another task of the same job
+        # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
             pass
 
-        # F/ Compute step
+        # 2.2/ Compute step
         if 'compute' in self.steps:
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
@@ -215,7 +216,7 @@ class BatorODB(Task, DavaiTaskPlugin):
             self.run_expertise()
             #-------------------------------------------------------------------------------
 
-        # G/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
+        # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             tbmapout = self._wrapped_output(
                 role           = 'ObsmapUsed',
@@ -239,13 +240,13 @@ class BatorODB(Task, DavaiTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # H/ Davai expertise:
+        # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_expertise())
             self._wrapped_output(**self._output_comparison_expertise())
             #-------------------------------------------------------------------------------
 
-        # I/ Other output resources of possible interest:
+        # 3.0.2/ Other output resources of possible interest:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(
                 role           = 'Listing',

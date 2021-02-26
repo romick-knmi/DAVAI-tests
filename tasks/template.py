@@ -9,69 +9,71 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
 import davai
-from davai_tbx.jobs import DavaiIALTaskPlugin, IncludesTaskPlugin
+from davai_tbx.jobs import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-class EmptyTemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
+class EmptyTemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     def process(self):
-        self._tb_input = []
-        self._tb_promise = []
-        self._tb_exec = []
-        self._tb_output = []
+        self._wrapped_init()
 
-        # A/ Reference resources, to be compared to:
+        # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # B.1/ Static Resources:
+        # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # B.2/ Static Resources (executables):
+        # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # C/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # D/ Promises
+        # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # E/ Flow Resources: produced by another task of the same job
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            pass
+            #-------------------------------------------------------------------------------
+
+        # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # F/ Compute step
+        # 2.2/ Compute step
         if 'compute' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # G/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
+        # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # H/ Davai expertise:
+        # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
-        # I/ Other output resources of possible interest:
+        # 3.0.2/ Other output resources of possible interest:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             pass
             #-------------------------------------------------------------------------------
 
 
-class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
+class TemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
     lead_expert = experts[0]
@@ -88,18 +90,21 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
 
 
     def process(self):
-        self._tb_input = []
-        self._tb_promise = []
-        self._tb_exec = []
-        self._tb_output = []
+        self._wrapped_init()
 
-        # A/ Reference resources, to be compared to:
+        # 0./ Promises
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_promise(**self._promised_listing())
+            self._wrapped_promise(**self._promised_expertise())
+            #-------------------------------------------------------------------------------
+
+        # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
 
-        # B.1/ Static Resources:
+        # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
@@ -112,7 +117,21 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # B.2/ Static Resources (executables):
+        # 1.1.2/ Static Resources (namelist(s) & config):
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_input(
+                role           = 'ChannelsNamelist',
+                binary         = 'arpege',
+                channel        = 'cris331,iasi314',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namelist',
+                local          = 'namchannels_[channel]',
+                source         = 'namelist[channel]',
+            )
+            #-------------------------------------------------------------------------------
+
+        # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             tbio = self._wrapped_executable(
                 role           = 'Binary',
@@ -135,7 +154,7 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # C/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'Guess',
@@ -149,13 +168,7 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # D/ Promises
-        if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_promise(**self._promised_listing())
-            self._wrapped_promise(**self._promised_expertise())
-            #-------------------------------------------------------------------------------
-
-        # E/ Flow Resources: produced by another task of the same job
+        # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
             tbmap = self._wrapped_input(
                 role           = 'Obsmap',
@@ -181,7 +194,7 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # F/ Compute step
+        # 2.2/ Compute step
         if 'compute' in self.steps:
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
@@ -199,14 +212,10 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             print()
             self.component_runner(tbalgo, tbx)
             #-------------------------------------------------------------------------------
-            self.sh.title('Toolbox algo = tbexpertise')
-            tbexpertise = toolbox.algo(**self._algo_expertise())
-            print(self.ticket.prompt, 'tbexpertise =', tbexpertise)
-            print()
-            self.component_runner(tbexpertise, [None])
+            self.run_expertise()
             #-------------------------------------------------------------------------------
 
-        # G/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
+        # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             self._wrapped_output(
                 role           = 'Observations # CCMA',
@@ -221,13 +230,13 @@ class TemplateTask(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # H/ Davai expertise:
+        # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_expertise())
             self._wrapped_output(**self._output_comparison_expertise())
             #-------------------------------------------------------------------------------
 
-        # I/ Other output resources of possible interest:
+        # 3.0.2/ Other output resources of possible interest:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_listing())
             self._wrapped_output(**self._output_stdeo())

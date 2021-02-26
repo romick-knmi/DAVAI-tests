@@ -113,14 +113,14 @@ def main(IAL_git_ref,
                      'comment':comment if comment is not None else IAL_git_ref}
     config_set(config_file, set_in_config)
     ### runs: copy
-    for r in ('run.sh', 'run_ciboulai_setup.sh', 'run_packbuild.sh',
+    for r in ('run.sh', 'setup_ciboulai.sh', 'packbuild.sh',
               #'run_singletask.sh',
-              'run_{}_tests.sh'.format(usecase)):
+              'test_{}.sh'.format(usecase)):
         if dev_mode:
             os.symlink(os.path.join(DAVAI_THIS_REPO, 'runs', r), r)
         else:
             shutil.copy(os.path.join(DAVAI_THIS_REPO, 'runs', r), r)
-    os.symlink('run_{}_tests.sh'.format(usecase), 'run_tests.sh')
+    os.symlink('test_{}.sh'.format(usecase), 'tests.sh')
     ### python packages: make links
     packages = Packages(default_hostname=hostname)
     for package in packages.list():

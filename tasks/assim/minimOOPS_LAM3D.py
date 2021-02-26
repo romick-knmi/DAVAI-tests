@@ -9,32 +9,11 @@ from vortex import toolbox
 from vortex.layout.nodes import Task
 from common.util.hooks import update_namelist
 import davai
-from davai_tbx.jobs import DavaiIALTaskPlugin, IncludesTaskPlugin
+
+from davai_tbx.jobs import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-def hook_temporary_OOPS_3DVar_fix(t, rh, NDVar):
-    """
-    Temporary hook for model namelist, until OOPS better handles time in 3DVar case
-    (and to avoid to duplicate model namelists in for 3D/4DVar versions)
-    """
-    if NDVar == '3DVar':
-        # 3DVar case
-        if 'NAMRIP' in rh.contents:
-            print("Set ['NAMRIP']['CSTOP'] = 'h0'")
-            rh.contents['NAMRIP']['CSTOP'] = 'h0'
-    rh.save()
-
-
-def hook_OOPS_2_CNT0(t, rh):
-    """Hook to turn OOPS namelist into CNT0 namelist."""
-    print("Set ['NAMARG']['CNMEXP'] = 'MINI'")
-    rh.contents['NAMARG']['CNMEXP'] = 'MINI'
-    print("Set ['NAMCT0']['L_OOPS'] = .FALSE.")
-    rh.contents['NAMCT0']['L_OOPS'] = False
-    rh.save()
-
-
-class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
+class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
     lead_expert = experts[0]
@@ -50,18 +29,22 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                          'screening' + self._tag_suffix()])
 
     def process(self):
-        self._tb_input = []
-        self._tb_promise = []
-        self._tb_exec = []
-        self._tb_output = []
+        self._wrapped_init()
+        self._obstype_rundate_association()
 
-        # A/ Reference resources, to be compared to:
+        # 0./ Promises
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_promise(**self._promised_listing())
+            self._wrapped_promise(**self._promised_expertise())
+            #-------------------------------------------------------------------------------
+
+        # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
 
-        # B.1/ Static Resources:
+        # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
@@ -85,13 +68,22 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
+                role           = 'RCorrelations(ECMWF & OOPS version - contains sigmaO)',
+                format         = 'unknown',
+                genv           = self.conf.commonenv,
+                kind           = 'correl',
+                local          = 'rmtb[scope].dat',
+                scope          = 'err_iasi,err_cris',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'AtlasEmissivity',
                 format         = 'unknown',
                 genv           = self.conf.commonenv,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'ATLAS_[targetname:upper].BIN',
-                month          = self.conf.rundate.ymdh,
+                month          = self.conf.rundate,
                 targetname     = 'ssmis,iasi,an1,an2',
             )
             #-------------------------------------------------------------------------------
@@ -148,9 +140,24 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 format         = 'unknown',
                 genv           = self.conf.appenv,
                 kind           = 'stabal',
-                level          = '96',
-                local          = 'stabal[level].[stat]',
+                level          = '41',
+                local          = 'stabal96.[stat]',
                 stat           = 'bal,cv',
+            )
+            #-------------------------------------------------------------------------------
+
+        # 1.1.2/ Static Resources (namelist(s) & config):
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_input(
+                role           = 'Config',
+                format         = 'json',
+                genv           = self.conf.appenv,
+                intent         = 'inout',
+                kind           = 'config',
+                local          = 'oops.[format]',
+                nativefmt      = '[format]',
+                objects        = 't{}_aro'.format((self.NDVar).lower()),
+                scope          = 'oops',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -165,39 +172,38 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Namelistsurf',
-                binary         = self.conf.model,
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                intent         = 'inout',
-                kind           = 'namelist',
-                local          = 'EXSEG1.nam',
-                source         = 'namel_previ_surfex',
-            )
-            #-------------------------------------------------------------------------------
-            tbnam_objects = self._wrapped_input(
                 role           = 'OOPSObjectsNamelists',
                 binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = ['observations_tlad','standard_geometry','bmatrix'],
-                source         = 'OOPS/naml_[object]',
+                object         = ['observations_tlad','standard_geometry','bmatrix',
+                                  'write_analysis', 'oops_write_spec'],
+                source         = 'OOPS_ARO/naml_[object]',
             )
             #-------------------------------------------------------------------------------
-            tbnam_modelobjects = self._wrapped_input(
+            self._wrapped_input(
+                role           = 'OOPSGomNamelists',
+                binary         = 'arpifs',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namelist',
+                local          = 'namelist_[object]',
+                object         = ['gom_setup', 'gom_setup_hres'],
+                source         = 'OOPS_ARO/namelist_[object]',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'OOPSModelObjectsNamelists',
                 binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_OOPS3DVar = (hook_temporary_OOPS_3DVar_fix,
-                                  self.NDVar),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = 'traj_model',
-                source         = 'OOPS/naml_[object]',
+                object         = ['nonlinear_model', 'linear_model', 'traj_model'],
+                source         = 'OOPS_ARO/naml_[object]',
             )
             #-------------------------------------------------------------------------------
             tbnam_leftovers = self._wrapped_input(
@@ -205,115 +211,37 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_oops2cnt0 = (hook_OOPS_2_CNT0,),
-                intent         = 'inout',
-                kind           = 'namelist',
-                local          = 'namelist_oops',
-                source         = 'OOPS/namelist_oops_leftovers',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Namelist',
-                binary         = 'arpege',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                hook_merge_nam = (update_namelist,
-                                  tbnam_leftovers, tbnam_modelobjects, tbnam_objects),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'namelistmin1312_assim',
+                source         = 'OOPS_ARO/namelist_oops_leftovers',
             )
             #-------------------------------------------------------------------------------
 
-        # B.2/ Static Resources (executables):
+        # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            tbio = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                format         = 'bullx',
-                kind           = 'odbioassign',
-                local          = 'ioassign',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
-            )
-            #-------------------------------------------------------------------------------
             tbx = self._wrapped_executable(
                 role           = 'Binary',
                 binmap         = 'gmap',
                 format         = 'bullx',
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.EX',
+                kind           = 'oopsbinary',
+                local          = 'AROME.EX',
                 remote         = self.guess_pack(),
+                run            = 'oovar',
                 setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
 
-        # C/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_store
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_input(
-                role           = 'BackgroundStdError',
-                block          = 'sigmab',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
-                format         = 'grib',
-                kind           = 'bgstderr',
-                local          = 'errgrib.[variable]',
-                stage          = 'vor',
-                term           = self.guess_term(force_window_start=True),
-                variable       = ['vo','ucdv','lnsp','t','q'],
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'SurfaceGuess',
-                block          = 'forecast',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
-                format         = 'fa',
-                kind           = 'historic',
-                local          = 'ICMSHSCREINIT.sfx',
-                model          = 'surfex',
-                term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
-            )
-            #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
                 block          = 'forecast',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
+                date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'fa',
                 kind           = 'historic',
-                local          = 'ICMSHMINIINIT',
-                term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'InitialCondition',
-                block          = 'forecast',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
-                format         = 'fa',
-                kind           = 'historic',
-                local          = 'ICMSHMINIIMIN',
-                term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Background',
-                block          = 'forecast',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
-                format         = 'fa',
-                kind           = 'historic',
-                local          = 'ICMRFMINI0000',
+                local          = 'ICMSHOOPSINIT',
                 term           = self.guess_term(),
                 vapp           = self.conf.stores_vapp,
                 vconf          = self.conf.stores_vconf,
@@ -321,8 +249,8 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'VarBC',
-                block          = '4dupd2',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
+                block          = 'minim',
+                date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
                 experiment     = self.conf.input_store,
                 format         = 'ascii',
                 intent         = 'inout',
@@ -334,13 +262,7 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # D/ Promises
-        if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_promise(**self._promised_listing())
-            self._wrapped_promise(**self._promised_expertise())
-            #-------------------------------------------------------------------------------
-
-        # E/ Flow Resources: produced by another task of the same job
+        # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'Observations',
@@ -356,17 +278,14 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             )
             #-------------------------------------------------------------------------------
 
-        # F/ Compute step
+        # 2.2/ Compute step
         if 'compute' in self.steps:
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
                 drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
-                iomethod       = '4',
-                kind           = 'minim',
-                npool          = self.conf.obs_npools,
-                slots          = self.obs_tslots,
+                kind           = 'oominim',
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
@@ -375,7 +294,7 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
             self.run_expertise()
             #-------------------------------------------------------------------------------
 
-        # G/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
+        # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             self._wrapped_output(
                 role           = 'Observations',
@@ -395,16 +314,16 @@ class Minim(Task, DavaiIALTaskPlugin, IncludesTaskPlugin):
                 experiment     = self.conf.xpid,
                 format         = 'fa',
                 kind           = 'analysis',
-                local          = 'MXMINI999+0000',
+                local          = 'ICMSHMXMI+0000',
             )
 
-        # H/ Davai expertise:
+        # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_expertise())
             self._wrapped_output(**self._output_comparison_expertise())
             #-------------------------------------------------------------------------------
 
-        # I/ Other output resources of possible interest:
+        # 3.0.2/ Other output resources of possible interest:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_listing())
             self._wrapped_output(**self._output_stdeo())

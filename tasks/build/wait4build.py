@@ -25,18 +25,32 @@ def setup(t, **kw):
 
 class Wait4Build(Task):
 
+    @property
+    def _expertise_description(self):
+        return dict(
+            kind           = 'taskinfo',
+            cutoff         = 'assim',
+            experiment     = self.conf.xpid,
+            format         = 'json',
+            local          = 'compilation_output.[format]',
+            namespace      = 'vortex.cache.fr',
+            nativefmt      = '[format]',
+            scope          = 'itself',
+            task           = 'expertise')
+
     def _expertise_available(self, start_of_run, **expertise_description):
         """Check if expertise is available and posterior to run start."""
         ok = False
         exists = bool(toolbox.rload(**expertise_description)[0].check())
-        #print(toolbox.rload(**expertise_description)[0].locate())
+        #print(toolbox.rload(**expertise_description)[0].locate(), exists)
         if exists:
             last_modified_time = self.sh.path.getmtime(toolbox.rload(**expertise_description)[0].locate())
+            #print(last_modified_time)
             if last_modified_time > start_of_run:
                 ok = True
         return ok
 
-    def check_build(self, expertise_rh):
+    def _check_build(self, expertise_rh):
         """Check in expertise if task succeeded."""
         expertise = expertise_rh.contents.data
         task_OK = expertise['Status']['short'].startswith('Ended')
@@ -44,12 +58,13 @@ class Wait4Build(Task):
             print("Task failed:", expertise['Exception'])
             exit(1)
 
-    def get_expertise(self, **expertise_description):
+    def _get_expertise(self, **expertise_description):
         """Get expertise, waiting for it if necessary."""
         t = self.ticket
         sh = self.sh
         # timings
         start_of_run = float(self.sh.environ.get('DAVAI_START_BUILD', time.time()))
+        #print('DAVAI_START_BUILD', self.sh.environ.get('DAVAI_START_BUILD', None), start_of_run)
         walltime = self.conf.time
         # get compilation task time (e.g. 02:00:00) in seconds
         walltime_in_seconds = sum([60**(2-i) * int(v)
@@ -76,22 +91,10 @@ class Wait4Build(Task):
             print(t.prompt, 'expertise =', expertise)
         return expertise[0]
 
-    @property
-    def _expertise_description(self):
-        return dict(
-            kind           = 'taskinfo',
-            experiment     = self.conf.xpid,
-            format         = 'json',
-            local          = 'compilation_output.[format]',
-            namespace      = 'vortex.cache.fr',
-            nativefmt      = '[format]',
-            scope          = 'itself',
-            task           = 'expertise')
-
     def process(self):
         for block in ('gitref2pack', 'pack_compile_link'):
             # get compilation expertise
-            expertise = self.get_expertise(block=block, **self._expertise_description)
+            expertise = self._get_expertise(block=block, **self._expertise_description)
             # check that all builds are successful
-            self.check_build(expertise)
+            self._check_build(expertise)
 

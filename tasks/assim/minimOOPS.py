@@ -7,13 +7,14 @@ from footprints import FPDict
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task
+from common.util.hooks import update_namelist
 import davai
 
 from davai_tbx.jobs import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_tbx.hooks import hook_adjust_DFI
+from davai_tbx.hooks import hook_temporary_OOPS_3DVar_fix
 
 
-class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
     lead_expert = experts[0]
@@ -26,7 +27,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def obs_input_block(self):
         return '.'.join([self.conf.model,
                          self.NDVar,
-                         'batodb' + self._tag_suffix()])
+                         'screening' + self._tag_suffix()])
 
     def process(self):
         self._wrapped_init()
@@ -67,6 +68,15 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
+                role           = 'RCorrelations(ECMWF & OOPS version - contains sigmaO)',
+                format         = 'unknown',
+                genv           = self.conf.commonenv,
+                kind           = 'correl',
+                local          = 'rmtb[scope].dat',
+                scope          = 'err_iasi,err_cris',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'AtlasEmissivity',
                 format         = 'unknown',
                 genv           = self.conf.commonenv,
@@ -75,15 +85,6 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'ATLAS_[targetname:upper].BIN',
                 month          = self.conf.rundate.ymdh,
                 targetname     = 'ssmis,iasi,an1,an2',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'CoverParams',
-                format         = 'foo',
-                genv           = self.conf.commonenv,
-                kind           = 'coverparams',
-                local          = 'ecoclimap_covers_param.tgz',
-                source         = 'ecoclimap',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -111,15 +112,6 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'RsBiasTables',
-                format         = 'odb',
-                genv           = self.conf.commonenv,
-                kind           = 'odbraw',
-                layout         = 'RSTBIAS,COUNTRYRSTRHBIAS,SONDETYPERSTRHBIAS',
-                local          = '[layout:upper]',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
                 role           = 'Coefmodel',
                 format         = 'unknown',
                 genv           = self.conf.commonenv,
@@ -144,13 +136,13 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'IoassignScripts',
-                format         = 'ascii',
-                genv           = self.conf.commonenv,
-                kind           = 'ioassign_script',
-                language       = 'ksh',
-                local          = '[purpose]_ioassign',
-                purpose        = 'create,merge',
+                role           = 'Stabal',
+                format         = 'unknown',
+                genv           = self.conf.appenv,
+                kind           = 'stabal',
+                level          = '96',
+                local          = 'stabal[level].[stat]',
+                stat           = 'bal,cv',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -166,8 +158,20 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
+                role           = 'Config',
+                format         = 'json',
+                genv           = self.conf.appenv,
+                intent         = 'inout',
+                kind           = 'config',
+                local          = 'oops.[format]',
+                nativefmt      = '[format]',
+                objects        = 't{}'.format((self.NDVar).lower()),
+                scope          = 'oops',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'ChannelsNamelist',
-                binary         = 'arpege',
+                binary         = self.conf.model,
                 channel        = 'cris331,iasi314',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
@@ -188,37 +192,64 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Namelist',
-                binary         = '[model]',
+                role           = 'OOPSObjectsNamelists',
+                binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_dfi       = (hook_adjust_DFI, self.NDVar),
+                kind           = 'namelist',
+                local          = 'naml_[object]',
+                object         = ['observations_tlad','standard_geometry','bmatrix',
+                                  'write_analysis', 'oops_write_spec'],
+                source         = 'OOPS/naml_[object]',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'OOPSGomNamelists',
+                binary         = 'arpifs',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namelist',
+                local          = 'namelist_[object]',
+                object         = ['gom_setup', 'gom_setup_hres'],
+                source         = 'OOPS/namelist_[object]',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'OOPSModelObjectsNamelists',
+                binary         = 'arpifs',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                hook_OOPS3DVar = (hook_temporary_OOPS_3DVar_fix,
+                                  self.NDVar),
+                intent         = 'inout',
+                kind           = 'namelist',
+                local          = 'naml_[object]',
+                object         = ['nonlinear_model', 'linear_model', 'traj_model'],
+                source         = 'OOPS/naml_[object]',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'NamelistLeftovers',
+                binary         = 'arpifs',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'namelistscreen_assim',
+                source         = 'OOPS/namelist_oops_leftovers',
             )
             #-------------------------------------------------------------------------------
 
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            tbio = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                format         = 'bullx',
-                kind           = 'odbioassign',
-                local          = 'ioassign',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
-            )
-            #-------------------------------------------------------------------------------
             tbx = self._wrapped_executable(
                 role           = 'Binary',
                 binmap         = 'gmap',
                 format         = 'bullx',
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.EX',
+                kind           = 'oopsbinary',
+                local          = 'OOVAR.EX',
                 remote         = self.guess_pack(),
+                run            = 'oovar',
                 setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
@@ -233,9 +264,9 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'grib',
                 kind           = 'bgstderr',
                 local          = 'errgrib.[variable]',
-                stage          = 'scr',
-                term           = self.conf.cyclestep,
-                variable       = 'u,v,t,q,r,lnsp,gh,btmp,vo',
+                stage          = 'vor',
+                term           = '3',  # FIXME: self.guess_term(force_window_start=True),
+                variable       = ['vo','ucdv','lnsp','t','q'],
                 vapp           = self.conf.stores_vapp,
                 vconf          = self.conf.stores_vconf,
             )
@@ -247,7 +278,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 experiment     = self.conf.input_store,
                 format         = 'fa',
                 kind           = 'historic',
-                local          = 'ICMSHSCREINIT.sfx',
+                local          = 'ICMSHOOPSINIT.sfx',
                 model          = 'surfex',
                 term           = self.guess_term(),
                 vapp           = self.conf.stores_vapp,
@@ -261,7 +292,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 experiment     = self.conf.input_store,
                 format         = 'fa',
                 kind           = 'historic',
-                local          = 'ICMSHSCREINIT',
+                local          = 'ICMSHOOPSINIT',
                 term           = self.guess_term(),
                 vapp           = self.conf.stores_vapp,
                 vconf          = self.conf.stores_vconf,
@@ -284,27 +315,17 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            tbmap = self._wrapped_input(
-                role           = 'Obsmap',
-                block          = self.obs_input_block(),
-                experiment     = self.conf.xpid,
-                format         = 'ascii',
-                kind           = 'obsmap',
-                local          = 'bator_map',
-                stage          = 'build',
-            )
-            #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Observations',
                 block          = self.obs_input_block(),
                 experiment     = self.conf.xpid,
                 format         = 'odb',
                 intent         = 'inout',
-                helper         = tbmap[0].contents,
                 kind           = 'observations',
-                local          = 'ECMA.[part]',
-                part           = tbmap[0].contents.odbset(),
-                stage          = 'build',
+                layout         = 'ccma',
+                local          = 'CCMA',
+                part           = 'mix',
+                stage          = 'screening',
             )
             #-------------------------------------------------------------------------------
 
@@ -315,13 +336,10 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 crash_witness  = True,
                 drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
-                fcterm         = '6',
-                ioassign       = tbio[0].container.localpath(),
                 iomethod       = '4',
-                kind           = 'screening',
+                kind           = 'oominim',
                 npool          = self.conf.obs_npools,
                 slots          = self.obs_tslots,
-                timestep       = self.conf.timestep,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
@@ -333,7 +351,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             self._wrapped_output(
-                role           = 'Observations # CCMA',
+                role           = 'Observations',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
                 format         = 'odb',
@@ -341,30 +359,17 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 layout         = 'ccma',
                 local          = '[layout:upper]',
                 part           = 'mix',
-                stage          = 'screening',
+                stage          = 'minim',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
-                role           = 'Observations # ALL',
+                role           = 'Analysis',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
-                format         = 'odb',
-                kind           = 'observations',
-                local          = 'ECMA.{glob:ext:\w+}',
-                part           = '[glob:ext]',
-                stage          = 'screening',
+                format         = 'fa',
+                kind           = 'analysis',
+                local          = 'ICMSHANAS+0000',
             )
-            #-------------------------------------------------------------------------------
-            self._wrapped_output(
-                role           = 'VarBC # OUT',
-                block          = self.output_block(),
-                experiment     = self.conf.xpid,
-                format         = 'ascii',
-                kind           = 'varbc',
-                local          = 'VARBC.cycle',
-                stage          = 'screening',
-            )
-            #-------------------------------------------------------------------------------
 
         # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:

@@ -2,7 +2,7 @@
 
 # build
 export DAVAI_START_BUILD=`python -c "import time; print(time.time())"`
-python vortex/bin/mkjob.py -j profile=rd-belenos-mt name=packbuild task=build.gmkpack.make_compile_link
+python vortex/bin/mkjob.py -j profile=rd-belenos-mt name=packbuild task=build.gmkpack.G2P_CL
 # wait for build
 export MTOOLDIR=/scratch/mtool/$LOGNAME
 python vortex/bin/mkjob.py -j profile=void name=wait4build task=build.wait4build
