@@ -17,8 +17,11 @@ import subprocess
 
 DAVAI_RC = os.path.join(os.environ['HOME'], '.davairc')
 DAVAI_THIS_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DAVAI_XP_DIRECTORY = os.environ.get('DAVAI_XP_DIRECTORY',
-                                    os.path.join(os.environ.get('WORKDIR'), 'davai'))
+DAVAI_XP_DIRECTORY = os.environ.get('DAVAI_XP_DIRECTORY', None)
+if not DAVAI_XP_DIRECTORY:
+    WORKDIR = os.environ.get('WORKDIR', None)
+    if WORKDIR:
+        DAVAI_XP_DIRECTORY = os.path.join(WORKDIR, 'davai')
 DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
                                       os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
 
@@ -61,15 +64,20 @@ class AnXP(object):
                  usecase='NRV',
                  IAL_repository=DAVAI_IAL_REPOSITORY,
                  comment=None,
-                 hostname=None):
+                 hostname=None,
+                 xp_directory=DAVAI_XP_DIRECTORY):
         # initialisations
-        self.xpid = '{}.{}@{}'.format(IAL_git_ref, usecase, getpass.getuser())
+        self.xpid = '{}.{}@{}'.format(IAL_git_ref, usecase, getpass.getuser())  # ! consistency with davai_prep_xp: AnXP.xpid !
         self.usecase = usecase
         self.IAL_git_ref = IAL_git_ref
         self.IAL_repository = IAL_repository
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase.lower()
-        self.xp_path = os.path.join(DAVAI_XP_DIRECTORY, self.xpid, 'davai', self.vconf)
+        if xp_directory is not None:
+            self.xp_path = os.path.join(xp_directory, self.xpid, 'davai', self.vconf)
+        else:
+            raise OSError("Experiment path must be provided by argument, " +
+                          "or through env variables $DAVAI_XP_DIRECTORY or $WORKDIR/davai.")
         # packages
         self.default_hostname = hostname
         self._read_packages_config()
@@ -97,6 +105,11 @@ class AnXP(object):
         self._link_packages()
         print("DAVAI xp has been successfully setup.")
         print("------------------------------------")
+        print("To run it:")
+        print("davai run_xp <XPID>")
+        print("or go to XP path and")
+        print("./run.sh")
+        print("---------------------------")
 
     def _get(self, source, target):
         if self.dev_mode:
@@ -209,6 +222,9 @@ if __name__ == '__main__':
                         default=DAVAI_IAL_REPOSITORY,
                         help="Path to IFS-Arpege-LAM Git repository. " +
                              "Default ({}) can be set through $DAVAI_IAL_REPOSITORY".format(DAVAI_IAL_REPOSITORY))
+    parser.add_argument('-d', '--xp_directory',
+                        default=DAVAI_XP_DIRECTORY,
+                        help="Path to experiments directory (default: '{}').".format(DAVAI_XP_DIRECTORY))
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
@@ -232,6 +248,7 @@ if __name__ == '__main__':
               usecase=args.usecase,
               comment=args.comment,
               IAL_repository=args.IAL_repository,
-              hostname=args.host)
+              hostname=args.host,
+              xp_directory=args.xp_directory)
     XP.setup(dev_mode=args.dev_mode)
 
