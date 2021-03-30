@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+here=$(dirname "$0")
+export PATH=$PATH:$here
+
+if [[ ( "$1" == "" || "$1" == "help" || "$1" == "-h" ) && "$2" == "" ]];
+then
+  echo "Usage:"
+  echo "davai <command> [args to command]"
+  echo "---------------------------------"
+  echo "davai help                   => general help"
+  echo "davai help <command>         => dedicated help on <command>"
+  echo ""
+  echo "Available commands:"
+  echo "    init                     => initialize Davai API"
+  echo "    prep_xp                  => prepare a testing experiment"
+  echo "    run_xp                   => run a testing experiment"
+  echo "    update_api               => update Davai API"
+  exit
+elif [ "$1" == "help" ] && [ "$2" != "" ];
+then
+  davai_${2} -h
+else
+  davai_$*
+fi

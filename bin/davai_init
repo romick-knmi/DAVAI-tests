@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+# -*- coding:Utf-8 -*-
+"""
+Initialize Davai API for user.
+"""
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+import os
+import subprocess
+import argparse
+
+DAVAI_RC = os.path.join(os.environ['HOME'], '.davairc')
+DAVAI_API_THIS_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DAVAI_API_THIS_REPO_NAME = os.path.basename(DAVAI_API_THIS_REPO)
+
+
+def main(target_directory=DAVAI_RC):
+    """
+    Initialize Davai API for user.
+    """
+    target_directory = os.path.abspath(os.path.expanduser(target_directory))
+    if not os.path.exists(target_directory):
+        os.makedirs(target_directory)
+    target_api = os.path.join(target_directory, DAVAI_API_THIS_REPO_NAME)
+    ok = input("Confirm cloning API to '{}' (y/n) [y] : ".format(target_api))
+    ok = ok in ("y", "Y", "")
+    if ok:
+        if os.path.exists(target_api):
+            raise OSError("'{}' already exists !".format(target_api))
+        # clone repo
+        subprocess.check_call(['git', 'clone', DAVAI_API_THIS_REPO, target_api])
+        print("\nTo finalize setup, please export and/or copy to .bash_profile:")
+        print("# DAVAI API:")
+        print("export DAVAI_API_LOCAL_REPO={}".format(target_api))
+        print("export PATH=$PATH:$DAVAI_API_LOCAL_REPO/bin\n")
+    else:
+        print("Exit.")
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Initialize Davai API for user.")
+    parser.add_argument('-d', '--target_directory',
+                        help="directory in which to clone Davai API; defaults to: '{}'".format(DAVAI_RC),
+                        default=DAVAI_RC)
+    args = parser.parse_args()
+
+    main(args.target_directory)
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 """
-Create a Davai experiment based on a **gitref**.
+Create a Davai experiment based on a **git_ref**.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -14,6 +14,7 @@ import configparser
 import getpass
 import socket
 
+DAVAI_RC = os.path.join(os.environ['HOME'], '.davairc')
 DAVAI_THIS_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DAVAI_XP_DIRECTORY = os.environ.get('DAVAI_XP_DIRECTORY',
                                     os.path.join(os.environ.get('WORKDIR'), 'davai'))
@@ -22,8 +23,15 @@ DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
 
 
 def guess_host():
+    """
+    Guess host from (by order of resolution):
+      - $DAVAI_HOST
+      - resolution from socket.gethostname() through:
+        * $HOME/.davairc/hosts.ini
+        * {davai_api install}/conf/hosts.ini
+    """
     DAVAI_HOSTS_CONFIG = os.path.join(DAVAI_THIS_REPO, 'conf', 'hosts.ini')
-    DAVAI_LOCAL_HOSTS_CONFIG = os.path.join(os.environ['HOME'], '.davairc', 'hosts.ini')
+    DAVAI_LOCAL_HOSTS_CONFIG = os.path.join(DAVAI_RC, 'hosts.ini')
     hostnames = configparser.ConfigParser()
     socket_hostname = socket.gethostname()
     host = os.environ.get('DAVAI_HOST', None)
@@ -46,7 +54,7 @@ DAVAI_HOST = guess_host()
 class AnXP(object):
     """Setup an XP."""
     DAVAI_PACKAGES_CONFIG = os.path.join(DAVAI_THIS_REPO, 'conf', 'packages.ini')
-    DAVAI_LOCAL_PACKAGES_CONFIG = os.path.join(os.environ['HOME'], '.davairc', 'packages.ini')
+    DAVAI_LOCAL_PACKAGES_CONFIG = os.path.join(DAVAI_RC, 'packages.ini')
 
     def __init__(self, IAL_git_ref,
                  usecase='NRV',
@@ -187,6 +195,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a Davai experiment based on a Git reference.')
     parser.add_argument('IAL_git_ref',
                         help="IFS-Arpege-LAM Git reference to be tested")
+    parser.add_argument('-v', '--tests_version',
+                        help="Version of the test bench to be used.",
+                        required=True)
     parser.add_argument('-u', '--usecase',
                         default='NRV',
                         help="Usecase: NRV (default, restrained set of canonical tests) or ELP (extended elementary tests)")
@@ -206,6 +217,7 @@ if __name__ == '__main__':
                         action='store_true',
                         help="to link tasks sources rather than to copy them")
     args = parser.parse_args()
+    
 
     XP = AnXP(args.IAL_git_ref,
               usecase=args.usecase,
