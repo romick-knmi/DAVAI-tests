@@ -229,7 +229,7 @@ if __name__ == '__main__':
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
                              "Default is guessed ({}), or can be set through $DAVAI_HOST".format(DAVAI_HOST))
-    parser.add_argument('-d', '--dev_mode',
+    parser.add_argument('--dev_mode',
                         default=False,
                         action='store_true',
                         help="to link tasks sources rather than to copy them")
