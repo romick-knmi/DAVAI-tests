@@ -1,6 +1,21 @@
-- find a way to find paths to packages depending on platform
-- implement tests !
 - profiles: find a nomenclature
-- Loops: cf. LF branch to ignore crashes in loops
+- namelists OOPS -> *.nam plutot que namel*
 - mechanism to run a single task ?
-- hostname -> template of jobs
+- put sur la promesse en entree vers ciboulai, pour se rendre compte des taches qui plantent silencieusement
+- Doc dans README.md, a copier par test_gitref
+- single precision ? USECASE ?
+- bundle to pack
+- Forecasts Arome: spectral norms are missing
+- tests sur Taranis ?
+
+Tests:
+-----
+
+* Surfex pgd/prep + stereo-pol, mercator (aussi en fullpos et forecast)
+* forecasts
+* 903 et 903/IFS
+* alaro/harmonie
+* relevant tests from Mitraillette (ELP or NRV)
+* canari Arome
+* jobs PC ? cf. Ryad's
+

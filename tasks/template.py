@@ -81,12 +81,12 @@ class TemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def output_block(self):
         return '.'.join([self.tag,
                          self.conf.model,
-                         self.ND])
+                         self.NDVar])
 
     def _obs_input_block(self):
         return '.'.join(['batorodb' + self._tag_suffix(),
                          self.conf.model,
-                         self.ND])
+                         self.NDVar])
 
 
     def process(self):
