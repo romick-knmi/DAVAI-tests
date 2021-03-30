@@ -23,7 +23,7 @@ def main(XPID, xp_directory=DAVAI_XP_DIRECTORY):
     """
     Run a Davai experiment given its **XPID**.
     """
-    re_xpid = re.compile('.+\.((NRV)|(?P<usecase>ELP))@\w+')  # ! consistency with davai_prep_xp: AnXP.xpid !
+    re_xpid = re.compile('.+\.(?P<usecase>(NRV)|(ELP))@\w+')  # ! consistency with davai_prep_xp: AnXP.xpid !
     m = re_xpid.match(XPID)
     if m:
         usecase = m.group('usecase')
