@@ -105,10 +105,9 @@ class AnXP(object):
         self._link_packages()
         print("DAVAI xp has been successfully setup.")
         print("------------------------------------")
-        print("To run it:")
-        print("davai run_xp <XPID>")
-        print("or go to XP path and")
-        print("./run.sh")
+        print("Now go to the XP path above and:")
+        print("* if necessary, tune experiment in {}".format(self._config_file))
+        print("* launch using: ./run.sh")
         print("---------------------------")
 
     def _get(self, source, target):
@@ -130,18 +129,21 @@ class AnXP(object):
         self._get(os.path.join(DAVAI_THIS_REPO, 'tasks'),
                   'tasks')
 
+    @property
+    def _config_file(self):
+        return os.path.join('conf', 'davai_{}.ini'.format(self.vconf))
+
     def _set_conf(self):
         # initialize
         os.makedirs('conf')
-        config_file = os.path.join('conf', 'davai_{}.ini'.format(self.vconf))
-        self._get(os.path.join(DAVAI_THIS_REPO, config_file),
-                  config_file)
+        self._get(os.path.join(DAVAI_THIS_REPO, self._config_file),
+                  self._config_file)
         to_set_in_config = {k:getattr(self, k)
                             for k in
                             ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment')}
         # and replace:
         # (here we do not use ConfigParser to keep the comments)
-        with io.open(config_file, 'r') as f:
+        with io.open(self._config_file, 'r') as f:
             config = f.readlines()
         for i, line in enumerate(config):
             if line[0] not in (' ', '#', '['):  # special lines
@@ -151,7 +153,7 @@ class AnXP(object):
                     if match:
                         config[i] = match.group('k') + ' {}\n'.format(v)
                         print(" -> is set in config: {}".format(config[i].strip()))
-        with io.open(config_file, 'w') as f:
+        with io.open(self._config_file, 'w') as f:
             f.writelines(config)
 
     def _get_runs(self):

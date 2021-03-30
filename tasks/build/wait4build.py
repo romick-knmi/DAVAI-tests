@@ -41,10 +41,12 @@ class Wait4Build(Task):
     def _expertise_available(self, start_of_run, **expertise_description):
         """Check if expertise is available and posterior to run start."""
         ok = False
-        exists = bool(toolbox.rload(**expertise_description)[0].check())
-        #print(toolbox.rload(**expertise_description)[0].locate(), exists)
+        rh = toolbox.rload(**expertise_description)[0]
+        exists = bool(rh.check())
+        path = rh.locate().split(';')[0]
+        #print(path, exists)
         if exists:
-            last_modified_time = self.sh.path.getmtime(toolbox.rload(**expertise_description)[0].locate())
+            last_modified_time = self.sh.path.getmtime(path)
             #print(last_modified_time)
             if last_modified_time > start_of_run:
                 ok = True
