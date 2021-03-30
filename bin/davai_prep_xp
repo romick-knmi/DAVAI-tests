@@ -13,6 +13,7 @@ import re
 import configparser
 import getpass
 import socket
+import subprocess
 
 DAVAI_RC = os.path.join(os.environ['HOME'], '.davairc')
 DAVAI_THIS_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -217,8 +218,16 @@ if __name__ == '__main__':
                         action='store_true',
                         help="to link tasks sources rather than to copy them")
     args = parser.parse_args()
-    
 
+    # switch to required version of the tests
+    git_branch = subprocess.check_output(['git', 'branch'],
+                                         cwd=DAVAI_THIS_REPO, stderr=None).decode('utf-8').split('\n')
+    head = [line.strip() for line in git_branch if line.startswith('*')][0][2:]
+    if head != args.tests_version:
+        print("Switch davai_api repo from current '{}' to tests_version '{}'".format(
+            head, args.tests_version))
+        subprocess.check_call(['git', 'checkout', args.tests_version])
+    # Set XP
     XP = AnXP(args.IAL_git_ref,
               usecase=args.usecase,
               comment=args.comment,
