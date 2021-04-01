@@ -10,7 +10,7 @@ from vortex.layout.nodes import Task
 from common.util.hooks import update_namelist
 import davai
 
-from davai_tbx.jobs import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
 from davai_tbx.hooks import hook_OOPS_2_CNT0
 
 

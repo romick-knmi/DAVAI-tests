@@ -58,7 +58,7 @@ def main(local_repo=default_local_repo,
     user_config['davai']['logs_directory'] = logs_directory
     user_config.add_section('packages')
     if os.path.exists(user_config_file):
-        overwrite = input("Overwrite '{}' ? (y/n) : ") in ('y', 'Y')
+        overwrite = input("Overwrite '{}' ? (y/n) : ".format(user_config_file)) in ('y', 'Y')
     if overwrite:
         with io.open(user_config_file, 'w') as out:
             user_config.write(out)

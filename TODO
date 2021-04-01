@@ -7,6 +7,8 @@
 - bundle to pack
 - Forecasts Arome: spectral norms are missing
 - tests sur Taranis ?
+- fichier de config par machine ?
+- Expert EC_MEMINFO (rather than RSS)
 
 Tests:
 -----
