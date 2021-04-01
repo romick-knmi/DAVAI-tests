@@ -257,6 +257,17 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             ignore_reference = self.conf.ignore_reference,
             kind           = 'expertise')
 
+    def _notify_start(self):
+        """At the very beginning of the task, notify Ciboulai that the task has started."""
+        from davai_tbx.util import write_started_task_summary
+        notif = '.started.json'
+        print(dir(self))
+        write_started_task_summary(self.context, notif)
+        description = self._output_expertise()
+        description['local'] = notif
+        description['namespace'] = 'vortex.cache.fr'
+        toolbox.output(**description)
+
     def _output_expertise(self):
         return dict(
             role           = 'TaskSummary',
