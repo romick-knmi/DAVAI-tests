@@ -6,43 +6,86 @@ Initialize Davai API for user.
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import os
+import io
 import subprocess
 import argparse
+import configparser
 
-DAVAI_RC = os.path.join(os.environ['HOME'], '.davairc')
-DAVAI_API_THIS_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DAVAI_API_THIS_REPO_NAME = os.path.basename(DAVAI_API_THIS_REPO)
+davai_home = os.path.join(os.environ['HOME'], '.davairc')
+this_repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+davai_api_name = os.path.basename(this_repo)
+user_config_file = os.path.join(davai_home, 'user_config.ini')
+# defaults
+default_local_repo = os.path.join(davai_home, davai_api_name)
+default_XP_directory = os.path.join(davai_home, 'experiments')
+workdir = os.environ.get('WORKDIR', None)
+if workdir:
+    default_logs_directory = os.path.join(workdir, 'davai', 'logs')
+else:
+    default_logs_directory = os.path.join(davai_home, 'logs')
 
 
-def main(target_directory=DAVAI_RC):
+def main(local_repo=default_local_repo,
+         XP_directory=default_XP_directory,
+         logs_directory=default_logs_directory):
     """
     Initialize Davai API for user.
     """
-    target_directory = os.path.abspath(os.path.expanduser(target_directory))
-    if not os.path.exists(target_directory):
-        os.makedirs(target_directory)
-    target_api = os.path.join(target_directory, DAVAI_API_THIS_REPO_NAME)
-    ok = input("Confirm cloning API to '{}' (y/n) [y] : ".format(target_api))
-    ok = ok in ("y", "Y", "")
+    # set directories
+    local_repo = os.path.abspath(os.path.expanduser(local_repo))
+    XP_directory = os.path.abspath(os.path.expanduser(XP_directory))
+    logs_directory = os.path.abspath(os.path.expanduser(logs_directory))
+    if not os.path.exists(davai_home):
+        os.makedirs(davai_home)
+    if not os.path.exists(logs_directory):
+        os.makedirs(logs_directory)
+    parent_directory = os.path.dirname(local_repo)
+    if not os.path.exists(parent_directory):
+        os.makedirs(parent_directory)
+    # clone API
+    ok = input("Confirm cloning Davai API to '{}' (y/n) [y] : ".format(local_repo)) in ("y", "Y", "")
     if ok:
-        if os.path.exists(target_api):
-            raise OSError("'{}' already exists !".format(target_api))
-        # clone repo
-        subprocess.check_call(['git', 'clone', DAVAI_API_THIS_REPO, target_api])
-        print("\nTo finalize setup, please export and/or copy to .bash_profile:")
-        print("# DAVAI API:")
-        print("export DAVAI_API_LOCAL_REPO={}".format(target_api))
-        print("export PATH=$PATH:$DAVAI_API_LOCAL_REPO/bin\n")
+        if os.path.exists(local_repo):
+            raise OSError("'{}' already exists !".format(local_repo))
+        subprocess.check_call(['git', 'clone', this_repo, local_repo])
     else:
         print("Exit.")
+        exit()
+    # set user_config
+    user_config = configparser.ConfigParser()
+    user_config.add_section('davai')
+    user_config['davai']['XP_directory'] = XP_directory
+    user_config['davai']['logs_directory'] = logs_directory
+    user_config.add_section('packages')
+    if os.path.exists(user_config_file):
+        overwrite = input("Overwrite '{}' ? (y/n) : ") in ('y', 'Y')
+    if overwrite:
+        with io.open(user_config_file, 'w') as out:
+            user_config.write(out)
+    else:
+        print("Warning: initialization might not be consistent with user config !")
+    # final write
+    print("\nUser config written in '{}'".format(user_config_file))
+    print("To finalize setup, please export and/or copy to .bash_profile:")
+    print("# DAVAI API:")
+    print("export PATH=$PATH:{}/bin\n".format(local_repo))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Initialize Davai API for user.")
-    parser.add_argument('-d', '--target_directory',
-                        help="directory in which to clone Davai API; defaults to: '{}'".format(DAVAI_RC),
-                        default=DAVAI_RC)
+    parser.add_argument('-r', '--local_repo',
+                        help="path in which will be locally cloned the Davai API; defaults to: '{}'".format(
+                            default_local_repo),
+                        default=default_local_repo)
+    parser.add_argument('-x', '--XP_directory',
+                        help="path in which to create experiments; defaults to: '{}'".format(
+                            default_XP_directory),
+                        default=default_XP_directory)
+    parser.add_argument('-l', '--logs_directory',
+                        help="path in which to store log files; defaults to: '{}'".format(
+                            default_logs_directory),
+                        default=default_logs_directory)
     args = parser.parse_args()
 
-    main(args.target_directory)
+    main(**vars(args))
 
