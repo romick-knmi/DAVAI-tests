@@ -15,6 +15,8 @@ import getpass
 import socket
 import subprocess
 
+from .guess_host import guess_host
+
 davai_home = os.path.join(os.environ['HOME'], '.davairc')
 this_repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # config
@@ -33,33 +35,6 @@ default_usecase = 'NRV'
 # CLEANME: bundled version
 DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
                                       os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
-
-
-def guess_host():
-    """
-    Guess host from (by order of resolution):
-      - $DAVAI_HOST
-      - resolution from socket.gethostname() through:
-        * $HOME/.davairc/user_config.ini
-        * {davai_api install}/conf/general.ini
-    """
-    socket_hostname = socket.gethostname()
-    host = os.environ.get('DAVAI_HOST', None)
-    if not host:
-        for config in (user_config, general_config):
-            if 'hosts' in config.sections():
-                for h, pattern in config['hosts'].items():
-                    if re.match(pattern, socket_hostname):
-                        host = h[:-len('_re_pattern')]  # h is '{host}_re_pattern'
-                        break
-                if host:
-                    break
-    if not host:
-        raise ValueError("Couldn't find host in $DAVAI_HOST, " +
-                         "nor guess from hostname ({}) and keys '{host}_re_pattern' " +
-                         "in section 'hosts' of config files: ('{}', '{}')".format(
-            socket_hostname, user_config_file, general_config_file))
-    return host
 
 DAVAI_HOST = guess_host()
 
