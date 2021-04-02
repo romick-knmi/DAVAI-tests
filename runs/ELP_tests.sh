@@ -24,5 +24,9 @@ $davai_mkjob_run task=assim.BS3D_arpege__obstype name=BS3D_arpege__obstype
 # Arome 3D Bator+Screening -- by obstype
 $davai_mkjob_run task=assim.BS3D_arome__obstype name=BS3D_arome__obstype
 
-echo "DAVAI ELP test bench launched through job scheduler !"
-echo "Checkout Ciboulai for results !"
+echo ""
+echo "===================================================================================================="
+echo "=== DAVAI ELP test bench launched through job scheduler !"
+davai_server=$(grep davai_server conf/davai_*.ini | head -n 1 | awk -F '=' '{print $2}')
+echo "=== Checkout Ciboulai for results: $davai_server "
+echo "===================================================================================================="

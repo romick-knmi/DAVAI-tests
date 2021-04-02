@@ -260,9 +260,9 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     def _notify_start(self):
         """At the very beginning of the task, notify Ciboulai that the task has started."""
         if 'early-fetch' in self.steps:
-            from davai_tbx.expertise import write_started_task_summary
+            from davai_tbx.expertise import write_expected_task_summary
             notif = '.started.json'
-            write_started_task_summary(self.ticket.context, notif)
+            write_expected_task_summary(self.ticket.context, notif)
             description = self._output_expertise()
             description['local'] = notif
             description['namespace'] = 'vortex.cache.fr'
