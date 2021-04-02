@@ -8,13 +8,15 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import os
 import subprocess
 import argparse
+import sys
 
-DAVAI_RC = os.path.join(os.environ['HOME'], '.davairc')
-DAVAI_API_LOCAL_REPO = os.environ.get('DAVAI_API_LOCAL_REPO',
-                                      os.path.join(DAVAI_RC, 'davai_api'))
+# Automatically set the python path
+package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, package_path)
+from davai_api import this_repo
 
 
-def main(local_repo=DAVAI_API_LOCAL_REPO):
+def main(local_repo=this_repo):
     os.chdir(local_repo)
     print("In '{}':".format(local_repo))
     subprocess.check_call(['git', 'fetch'])
@@ -25,8 +27,8 @@ def main(local_repo=DAVAI_API_LOCAL_REPO):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Update Davai API.")
     parser.add_argument('-r', '--local_repository',
-                        help="local repository to update; defaults to '{}'".format(DAVAI_API_LOCAL_REPO),
-                        default=DAVAI_API_LOCAL_REPO)
+                        help="local repository to update; defaults to '{}'".format(this_repo),
+                        default=this_repo)
     args = parser.parse_args()
 
     main(args.local_repository)

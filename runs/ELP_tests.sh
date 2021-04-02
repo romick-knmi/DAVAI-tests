@@ -1,6 +1,9 @@
 #!/usr/bin/bash
 
-davai_mkjob_run='python vortex/bin/mkjob.py -j profile=rd-belenos-mt'
+local_profile="rd-`davai guess_host`-mt"
+davai_mkjob_run="python vortex/bin/mkjob.py -j profile=$local_profile"
+
+
 
 # === Arpege Assimilation ===
 
@@ -16,6 +19,8 @@ $davai_mkjob_run task=assim.BS4D_arpege__obstype name=BS4D_arpege__obstype
 # Arpege 3D Bator+Screening -- by obstype
 $davai_mkjob_run task=assim.BS3D_arpege__obstype name=BS3D_arpege__obstype
 
+
+
 # === Arome Assimilation ===
 
 # Arome 3D Bator+Screening+Minim
@@ -23,6 +28,8 @@ $davai_mkjob_run task=assim.BS3D_arpege__obstype name=BS3D_arpege__obstype
 
 # Arome 3D Bator+Screening -- by obstype
 $davai_mkjob_run task=assim.BS3D_arome__obstype name=BS3D_arome__obstype
+
+
 
 echo ""
 echo "===================================================================================================="

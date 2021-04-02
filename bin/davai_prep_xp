@@ -10,33 +10,24 @@ import shutil
 import io
 import argparse
 import re
-import configparser
+import sys
 import getpass
-import socket
 import subprocess
 
-from .guess_host import guess_host
+# Automatically set the python path
+package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, package_path)
+from davai_api import this_repo, guess_host, general_config, user_config
 
-davai_home = os.path.join(os.environ['HOME'], '.davairc')
-this_repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# config
-general_config_file = os.path.join(this_repo, 'conf', 'general.ini')
-general_config = configparser.ConfigParser()
-general_config.read(general_config_file)
-user_config_file = os.path.join(davai_home, 'user_config.ini')
-user_config = configparser.ConfigParser()
-if os.path.exists(user_config_file):
-    user_config.read(user_config_file)
 # defaults
 default_XP_directory = None
 if 'davai' in user_config.sections():
     default_XP_directory = user_config['davai'].get('XP_directory', None)
 default_usecase = 'NRV'
+DAVAI_HOST = guess_host()
 # CLEANME: bundled version
 DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
                                       os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
-
-DAVAI_HOST = guess_host()
 
 
 class AnXP(object):

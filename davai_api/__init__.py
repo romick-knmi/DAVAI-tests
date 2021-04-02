@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 """
-Guess host from (by order of resolution):
-  - $DAVAI_HOST
-  - resolution from socket.gethostname() through:
-    * $HOME/.davairc/user_config.ini
-    * {davai_api install}/conf/general.ini
+Python utilities for the Davai API.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -15,7 +11,8 @@ import configparser
 import socket
 
 davai_home = os.path.join(os.environ['HOME'], '.davairc')
-this_repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+this_repo = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+davai_api_name = os.path.basename(this_repo)
 # config
 general_config_file = os.path.join(this_repo, 'conf', 'general.ini')
 general_config = configparser.ConfigParser()
@@ -51,8 +48,4 @@ def guess_host():
                          "in section 'hosts' of config files: ('{}', '{}')".format(
             socket_hostname, user_config_file, general_config_file))
     return host
-
-
-if __name__ == '__main__':
-    print(guess_host())
 

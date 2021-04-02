@@ -7,14 +7,16 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import os
 import io
+import sys
 import subprocess
 import argparse
 import configparser
 
-davai_home = os.path.join(os.environ['HOME'], '.davairc')
-this_repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-davai_api_name = os.path.basename(this_repo)
-user_config_file = os.path.join(davai_home, 'user_config.ini')
+# Automatically set the python path
+package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, package_path)
+from davai_api import davai_home, this_repo, user_config_file, davai_api_name
+
 # defaults
 default_local_repo = os.path.join(davai_home, davai_api_name)
 default_XP_directory = os.path.join(davai_home, 'experiments')

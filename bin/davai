@@ -15,6 +15,7 @@ then
   echo "    prep_xp                  => prepare a testing experiment"
   echo "    run_xp                   => run a testing experiment"
   echo "    update_api               => update Davai API"
+  echo "    guess_host               => guess host platform name"
   exit
 elif [ "$1" == "help" ] && [ "$2" != "" ];
 then
