@@ -1,16 +1,22 @@
 #/usr/bin/bash
 
-local_profile="rd-`davai guess_host`-mt"
+host=$(davai guess_host)
+local_profile="rd-$host-mt"
+davai_mkjob_run="python vortex/bin/mkjob.py -j profile=$local_profile"
 
 # build
 export DAVAI_START_BUILD=`python -c "import time; print(time.time())"`
-python vortex/bin/mkjob.py -j profile=$local_profile name=packbuild task=build.gmkpack.G2P_CL
-# wait for build
-export MTOOLDIR=/scratch/mtool/$LOGNAME
+$davai_mkjob_run name=packbuild task=build.gmkpack.G2P_CL
+
+# wait & check for build
+export MTOOLDIR=/scratch/mtool/$LOGNAME  # needed to find cached expertise output of build
 python vortex/bin/mkjob.py -j profile=void name=wait4build task=build.wait4build
+# TODO: move to rd-void (and then remove exec+rm)
 python wait4build.py
 ok=$?
 rm -f wait4build.py
+
+# return status of build
 if [ "$ok" == "0" ];then
   echo "Build OK: continue"
   exit 0

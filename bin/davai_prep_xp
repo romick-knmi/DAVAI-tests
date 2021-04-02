@@ -155,7 +155,7 @@ class AnXP(object):
 
     def _link_packages(self):
         """Link necessary packages in XP."""
-        self.set(os.path.join(this_repo, 'davai_jobs_mixins.py'), 'davai_jobs_mixins.py')
+        os.symlink(os.path.join(this_repo, 'davai_api'), 'davai_api')
         for package, path in self.packages.items():
             os.symlink(path, package)
 
