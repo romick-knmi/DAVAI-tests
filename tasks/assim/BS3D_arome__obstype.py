@@ -10,7 +10,7 @@ from vortex import toolbox
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from .batodb import BatorODB
-from .screening_LAM3D import Screening
+from .screenings.screening_LAM3D import Screening
 
 
 def setup(t, **kw):

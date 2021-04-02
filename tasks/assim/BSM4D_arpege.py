@@ -7,9 +7,9 @@ from vortex import toolbox
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from .batodb import BatorODB
-from .screening import Screening
-from .minimCNT0 import Minim as MinimCNT0
-from .minimOOPS import Minim as MinimOOPS
+from .screenings.screening import Screening
+from .minims.minimCNT0 import Minim as MinimCNT0
+from .minims.minimOOPS import Minim as MinimOOPS
 
 
 def setup(t, **kw):
