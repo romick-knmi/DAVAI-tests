@@ -76,6 +76,7 @@ class PackCompileLink(Task, DavaiTaskMixin):
                 homepack       = self.conf.get('homepack', None),
                 kind           = 'pack_build_executables',
                 packname       = self.guess_pack(abspath=False, to_bin=False),
+                programs       = self.conf.programs,
                 other_options  = FPDict({'GMK_THREADS':self.conf.threads, 'Ofrt':self.conf.Ofrt}),
                 regenerate_ics = self.conf.regenerate_ics,
                 fatal_build_failure = self.conf.fatal_build_failure,

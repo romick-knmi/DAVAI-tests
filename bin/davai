@@ -9,6 +9,7 @@ then
   echo "---------------------------------"
   echo "davai help                   => general help"
   echo "davai help <command>         => dedicated help on <command>"
+  echo "davai <command> -h           => dedicated help on <command>"
   echo ""
   echo "Available commands:"
   echo "    init                     => initialize Davai API"

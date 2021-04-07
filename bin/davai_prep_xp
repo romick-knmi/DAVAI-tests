@@ -17,15 +17,11 @@ import subprocess
 # Automatically set the python path
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
-from davai_api import this_repo, guess_host, general_config, user_config
+from davai_api import (this_repo, guess_host, general_config, user_config,
+                       default_XP_directory, default_logs_directory, default_usecase)
 
-# defaults
-default_XP_directory = None
-if 'davai' in user_config.sections():
-    default_XP_directory = user_config['davai'].get('XP_directory', None)
-default_usecase = 'NRV'
 DAVAI_HOST = guess_host()
-# CLEANME: bundled version
+# CLEANME: repo will be in bundle
 DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
                                       os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
 
@@ -39,6 +35,7 @@ class AnXP(object):
                  comment=None,
                  host=DAVAI_HOST,
                  XP_directory=default_XP_directory,
+                 logs_directory=default_logs_directory,
                  dev_mode=False):
         """
         Initialize an XP.
@@ -51,17 +48,20 @@ class AnXP(object):
             (otherwise guessed)
         :param XP_directory: to specify a directory in which to create experiment, different from the default one
             defined in user_config.ini
+        :param logs_directory: path in which to store log files
         :param dev_mode: to link tasks sources rather than to copy them
         """
         # initialisations
         self.IAL_git_ref = IAL_git_ref
         self.IAL_repository = IAL_repository
+        assert usecase in ('NRV', 'ELP'), "Usecase not implemented yet: " + usecase
         self.usecase = usecase
         self.xpid = '{}.{}@{}'.format(IAL_git_ref, usecase, getpass.getuser())
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase.lower()
         self.host = host
         self.XP_path = os.path.join(XP_directory, self.xpid, 'davai', self.vconf)
+        self.logs_directory = logs_directory
         self.dev_mode = dev_mode  # dev mode links tasks/runs to modify them easily
         # packages
         self.packages = {}
@@ -161,10 +161,10 @@ class AnXP(object):
 
     def _link_logs(self):
         """Link a 'logs' directory."""
-        if 'davai' in user_config.sections():
-            logs_directory = user_config['davai'].get('logs_directory', None)
-            if logs_directory:
-                os.symlink(logs_directory, 'logs')
+        logs = os.path.join(self.logs_directory, self.xpid)
+        if not os.path.exists(logs):
+            os.makedirs(logs)
+        os.symlink(logs, 'logs')
 
 
 def main(tests_version,
@@ -174,6 +174,7 @@ def main(tests_version,
          comment=None,
          host=DAVAI_HOST,
          XP_directory=default_XP_directory,
+         logs_directory=default_logs_directory,
          dev_mode=False):
     """
     Setup an XP.
@@ -187,6 +188,7 @@ def main(tests_version,
         (otherwise guessed)
     :param XP_directory: to specify a directory in which to create experiment, different from the default one
         defined in user_config.ini
+    :param logs_directory: path in which to store log files
     :param dev_mode: to link tasks sources rather than to copy them
     """
     # Switch to required version of the tests
@@ -204,6 +206,7 @@ def main(tests_version,
               comment=comment,
               host=host,
               XP_directory=XP_directory,
+              logs_directory=default_logs_directory,
               dev_mode=dev_mode)
     XP.setup()
 
@@ -230,6 +233,10 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--XP_directory',
                         default=default_XP_directory,
                         help="Path to experiments directory (default: '{}').".format(default_XP_directory))
+    parser.add_argument('-l', '--logs_directory',
+                        help="path in which to store log files; defaults to: '{}'".format(
+                            default_logs_directory),
+                        default=default_logs_directory)
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
@@ -246,5 +253,6 @@ if __name__ == '__main__':
          comment=args.comment,
          host=args.host,
          XP_directory=args.XP_directory,
+         logs_directory=args.logs_directory,
          dev_mode=args.dev_mode)
 

@@ -9,6 +9,7 @@
 - tests sur Taranis ?
 - fichier de config par machine ?
 - Expert EC_MEMINFO (rather than RSS)
+- How to track/display what is the version of the tests to be used for a given release/future release ?
 
 Tests:
 -----

@@ -13,6 +13,7 @@ import socket
 davai_home = os.path.join(os.environ['HOME'], '.davairc')
 this_repo = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 davai_api_name = os.path.basename(this_repo)
+
 # config
 general_config_file = os.path.join(this_repo, 'conf', 'general.ini')
 general_config = configparser.ConfigParser()
@@ -21,6 +22,30 @@ user_config_file = os.path.join(davai_home, 'user_config.ini')
 user_config = configparser.ConfigParser()
 if os.path.exists(user_config_file):
     user_config.read(user_config_file)
+
+# defaults
+default_local_repo = os.path.join(davai_home, davai_api_name)
+if 'davai' in user_config.sections():
+    default_local_repo = user_config['davai'].get('local_repo', default_local_repo)
+default_local_repo = os.path.abspath(os.path.expanduser(default_local_repo))
+
+default_XP_directory = os.path.join(davai_home, 'experiments')
+if 'davai' in user_config.sections():
+    default_XP_directory = user_config['davai'].get('XP_directory', default_XP_directory)
+default_XP_directory = os.path.abspath(os.path.expanduser(default_XP_directory))
+
+_workdir = os.environ.get('WORKDIR', None)
+if _workdir:
+    default_logs_directory = os.path.join(_workdir, 'davai', 'logs')
+else:
+    default_logs_directory = os.path.join(davai_home, 'logs')
+if 'davai' in user_config.sections():
+    default_logs_directory = user_config['davai'].get('logs_directory', default_logs_directory)
+default_logs_directory = os.path.abspath(os.path.expanduser(default_logs_directory))
+
+default_usecase = 'NRV'
+if 'davai' in user_config.sections():
+    usecase = user_config['davai'].get('usecase', default_usecase)
 
 
 def guess_host():

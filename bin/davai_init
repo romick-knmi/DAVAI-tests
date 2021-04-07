@@ -15,16 +15,10 @@ import configparser
 # Automatically set the python path
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
-from davai_api import davai_home, this_repo, user_config_file, davai_api_name
+from davai_api import (davai_home, this_repo, user_config_file, 
+                       default_local_repo, default_XP_directory, default_logs_directory)
 
 # defaults
-default_local_repo = os.path.join(davai_home, davai_api_name)
-default_XP_directory = os.path.join(davai_home, 'experiments')
-workdir = os.environ.get('WORKDIR', None)
-if workdir:
-    default_logs_directory = os.path.join(workdir, 'davai', 'logs')
-else:
-    default_logs_directory = os.path.join(davai_home, 'logs')
 
 
 def main(local_repo=default_local_repo,
@@ -35,12 +29,8 @@ def main(local_repo=default_local_repo,
     """
     # set directories
     local_repo = os.path.abspath(os.path.expanduser(local_repo))
-    XP_directory = os.path.abspath(os.path.expanduser(XP_directory))
-    logs_directory = os.path.abspath(os.path.expanduser(logs_directory))
     if not os.path.exists(davai_home):
         os.makedirs(davai_home)
-    if not os.path.exists(logs_directory):
-        os.makedirs(logs_directory)
     parent_directory = os.path.dirname(local_repo)
     if not os.path.exists(parent_directory):
         os.makedirs(parent_directory)
@@ -56,18 +46,22 @@ def main(local_repo=default_local_repo,
     # set user_config
     user_config = configparser.ConfigParser()
     user_config.add_section('davai')
-    user_config['davai']['XP_directory'] = XP_directory
-    user_config['davai']['logs_directory'] = logs_directory
+    if local_repo != default_local_repo:
+        user_config['davai']['local_repo'] = local_repo
+    if XP_directory != default_XP_directory:
+        user_config['davai']['XP_directory'] = XP_directory
+    if logs_directory != default_logs_directory:
+        user_config['davai']['logs_directory'] = logs_directory
     user_config.add_section('packages')
     if os.path.exists(user_config_file):
         overwrite = input("Overwrite '{}' ? (y/n) : ".format(user_config_file)) in ('y', 'Y')
     if overwrite:
         with io.open(user_config_file, 'w') as out:
             user_config.write(out)
+        print("\nUser config written in '{}'".format(user_config_file))
     else:
         print("Warning: initialization might not be consistent with user config !")
     # final write
-    print("\nUser config written in '{}'".format(user_config_file))
     print("To finalize setup, please export and/or copy to .bash_profile:")
     print("# DAVAI API:")
     print("export PATH=$PATH:{}/bin\n".format(local_repo))
