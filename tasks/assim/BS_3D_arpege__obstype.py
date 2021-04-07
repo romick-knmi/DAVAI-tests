@@ -8,14 +8,14 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import vortex
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
-from .batodb import BatorODB
+from .raw2odb.batodb import BatorODB
 from .screenings.screening import Screening
 
 
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            Family(tag='4dvar', ticket=t, nodes=[
+            Family(tag='3dvar', ticket=t, nodes=[
                 LoopFamily(tag='obstype', ticket=t,
                     loopconf='obstypes',
                     loopsuffix='.{}',
