@@ -198,7 +198,7 @@ def main(tests_version,
     if head != tests_version:
         print("Switch davai_api repo from current '{}' to tests_version '{}'".format(
             head, tests_version))
-        subprocess.check_call(['git', 'checkout', tests_version])
+        subprocess.check_call(['git', 'checkout', 'origin/{}'.format(tests_version)], cwd=this_repo)
     # Set XP
     XP = AnXP(IAL_git_ref,
               IAL_repository=IAL_repository,
