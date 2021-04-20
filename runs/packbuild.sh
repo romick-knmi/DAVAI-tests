@@ -1,6 +1,6 @@
 #/usr/bin/bash
 
-host=$(davai guess_host)
+host=$(davai_guess_host)
 local_profile="rd-$host-mt"
 davai_mkjob_run="python vortex/bin/mkjob.py -j profile=$local_profile"
 
