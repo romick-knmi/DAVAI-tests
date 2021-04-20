@@ -25,7 +25,7 @@ class GitRef2Pack(Task, DavaiTaskMixin):
 
     def process(self):
         self._wrapped_init()
-        self._notify_start()
+        #self._notify_start()  # deactivated for this task: not compatible with wait4build
 
         # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
