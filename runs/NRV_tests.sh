@@ -7,10 +7,10 @@ davai_mkjob_run="python vortex/bin/mkjob.py -j profile=$local_profile"
 
 
 # Arpege 4D Bator+Screening+Minim
-$davai_mkjob_run task=assim.BSM4D_arpege name=BSM4D_arpege
+$davai_mkjob_run task=assim.BSM_4D_arpege name=BSM_4D_arpege
 
 # Arome 3D Bator+Screening+Minim
-$davai_mkjob_run task=assim.BSM3D_arome name=BSM3D_arome
+$davai_mkjob_run task=assim.BSM_3D_arome name=BSM_3D_arome
 
 # Series of canonical forecasts
 #davai_mkjob_run task=forecasts.series name=fc-canonical-series
