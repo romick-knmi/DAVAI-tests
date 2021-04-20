@@ -24,28 +24,40 @@ if os.path.exists(user_config_file):
     user_config.read(user_config_file)
 
 # defaults
-default_local_repo = os.path.join(davai_home, davai_api_name)
-if 'davai' in user_config.sections():
-    default_local_repo = user_config['davai'].get('local_repo', default_local_repo)
-default_local_repo = os.path.abspath(os.path.expanduser(default_local_repo))
+def set_defaults():
+    """Set defaults, actual defaults or from user config if present"""
+    defaults = {}
+    # local repository
+    local_repo = os.path.join(davai_home, davai_api_name)
+    if 'davai' in user_config.sections():
+        local_repo = user_config['davai'].get('local_repo', local_repo)
+    defaults['local_repo'] = os.path.abspath(os.path.expanduser(local_repo))
+    # XP directory
+    XP_directory = os.path.join(davai_home, 'experiments')
+    if 'davai' in user_config.sections():
+        XP_directory = user_config['davai'].get('XP_directory', XP_directory)
+    defaults['XP_directory'] = os.path.abspath(os.path.expanduser(XP_directory))
+    # logs directory
+    _workdir = os.environ.get('WORKDIR', None)
+    if _workdir:
+        logs_directory = os.path.join(_workdir, 'davai', 'logs')
+    else:
+        logs_directory = os.path.join(davai_home, 'logs')
+    if 'davai' in user_config.sections():
+        logs_directory = user_config['davai'].get('logs_directory', logs_directory)
+    defaults['logs_directory'] = os.path.abspath(os.path.expanduser(logs_directory))
+    # usecase
+    usecase = 'NRV'
+    if 'davai' in user_config.sections():
+        usecase = user_config['davai'].get('usecase', usecase)
+    defaults['usecase'] = usecase
+    return defaults
 
-default_XP_directory = os.path.join(davai_home, 'experiments')
-if 'davai' in user_config.sections():
-    default_XP_directory = user_config['davai'].get('XP_directory', default_XP_directory)
-default_XP_directory = os.path.abspath(os.path.expanduser(default_XP_directory))
+def possible_defaults_in_user_config():
+    """Possible parameters which defaults that can be set in section [davai] of ~/.davairc/user_config.py"""
+    print(list(defaults.keys()))
 
-_workdir = os.environ.get('WORKDIR', None)
-if _workdir:
-    default_logs_directory = os.path.join(_workdir, 'davai', 'logs')
-else:
-    default_logs_directory = os.path.join(davai_home, 'logs')
-if 'davai' in user_config.sections():
-    default_logs_directory = user_config['davai'].get('logs_directory', default_logs_directory)
-default_logs_directory = os.path.abspath(os.path.expanduser(default_logs_directory))
-
-default_usecase = 'NRV'
-if 'davai' in user_config.sections():
-    usecase = user_config['davai'].get('usecase', default_usecase)
+defaults = set_defaults()
 
 
 def guess_host():

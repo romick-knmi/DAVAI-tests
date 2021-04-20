@@ -18,7 +18,7 @@ import subprocess
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
 from davai_api import (this_repo, guess_host, general_config, user_config,
-                       default_XP_directory, default_logs_directory, default_usecase)
+                       defaults)
 
 DAVAI_HOST = guess_host()
 # CLEANME: repo will be in bundle
@@ -31,11 +31,11 @@ class AnXP(object):
 
     def __init__(self, IAL_git_ref,
                  IAL_repository=DAVAI_IAL_REPOSITORY,
-                 usecase=default_usecase,
+                 usecase=defaults['usecase'],
                  comment=None,
                  host=DAVAI_HOST,
-                 XP_directory=default_XP_directory,
-                 logs_directory=default_logs_directory,
+                 XP_directory=defaults['XP_directory'],
+                 logs_directory=defaults['logs_directory'],
                  dev_mode=False):
         """
         Initialize an XP.
@@ -170,11 +170,11 @@ class AnXP(object):
 def main(tests_version,
          IAL_git_ref,
          IAL_repository=DAVAI_IAL_REPOSITORY,
-         usecase=default_usecase,
+         usecase=defaults['usecase'],
          comment=None,
          host=DAVAI_HOST,
-         XP_directory=default_XP_directory,
-         logs_directory=default_logs_directory,
+         XP_directory=defaults['XP_directory'],
+         logs_directory=defaults['logs_directory'],
          dev_mode=False):
     """
     Setup an XP.
@@ -206,7 +206,7 @@ def main(tests_version,
               comment=comment,
               host=host,
               XP_directory=XP_directory,
-              logs_directory=default_logs_directory,
+              logs_directory=logs_directory,
               dev_mode=dev_mode)
     XP.setup()
 
@@ -224,19 +224,19 @@ if __name__ == '__main__':
                         help="Path to IFS-Arpege-LAM Git repository. " +
                              "Default ({}) can be set through $DAVAI_IAL_REPOSITORY".format(DAVAI_IAL_REPOSITORY))
     parser.add_argument('-u', '--usecase',
-                        default=default_usecase,
+                        default=defaults['usecase'],
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
-                             "More (PC, ...) to come. Defaults to: '{}'".format(default_usecase))
+                             "More (PC, ...) to come. Defaults to: '{}'".format(defaults['usecase']))
     parser.add_argument('-c', '--comment',
                         default=None,
                         help="Comment about experiment. Defaults to IAL_git_ref.")
     parser.add_argument('-d', '--XP_directory',
-                        default=default_XP_directory,
-                        help="Path to experiments directory (default: '{}').".format(default_XP_directory))
+                        default=defaults['XP_directory'],
+                        help="Path to experiments directory (default: '{}').".format(defaults['XP_directory']))
     parser.add_argument('-l', '--logs_directory',
                         help="path in which to store log files; defaults to: '{}'".format(
-                            default_logs_directory),
-                        default=default_logs_directory)
+                            defaults['logs_directory']),
+                        default=defaults['logs_directory'])
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +

@@ -15,15 +15,13 @@ import configparser
 # Automatically set the python path
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
-from davai_api import (davai_home, this_repo, user_config_file, 
-                       default_local_repo, default_XP_directory, default_logs_directory)
-
-# defaults
+from davai_api import (davai_home, this_repo, user_config_file,
+                       defaults, possible_defaults_in_user_config)
 
 
-def main(local_repo=default_local_repo,
-         XP_directory=default_XP_directory,
-         logs_directory=default_logs_directory):
+def main(local_repo=defaults['local_repo'],
+         XP_directory=defaults['XP_directory'],
+         logs_directory=defaults['logs_directory']):
     """
     Initialize Davai API for user.
     """
@@ -46,11 +44,11 @@ def main(local_repo=default_local_repo,
     # set user_config
     user_config = configparser.ConfigParser()
     user_config.add_section('davai')
-    if local_repo != default_local_repo:
+    if local_repo != defaults['local_repo']:
         user_config['davai']['local_repo'] = local_repo
-    if XP_directory != default_XP_directory:
+    if XP_directory != defaults['XP_directory']:
         user_config['davai']['XP_directory'] = XP_directory
-    if logs_directory != default_logs_directory:
+    if logs_directory != defaults['logs_directory']:
         user_config['davai']['logs_directory'] = logs_directory
     user_config.add_section('packages')
     if os.path.exists(user_config_file):
@@ -71,17 +69,24 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Initialize Davai API for user.")
     parser.add_argument('-r', '--local_repo',
                         help="path in which will be locally cloned the Davai API; defaults to: '{}'".format(
-                            default_local_repo),
-                        default=default_local_repo)
+                            defaults['local_repo']),
+                        default=defaults['local_repo'])
     parser.add_argument('-x', '--XP_directory',
                         help="path in which to create experiments; defaults to: '{}'".format(
-                            default_XP_directory),
-                        default=default_XP_directory)
+                            defaults['XP_directory']),
+                        default=defaults['XP_directory'])
     parser.add_argument('-l', '--logs_directory',
                         help="path in which to store log files; defaults to: '{}'".format(
-                            default_logs_directory),
-                        default=default_logs_directory)
+                            defaults['logs_directory']),
+                        default=defaults['logs_directory'])
+    parser.add_argument('-d', '--defaults',
+                        help=possible_defaults_in_user_config.__doc__,
+                        action='store_true')
     args = parser.parse_args()
+    if args.defaults:
+        print(possible_defaults_in_user_config.__doc__)
+        possible_defaults_in_user_config()
+        exit(0)
 
     main(**vars(args))
 

@@ -20,6 +20,7 @@ def main(local_repo=this_repo):
     os.chdir(local_repo)
     print("In '{}':".format(local_repo))
     subprocess.check_call(['git', 'fetch'])
+    # so that in case of detached HEAD, it will be updated too at the next use:
     subprocess.check_call(['git', 'checkout', 'master'])
     subprocess.check_call(['git', 'pull', 'origin', 'master', '--ff-only'])
 
