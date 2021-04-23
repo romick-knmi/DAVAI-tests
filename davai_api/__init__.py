@@ -13,6 +13,7 @@ import socket
 davai_home = os.path.join(os.environ['HOME'], '.davairc')
 this_repo = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 davai_api_name = os.path.basename(this_repo)
+davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
 
 # config
 general_config_file = os.path.join(this_repo, 'conf', 'general.ini')
@@ -85,4 +86,16 @@ def guess_host():
                          "in section 'hosts' of config files: ('{}', '{}')".format(
             socket_hostname, user_config_file, general_config_file))
     return host
+
+def next_xp_num():
+    """Get number of next Experiment."""
+    if not os.path.exists(davai_xp_counter):
+        num = 0
+    else:
+        with open(davai_xp_counter, 'r') as f:
+            num = int(f.readline())
+    next_num = num + 1
+    with open(davai_xp_counter, 'w') as f:
+        f.write(str(next_num))
+    return next_num
 
