@@ -15,7 +15,7 @@ Correspondance of tests version with IAL code to be tested
 
 | Basis of the dev | Nominal tests version | Reference XPID |
 |:-----------------|:----------------------|:---------------|
-| `CY48_T1cib.05` | `master` (temporarily) | |
-| `CY48_T1cib.01` | `on_CY48_T1cib.01` | |
-| `CY48` | `default4CY48` | |
+| `CY48_T1cib.05` | `master (temporarily)` | |
+| `CY48_T1cib.01` | `DV48_T1cib` | |
+| `CY48` | `DV48` | |
 

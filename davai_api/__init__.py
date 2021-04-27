@@ -34,7 +34,7 @@ def set_defaults():
         local_repo = user_config['davai'].get('local_repo', local_repo)
     defaults['local_repo'] = os.path.abspath(os.path.expanduser(local_repo))
     # XP directory
-    XP_directory = os.path.join(davai_home, 'experiments')
+    XP_directory = os.path.join(os.environ['HOME'], 'davai', 'experiments')
     if 'davai' in user_config.sections():
         XP_directory = user_config['davai'].get('XP_directory', XP_directory)
     defaults['XP_directory'] = os.path.abspath(os.path.expanduser(XP_directory))
@@ -43,7 +43,7 @@ def set_defaults():
     if _workdir:
         logs_directory = os.path.join(_workdir, 'davai', 'logs')
     else:
-        logs_directory = os.path.join(davai_home, 'logs')
+        logs_directory = os.path.join(os.environ['HOME'], 'davai', 'logs')
     if 'davai' in user_config.sections():
         logs_directory = user_config['davai'].get('logs_directory', logs_directory)
     defaults['logs_directory'] = os.path.abspath(os.path.expanduser(logs_directory))
