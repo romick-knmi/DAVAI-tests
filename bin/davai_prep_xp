@@ -57,7 +57,7 @@ class AnXP(object):
         self.IAL_repository = IAL_repository
         assert usecase in ('NRV', 'ELP'), "Usecase not implemented yet: " + usecase
         self.usecase = usecase
-        self.xpid = '{}%{:03}@{}'.format(IAL_git_ref, next_xp_num(), getpass.getuser())
+        self.xpid = '{:03}%{}@{}'.format(next_xp_num(), IAL_git_ref, getpass.getuser())
         self.ref_xpid = ref_xpid
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase.lower()
