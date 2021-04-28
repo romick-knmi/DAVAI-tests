@@ -32,7 +32,7 @@ class AnXP(object):
     def __init__(self, IAL_git_ref,
                  IAL_repository=DAVAI_IAL_REPOSITORY,
                  usecase=defaults['usecase'],
-                 ref_xpid=None,
+                 ref_xpid='NONE',
                  comment=None,
                  host=DAVAI_HOST,
                  XP_directory=defaults['XP_directory'],
@@ -173,7 +173,7 @@ def main(tests_version,
          IAL_git_ref,
          IAL_repository=DAVAI_IAL_REPOSITORY,
          usecase=defaults['usecase'],
-         ref_xpid=None,
+         ref_xpid='NONE',
          comment=None,
          host=DAVAI_HOST,
          XP_directory=defaults['XP_directory'],
@@ -233,7 +233,7 @@ if __name__ == '__main__':
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
                              "More (PC, ...) to come. Defaults to: '{}'".format(defaults['usecase']))
     parser.add_argument('-r', '--ref_xpid',
-                        default=None,
+                        default='NONE',
                         help="Reference XPID, to compare results to")
     parser.add_argument('-c', '--comment',
                         default=None,
