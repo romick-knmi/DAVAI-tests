@@ -232,7 +232,7 @@ if __name__ == '__main__':
                         default=defaults['usecase'],
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
                              "More (PC, ...) to come. Defaults to: '{}'".format(defaults['usecase']))
-    parser.add_argument('-r', 'ref_xpid',
+    parser.add_argument('-r', '--ref_xpid',
                         default=None,
                         help="Reference XPID, to compare results to")
     parser.add_argument('-c', '--comment',
