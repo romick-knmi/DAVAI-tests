@@ -87,6 +87,7 @@ def guess_host():
             socket_hostname, user_config_file, general_config_file))
     return host
 
+
 def next_xp_num():
     """Get number of next Experiment."""
     if not os.path.exists(davai_xp_counter):
@@ -98,4 +99,15 @@ def next_xp_num():
     with open(davai_xp_counter, 'w') as f:
         f.write(str(next_num))
     return next_num
+
+
+def get_in_config(section, variable):
+    """Get a variable from general/user config."""
+    value = None
+    for config in (user_config, general_config):
+        if section in config.sections():
+            if variable in config[section]:
+                value = config[section][variable]
+                break
+    return value
 
