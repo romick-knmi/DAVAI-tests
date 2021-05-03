@@ -14,6 +14,7 @@ $davai_mkjob_run task=assim.BSM_3D_arome name=BSM_3D_arome
 
 # Series of canonical forecasts
 #davai_mkjob_run task=forecasts.series name=fc-canonical-series
+davai_mkjob_run task=forecasts.ifs_forecast name=ifs_forecast
 
 # Series of canonical fullpos
 #davai_mkjob_run task=fullpos.series name=fullpos-canonical-series
