@@ -26,6 +26,7 @@ def setup(t, **kw):
 
 class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
+    #experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
     experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
     lead_expert = experts[0]
 
@@ -178,7 +179,8 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_output(
                 role           = 'ModelStateOut # gp atm',
-                block          = self._output_block(),
+                block          = self.output_block(),
+                experiment     = self.conf.xpid,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ICMUAFCST+{glob:term:\d+}',
@@ -189,7 +191,8 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_output(
                 role           = 'ModelStateOut # spec atm',
-                block          = self._output_block(),
+                block          = self.output_block(),
+                experiment     = self.conf.xpid,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ICMSHFCST+{glob:term:\d+}',
