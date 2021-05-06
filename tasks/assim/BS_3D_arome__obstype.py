@@ -16,7 +16,7 @@ from .screenings.screening_LAM3D import Screening
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arome', ticket=t, nodes=[
-            Family(tag='3dvar', ticket=t, nodes=[
+            Family(tag='3dvar3h', ticket=t, nodes=[
                 LoopFamily(tag='obstypes', ticket=t,
                     loopconf='obstypes',
                     loopsuffix='.{}',

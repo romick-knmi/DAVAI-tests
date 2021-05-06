@@ -15,7 +15,7 @@ from .screenings.screening import Screening
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            Family(tag='3dvar', ticket=t, nodes=[
+            Family(tag='3dvar3h', ticket=t, nodes=[
                 LoopFamily(tag='obstype', ticket=t,
                     loopconf='obstypes',
                     loopsuffix='.{}',

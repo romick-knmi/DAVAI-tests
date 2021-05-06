@@ -13,25 +13,18 @@ import davai
 from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-def setup(t, **kw):
-    return Driver(tag='drv', ticket=t, options=kw, nodes=[
-        Family(tag='ifs', ticket=t, nodes=[
-            Family(tag='fcst', ticket=t, nodes=[
-                IFS_Forecast(tag='ifs_forecast', ticket=t, **kw),
-                ], **kw),
-            ], **kw),
-        ],
-    )
+class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-
-class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
-
-    #experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
+    experts = [FPDict({'kind':'fields_in_file'})]
     lead_expert = experts[0]
 
+    def _input_pgd_block(self):
+        return '.'.join(['pgd',
+                         self.conf.geometry.tag])
+
     def output_block(self):
-        return '.'.join([self.tag])
+        return '.'.join([self.tag,
+                         self.conf.geometry.tag])
 
     def process(self):
         self._wrapped_init()
@@ -39,14 +32,13 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_promise(**self._promised_listing())
             self._wrapped_promise(**self._promised_expertise())
             #-------------------------------------------------------------------------------
 
         # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
-            self._wrapped_input(**self._reference_continuity_listing())
+            #TODO: ref IC file # self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
@@ -54,38 +46,36 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'RrtmConst',
-                format         = 'unknown',
+                role           = 'CoverParams',
+                format         = 'foo',
                 genv           = self.conf.commonenv,
-                kind           = 'rrtm',
-                local          = 'rrtm.const.tgz',
+                kind           = 'coverparams',
+                local          = 'ecoclimap_covers_param.tgz',
+                source         = 'ecoclimap',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Initial Clim',  # PGD
+                format         = 'fa',
+                genv           = self.conf.appenv,
+                geometry       = self.conf.prep_initial_geometry,
+                kind           = 'pgdfa',
+                local          = 'PGD1.[format]',
+                gvar           = 'pgd_fa_[geometry::tag]',
             )
             #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            #-------------------------------------------------------------------------------
-            tbport = self._wrapped_input(
-                role           = 'PortabilityNamelist',
-                binary         = 'arpifs',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                intent         = 'in',
-                kind           = 'namelist',
-                local          = 'portability.nam',
-                source         = 'portability/{}'.format(self.conf.target_host),
-            )
-            #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
                 binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_dfi       = (update_namelist, tbport),
                 intent         = 'inout',
                 kind           = 'namelist',
-                local          = 'fort.4',
-                source         = 'IFS/namelist_fc',
+                local          = 'OPTIONS.nam',
+                source         = 'SFX/{}/namel_prep'.format(self.conf.model),
             )
             #-------------------------------------------------------------------------------
 
@@ -96,8 +86,8 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Binary',
                 binmap         = 'gmap',
                 format         = 'bullx',
-                kind           = 'ifsmodel',
-                local          = 'IFS.X',
+                kind           = 'prep',
+                local          = 'PREP.X',
                 remote         = self.guess_pack(),
                 setcontent     = 'binaries',
             )
@@ -105,47 +95,16 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_store
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'ModelStateIn # spec atm',
-                block          = 'init',
-                date           = self.conf.rundate,
+                role           = 'Surface Initial Conditions',
+                block          = 'forecast',
                 experiment     = self.conf.input_store,
-                format         = '[nativefmt]',
+                format         = 'fa',
+                geometry       = self.conf.prep_initial_geometry,
                 kind           = 'historic',
-                local          = 'ICMSHFCSTINIT',
-                nativefmt      = 'grib',
-                subset         = 'specatm',
-                term           = 0,
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'ModelStateIn # gp atm',
-                block          = 'init',
-                date           = self.conf.rundate,
-                experiment     = self.conf.input_store,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ICMGGFCSTINIUA',
-                nativefmt      = 'grib',
-                subset         = 'gpatm',
-                term           = 0,
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'ModelStateIn # surf',
-                block          = 'init',
-                date           = self.conf.rundate,
-                experiment     = self.conf.input_store,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ICMGGFCSTINIT',
-                nativefmt      = 'grib',
-                subset         = 'gpsurf',
+                local          = 'PREP1.[format]',
+                model          = 'surfex',
+                origin         = 'forecast',
                 term           = 0,
                 vapp           = self.conf.stores_vapp,
                 vconf          = self.conf.stores_vconf,
@@ -154,7 +113,16 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            pass
+            self._wrapped_input(
+                role           = 'Target Clim',  # PGD
+                block          = self._input_pgd_block(),
+                experiment     = self.conf.xpid,
+                format         = 'fa',
+                geometry       = self.conf.geometry,
+                kind           = 'pgdfa',
+                local          = 'PGD.[format]',
+                gvar           = 'pgd_fa_[geometry::tag]',
+            )
             #-------------------------------------------------------------------------------
 
         # 2.2/ Compute step
@@ -162,10 +130,9 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
-                drhookprof     = self.conf.drhook_profiling,
-                engine         = 'parallel',
-                kind           = 'forecast',
-                #timestep       = self.conf.timestep,
+                engine         = 'blind',
+                kind           = 'prep',
+                underlyingformat = 'fa',
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
@@ -178,27 +145,12 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'backup' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_output(
-                role           = 'ModelStateOut # gp atm',
+                role           = 'Target Surface Conditions',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ICMUAFCST+{glob:term:\d+}',
-                nativefmt      = 'grib',
-                subset         = 'gpatm',
-                term           = '[glob:term]',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_output(
-                role           = 'ModelStateOut # spec atm',
-                block          = self.output_block(),
-                experiment     = self.conf.xpid,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ICMSHFCST+{glob:term:\d+}',
-                nativefmt      = 'grib',
-                subset         = 'specatm',
-                term           = '[glob:term]',
+                format         = 'fa',
+                kind           = 'ic',
+                local          = 'PREP1_interpolated.[format]',
             )
             #-------------------------------------------------------------------------------
 
@@ -211,7 +163,5 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 3.0.2/ Other output resources of possible interest:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_listing())
-            self._wrapped_output(**self._output_stdeo())
-            self._wrapped_output(**self._output_drhook_profiles())
             #-------------------------------------------------------------------------------
 
