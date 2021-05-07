@@ -94,52 +94,52 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'ModelStateIn # spec atm',
                 block          = 'init',
                 date           = self.conf.rundate,
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ICMSHFCSTINIT',
                 nativefmt      = 'grib',
                 subset         = 'specatm',
                 term           = 0,
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'ModelStateIn # gp atm',
                 block          = 'init',
                 date           = self.conf.rundate,
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ICMGGFCSTINIUA',
                 nativefmt      = 'grib',
                 subset         = 'gpatm',
                 term           = 0,
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'ModelStateIn # surf',
                 block          = 'init',
                 date           = self.conf.rundate,
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ICMGGFCSTINIT',
                 nativefmt      = 'grib',
                 subset         = 'gpsurf',
                 term           = 0,
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 

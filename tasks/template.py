@@ -43,7 +43,7 @@ class EmptyTemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             pass
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------
@@ -79,16 +79,15 @@ class TemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
     lead_expert = experts[0]
 
-    def output_block(self):
-        return '.'.join([self.tag,
-                         self.conf.model,
-                         self.NDVar])
-
-    def _obs_input_block(self):
+    def _flow_obs_input_block(self):
         return '.'.join(['batorodb' + self._tag_suffix(),
                          self.conf.model,
                          self.NDVar])
 
+    def output_block(self):
+        return '.'.join([self.tag,
+                         self.conf.model,
+                         self.NDVar])
 
     def process(self):
         self._wrapped_init()
@@ -155,17 +154,19 @@ class TemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'Guess',
                 block          = 'forecast',
                 date           = '{0:s}/-PT6H'.format(self.conf.rundate.ymdh),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHSCREINIT',
                 term           = self.conf.guess_term,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 
@@ -173,7 +174,7 @@ class TemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'fetch' in self.steps:
             tbmap = self._wrapped_input(
                 role           = 'Obsmap',
-                block          = self._obs_input_block(),
+                block          = self._flow_obs_input_block(),
                 experiment     = self.conf.xpid,
                 format         = 'ascii',
                 kind           = 'obsmap',
@@ -183,7 +184,7 @@ class TemplateTask(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Observations',
-                block          = self._obs_input_block(),
+                block          = self._flow_obs_input_block(),
                 experiment     = self.conf.xpid,
                 format         = 'odb',
                 intent         = 'inout',

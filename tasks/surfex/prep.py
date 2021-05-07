@@ -18,7 +18,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     experts = [FPDict({'kind':'fields_in_file'})]
     lead_expert = experts[0]
 
-    def _input_pgd_block(self):
+    def _flow_input_pgd_block(self):
         return '.'.join(['pgd',
                          self.conf.geometry.tag])
 
@@ -63,6 +63,18 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'PGD1.[format]',
                 gvar           = 'pgd_fa_[geometry::tag]',
             )
+            if self.conf.prep_source_pgd == 'static':
+                # else: 2.1
+                self._wrapped_input(
+                    role           = 'Target Clim',  # PGD
+                    format         = 'fa',
+                    genv           = self.conf.appenv,
+                    geometry       = self.conf.geometry,
+                    kind           = 'pgdfa',
+                    local          = 'PGD.[format]',
+                    gvar           = 'pgd_fa_[geometry::tag]',
+                )
+
             #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
@@ -93,12 +105,12 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'Surface Initial Conditions',
                 block          = 'forecast',
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 geometry       = self.conf.prep_initial_geometry,
                 kind           = 'historic',
@@ -106,23 +118,24 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 model          = 'surfex',
                 origin         = 'forecast',
                 term           = 0,
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            self._wrapped_input(
-                role           = 'Target Clim',  # PGD
-                block          = self._input_pgd_block(),
-                experiment     = self.conf.xpid,
-                format         = 'fa',
-                geometry       = self.conf.geometry,
-                kind           = 'pgdfa',
-                local          = 'PGD.[format]',
-                gvar           = 'pgd_fa_[geometry::tag]',
-            )
+            if self.conf.prep_source_pgd == 'flow':
+                # else: 1.1.1
+                self._wrapped_input(
+                    role           = 'Target Clim',  # PGD
+                    block          = self._flow_input_pgd_block(),
+                    experiment     = self.conf.xpid,
+                    format         = 'fa',
+                    geometry       = self.conf.geometry,
+                    kind           = 'pgdfa',
+                    local          = 'PGD.[format]',
+                )
             #-------------------------------------------------------------------------------
 
         # 2.2/ Compute step

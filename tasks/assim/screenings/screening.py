@@ -224,62 +224,62 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'BackgroundStdError',
                 block          = 'sigmab',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'grib',
                 kind           = 'bgstderr',
                 local          = 'errgrib.[variable]',
                 stage          = 'scr',
                 term           = self.conf.cyclestep,
                 variable       = 'u,v,t,q,r,lnsp,gh,btmp,vo',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'SurfaceGuess',
                 block          = 'forecast',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHSCREINIT.sfx',
                 model          = 'surfex',
                 term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
                 block          = 'forecast',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHSCREINIT',
                 term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'VarBC',
                 block          = '4dupd2',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'ascii',
                 intent         = 'inout',
                 kind           = 'varbc',
                 local          = 'VARBC.cycle',
                 stage          = 'traj',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 
