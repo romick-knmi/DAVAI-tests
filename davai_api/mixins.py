@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Mixins for AlgoComponents, containing useful functionalities.
+Mixins for Tasks, containing useful functionalities.
 """
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from vortex import toolbox
-from davai.algos.mixins import context_info_for_task_summary
 from bronx.stdtypes.date import Period
+from davai.algos.mixins import context_info_for_task_summary
 
 
 class IncludesTaskMixin(object):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Useful objects/functions.
+Handle a Davai experiment.
 """
 
 from __future__ import print_function, absolute_import, division, unicode_literals
