@@ -10,7 +10,7 @@ from vortex.layout.nodes import Task
 import davai
 
 from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_tbx.hooks import hook_adjust_DFI, hook_gnam
+from davai_api.hooks import hook_adjust_DFI, hook_gnam
 
 
 # FIXME: had to remove .ymdh from self.conf.rundate (LoopFamily on rundates)

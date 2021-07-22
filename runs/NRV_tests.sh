@@ -16,7 +16,7 @@ $davai_mkjob_run task=assim.BSM_3D_arome name=BSM_3D_arome
 
 # Series of canonical forecasts
 # -----------------------------
-$davai_mkjob_run task=forecasts.F_ifs.py name=F_ifs
+$davai_mkjob_run task=forecasts.F_ifs name=F_ifs
 # PPF = PGD-Prep-Forecast
 $davai_mkjob_run task=forecasts.PPF_arpege name=PPF_arpege
 #davai_mkjob_run task=forecasts.series name=fc-canonical-series

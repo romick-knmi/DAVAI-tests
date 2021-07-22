@@ -16,9 +16,9 @@ from tasks.surfex.prep import Prep
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            #Family(tag='physio_arp', ticket=t, nodes=[
-            #    PGD(tag='pgd', ticket=t, **kw),
-            #    ], **kw),
+            Family(tag='physio_arp', ticket=t, nodes=[
+                PGD(tag='pgd', ticket=t, **kw),
+                ], **kw),
             Prep(tag='prep', ticket=t, **kw),
                 #Forecast(tag='pgd', ticket=t, **kw),
                 #], **kw),

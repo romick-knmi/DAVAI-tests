@@ -11,7 +11,7 @@ from common.util.hooks import update_namelist
 import davai
 
 from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_tbx.hooks import hook_temporary_OOPS_3DVar_fix, hook_OOPS_2_CNT0
+from davai_api.hooks import hook_temporary_OOPS_3DVar_fix, hook_OOPS_2_CNT0
 
 
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):

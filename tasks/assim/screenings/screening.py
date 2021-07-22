@@ -10,7 +10,7 @@ from vortex.layout.nodes import Task
 import davai
 
 from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_tbx.hooks import hook_adjust_DFI
+from davai_api.hooks import hook_adjust_DFI
 
 
 class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
