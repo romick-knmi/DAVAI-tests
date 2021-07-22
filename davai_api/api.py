@@ -11,7 +11,7 @@ import configparser
 import socket
 
 davai_home = os.path.join(os.environ['HOME'], '.davairc')
-this_repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+this_repo = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 davai_api_name = os.path.basename(this_repo)
 davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
 
