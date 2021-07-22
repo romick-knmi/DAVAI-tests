@@ -13,7 +13,7 @@ import sys
 # Automatically set the python path
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
-from davai_api import this_repo
+from davai_api.api import this_repo
 
 
 def main(local_repo=this_repo):

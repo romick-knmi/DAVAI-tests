@@ -10,7 +10,7 @@ from vortex.layout.nodes import Task, Family, Driver
 from common.util.hooks import update_namelist
 import davai
 
-from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_api.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
 class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):

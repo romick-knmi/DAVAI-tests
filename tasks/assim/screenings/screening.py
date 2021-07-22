@@ -9,7 +9,7 @@ from vortex import toolbox
 from vortex.layout.nodes import Task
 import davai
 
-from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_api.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 from davai_api.hooks import hook_adjust_DFI
 
 

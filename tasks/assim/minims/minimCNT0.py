@@ -10,7 +10,7 @@ from vortex.layout.nodes import Task
 from common.util.hooks import update_namelist
 import davai
 
-from davai_api.jobs_mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_api.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 from davai_api.hooks import hook_temporary_OOPS_3DVar_fix, hook_OOPS_2_CNT0
 
 

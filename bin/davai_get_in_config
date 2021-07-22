@@ -12,7 +12,7 @@ import argparse
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
 
-from davai_api import get_in_config
+from davai_api.api import get_in_config
 
 
 if __name__ == '__main__':
