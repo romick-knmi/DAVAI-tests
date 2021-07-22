@@ -133,13 +133,13 @@ class BatorODB(Task, DavaiTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             obstype = self.conf.get('obstype', None)
             tbmap = self._wrapped_input(
                 role           = 'Obsmap',
                 block          = 'obsraw',
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'ascii',
                 kind           = 'obsmap',
                 local          = 'batodb_map',
@@ -147,14 +147,14 @@ class BatorODB(Task, DavaiTaskMixin):
                 only           = FPSet([obstype]) if obstype else None,
                 discard        = FPSet([self.conf.discard_obstype]) if 'discard_obstype' in self.conf else None,
                 stage          = 'extract',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Observations',
                 block          = 'obsraw',
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 fatal          = False,
                 format         = '[helper:getfmt]',
                 helper         = tbmap[0].contents,
@@ -162,32 +162,32 @@ class BatorODB(Task, DavaiTaskMixin):
                 local          = '[actualfmt].[part]',
                 part           = tbmap[0].contents.dataset(),
                 stage          = 'extract',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'BlacklistGlobal',
                 block          = 'obsraw',
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'ascii',
                 kind           = 'blacklist',
                 local          = 'LISTE_NOIRE_DIAP',
                 scope          = 'global',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'BlacklistLocal',
                 block          = 'obsraw',
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'ascii',
                 kind           = 'blacklist',
                 local          = 'LISTE_LOC',
                 scope          = 'local',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 

@@ -21,7 +21,8 @@ from davai_api import (davai_home, this_repo, user_config_file,
 
 def main(local_repo=defaults['local_repo'],
          XP_directory=defaults['XP_directory'],
-         logs_directory=defaults['logs_directory']):
+         logs_directory=defaults['logs_directory'],
+         **_):
     """
     Initialize Davai API for user.
     """

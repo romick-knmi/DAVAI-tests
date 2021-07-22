@@ -5,6 +5,7 @@ echo "    davai_init                     => initialize Davai API"
 echo "    davai_prep_xp                  => prepare a testing experiment"
 echo "    davai_update_api               => update Davai API"
 echo "    davai_guess_host               => guess host platform name"
+echo "    davai_shelf                    => move *shelves* of input data"
 echo "    (Help available with option -h for each command)"
 echo "-------------------------------------------------------------------------"
 

@@ -215,74 +215,74 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'BackgroundStdError',
                 block          = 'sigmab',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'grib',
                 kind           = 'bgstderr',
                 local          = 'errgrib.[variable]',
                 stage          = 'vor',
                 term           = '3',  # FIXME: self.guess_term(force_window_start=True),
                 variable       = ['vo','ucdv','lnsp','t','q'],
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
                 block          = 'forecast',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHMINIINIT',
                 term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'InitialCondition',
                 block          = 'forecast',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHMINIIMIN',
                 term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Background',
                 block          = 'forecast',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMRFMINI0000',
                 term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'VarBC',
                 block          = '4dupd2',
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'ascii',
                 intent         = 'inout',
                 kind           = 'varbc',
                 local          = 'VARBC.cycle',
                 stage          = 'traj',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 

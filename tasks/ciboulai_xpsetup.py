@@ -25,8 +25,8 @@ class CiboulaiXpSetup(Task):
                 'gmkpack_compiler_label', 'gmkpack_packtype', 'gmkpack_compiler_flag',  # for packname
                 'HOMEPACK',  # for packname (path)
                 'comment', 'usecase', 'ref_xpid',  # the xp itself
-                'appenv_LAM', 'appenv_global', 'commonenv', 'appenv_clim',  # shelves: env
-                'input_store_LAM', 'input_store_global',  # shelves: input stores
+                'appenv_LAM', 'appenv_global', 'commonenv', 'appenv_clim',  # uenv's
+                'input_shelf_LAM', 'input_shelf_global',  # input shelves
                 )
 
     def _set_env_from_conf(self):

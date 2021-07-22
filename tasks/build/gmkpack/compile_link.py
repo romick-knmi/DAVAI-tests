@@ -56,7 +56,7 @@ class PackCompileLink(Task, DavaiTaskMixin):
             pass
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             pass
             #-------------------------------------------------------------------------------

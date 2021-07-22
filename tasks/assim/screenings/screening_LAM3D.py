@@ -199,13 +199,13 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_store
+        # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'BackgroundStdError',
                 block          = 'sigmab',
                 date           = '{}/-{}'.format(self.conf.rundate, 'PT6H'),  # FIXME: should be sthg like: self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'grib',
                 geometry       = 'globalupd224',
                 kind           = 'bgstderr',
@@ -214,21 +214,21 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 stage          = 'scr',
                 term           = 'PT6H',  # FIXME: should be sthg like: self.conf.cyclestep,
                 variable       = 'u,v,t,q,r,lnsp,gh,btmp,vo',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
                 block          = 'cplguess',
                 date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
                 local          = 'ICMSHSCREINIT',
                 term           = self.guess_term(),
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             # FIXME: not consistent with oper arome (merge_varbc)
@@ -236,14 +236,14 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'VarBC',
                 block          = 'minim',
                 date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
-                experiment     = self.conf.input_store,
+                experiment     = self.conf.input_shelf,
                 format         = 'ascii',
                 intent         = 'inout',
                 kind           = 'varbc',
                 local          = 'VARBC.cycle',
                 stage          = 'traj',
-                vapp           = self.conf.stores_vapp,
-                vconf          = self.conf.stores_vconf,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
 

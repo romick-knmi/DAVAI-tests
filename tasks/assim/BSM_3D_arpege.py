@@ -15,7 +15,7 @@ from .minims.minimOOPS import Minim as MinimOOPS
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            Family(tag='3dvar', ticket=t, nodes=[
+            Family(tag='3dvar3h', ticket=t, nodes=[
                 BatorODB(tag='batodb', ticket=t, **kw),
                 Screening(tag='screening', ticket=t, **kw),
                 # delayed_fail to let the minimOOPS run before raising error
