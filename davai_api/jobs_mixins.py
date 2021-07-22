@@ -4,6 +4,8 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from vortex import toolbox
+from davai.algos.mixins import context_info_for_task_summary
+from bronx.stdtypes.date import Period
 
 
 class IncludesTaskMixin(object):
@@ -138,7 +140,6 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         return '4DVar' if int(self.conf.timeslots) > 1 else '3DVar'
 
     def guess_term(self, force_window_start=False):
-        from bronx.stdtypes.date import Period
         term = Period(self.conf.cyclestep)
         if self.NDVar == '4DVar' or force_window_start:
             # withdraw to window start
@@ -260,14 +261,18 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     def _notify_start(self):
         """At the very beginning of the task, notify Ciboulai that the task has started."""
         if 'early-fetch' in self.steps:
-            from davai_tbx.expertise import write_expected_task_summary
-            notif = '.started.json'
-            write_expected_task_summary(self.ticket.context, notif)
+            from ial_expertise.task import TaskSummary
+            notification_file = '.started.json'
+            task_summary = TaskSummary()
+            task_summary['Status'] = task_status['...']
+            task_summary['Context'] = context_info_for_task_summary(self.context)
+            task_summary['Updated'] = date.utcnow().isoformat().split('.')[0]
+            task_summary.dump(notification_file)
             description = self._output_expertise()
-            description['local'] = notif
+            description['local'] = notification_file
             description['namespace'] = 'vortex.cache.fr'
             toolbox.output(**description)
-            self.ticket.sh.remove(notif)
+            self.ticket.sh.remove(notification_file)
 
     def _output_expertise(self):
         return dict(
