@@ -1,35 +1,36 @@
 #!/usr/bin/bash
 
-host=$(davai_guess_host)
-local_profile="rd-$host-mt"
-davai_mkjob_run="python vortex/bin/mkjob.py -j profile=$local_profile"
+vapp=$(basename $(dirname $PWD))
+vconf=$(basename $PWD)
+local_profile=$(grep mkjob_profile conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}')
+davai_server=$(grep davai_server conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}')
+DAVAI_MKJOB_RUN="python vortex/bin/mkjob.py -j profile=$local_profile"
 
 
 
 # Arpege 4D Bator+Screening+Minim
 # -------------------------------
-$davai_mkjob_run task=assim.BSM_4D_arpege name=BSM_4D_arpege
+$DAVAI_MKJOB_RUN task=assim.BSM_4D_arpege name=BSM_4D_arpege
 
 # Arome 3D Bator+Screening+Minim
 # ------------------------------
-$davai_mkjob_run task=assim.BSM_3D_arome name=BSM_3D_arome
+$DAVAI_MKJOB_RUN task=assim.BSM_3D_arome name=BSM_3D_arome
 
 # Series of canonical forecasts
 # -----------------------------
-$davai_mkjob_run task=forecasts.F_ifs name=F_ifs
+$DAVAI_MKJOB_RUN task=forecasts.F_ifs name=F_ifs
 # PPF = PGD-Prep-Forecast
-$davai_mkjob_run task=forecasts.PPF_arpege name=PPF_arpege
-#davai_mkjob_run task=forecasts.series name=fc-canonical-series
+$DAVAI_MKJOB_RUN task=forecasts.PPF_arpege name=PPF_arpege
+#DAVAI_MKJOB_RUN task=forecasts.series name=fc-canonical-series
 
 # Series of canonical fullpos
 # ---------------------------
-#davai_mkjob_run task=fullpos.series name=fullpos-canonical-series
+#DAVAI_MKJOB_RUN task=fullpos.series name=fullpos-canonical-series
 
 
 
 echo ""
 echo "===================================================================================================="
 echo "=== DAVAI NRV test bench launched through job scheduler !"
-davai_server=$(grep davai_server conf/davai_*.ini | head -n 1 | awk -F '=' '{print $2}')
 echo "=== Checkout Ciboulai for results: $davai_server "
 echo "===================================================================================================="

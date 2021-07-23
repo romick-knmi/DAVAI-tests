@@ -1,7 +1,8 @@
 #/usr/bin/bash
 
-host=$(davai_guess_host)
-local_profile="rd-$host-mt"
+vapp=$(basename $(dirname $PWD))
+vconf=$(basename $PWD)
+local_profile=`grep mkjob_profile conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}'`
 davai_mkjob_run="python vortex/bin/mkjob.py -j profile=$local_profile"
 
 # build
