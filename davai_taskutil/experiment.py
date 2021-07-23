@@ -12,9 +12,8 @@ import sys
 import os
 
 from bronx.stdtypes import date
-import ial_expertise
 
-from . import __version__
+from . import __version__ as tests_version
 
 
 class XPMetadata(object):
@@ -28,8 +27,7 @@ class XPMetadata(object):
             ref_xpid = None
         self._dict = {'xpid':xpid,
                       'initial_time_of_launch':date.utcnow().isoformat().split('.')[0],
-                      'davai_api':__version__,
-                      'ial_expertise':ial_expertise.__version__,
+                      'davai_tests':tests_version
                       'user':os.environ['USER'],
                       # absent-safe
                       'ref_xpid':ref_xpid,
@@ -102,3 +100,4 @@ class XPMetadata(object):
         """Dump in file (xpinfo.json)."""
         with open('xpinfo.json', 'w') as out:
             json.dump(self._dict, out, indent=4, sort_keys=True)
+

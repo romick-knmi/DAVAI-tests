@@ -6,7 +6,7 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver, Family
 
-from davai_api.mixins import DavaiTaskMixin
+from davai_taskutil.mixins import DavaiTaskMixin
 
 
 def setup(t, **kw):
