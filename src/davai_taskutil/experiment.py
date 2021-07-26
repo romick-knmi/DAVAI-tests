@@ -27,7 +27,6 @@ class XPMetadata(object):
             ref_xpid = None
         self._dict = {'xpid':xpid,
                       'initial_time_of_launch':date.utcnow().isoformat().split('.')[0],
-                      'davai_tests':tests_version
                       'user':os.environ['USER'],
                       # absent-safe
                       'ref_xpid':ref_xpid,

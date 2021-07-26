@@ -8,7 +8,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 from vortex import toolbox
 from bronx.stdtypes.date import Period
-from davai.algos.mixins import context_info_for_task_summary  # a function in vortex
+from davai.algo.mixins import context_info_for_task_summary  # a function in vortex
 
 
 class IncludesTaskMixin(object):

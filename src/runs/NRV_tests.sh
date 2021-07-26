@@ -3,7 +3,7 @@
 # find appropriate mkjob profile in config file, and prepare commandline
 vapp=$(basename $(dirname $PWD))
 vconf=$(basename $PWD)
-local_profile=$(grep mkjob_profile conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}')
+local_profile=$(grep mkjob_profile conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}' | xargs)
 DAVAI_MKJOB_RUN="python vortex/bin/mkjob.py -j profile=$local_profile"
 DAVAI_SERVER=$(grep davai_server conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}')
 
