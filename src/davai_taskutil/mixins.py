@@ -7,7 +7,7 @@ Mixins for Tasks, containing useful functionalities.
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from vortex import toolbox
-from bronx.stdtypes.date import Period
+from bronx.stdtypes.date import Period, utcnow
 from davai.algo.mixins import context_info_for_task_summary  # a function in vortex
 
 
@@ -165,7 +165,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
     def guess_pack(self, abspath=True, to_bin=True):
         """Guess and return pack according to self.conf"""
-        from ia4h_scm.algos import guess_packname
+        from ial_build.algos import guess_packname
         return guess_packname(self.conf.IAL_git_ref,
                               self.conf.gmkpack_compiler_label,
                               self.conf.gmkpack_packtype,
@@ -264,12 +264,12 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     def _notify_start(self):
         """At the very beginning of the task, notify Ciboulai that the task has started."""
         if 'early-fetch' in self.steps:
-            from ial_expertise.task import TaskSummary
+            from ial_expertise.task import TaskSummary, task_status
             notification_file = '.started.json'
             task_summary = TaskSummary()
             task_summary['Status'] = task_status['...']
-            task_summary['Context'] = context_info_for_task_summary(self.context)
-            task_summary['Updated'] = date.utcnow().isoformat().split('.')[0]
+            task_summary['Context'] = context_info_for_task_summary(self.ticket.context)
+            task_summary['Updated'] = utcnow().isoformat().split('.')[0]
             task_summary.dump(notification_file)
             description = self._output_expertise()
             description['local'] = notification_file

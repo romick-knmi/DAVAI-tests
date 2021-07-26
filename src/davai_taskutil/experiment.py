@@ -47,7 +47,7 @@ class XPMetadata(object):
         self._set_details()
 
     def _gmkpack_info(self):
-        from ia4h_scm.algos import guess_packname
+        from ial_build.algos import guess_packname
         pack = guess_packname(os.environ.get('IA4H_GITREF', os.environ.get('IAL_GIT_REF')),
                               os.environ.get('GMKPACK_COMPILER_LABEL'),
                               os.environ.get('GMKPACK_PACKTYPE'),
