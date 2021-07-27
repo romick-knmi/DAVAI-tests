@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+# RUN THE NRV-SET OF TESTS
 
 # ASSIM
 # =====

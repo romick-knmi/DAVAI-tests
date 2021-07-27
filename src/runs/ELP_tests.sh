@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+# RUN THE ELP-SET OF TESTS
 
 # ASSIM
 # =====

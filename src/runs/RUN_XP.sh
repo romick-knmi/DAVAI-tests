@@ -1,4 +1,5 @@
 #/usr/bin/bash
+# RUN THE EXPERIMENT ENTIRELY FROM SCRATCH
 
 # 1. Setup ciboulai XP
 ./setup_ciboulai.sh
