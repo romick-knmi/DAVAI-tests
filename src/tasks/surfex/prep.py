@@ -63,7 +63,8 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'PGD1.[format]',
                 gvar           = 'pgd_fa_[geometry::tag]',
             )
-            if self.conf.prep_source_pgd == 'static':
+            #-------------------------------------------------------------------------------
+            if self.conf.pgd_source == 'static':
                 # else: 2.1
                 self._wrapped_input(
                     role           = 'Target Clim',  # PGD
@@ -74,7 +75,6 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                     local          = 'PGD.[format]',
                     gvar           = 'pgd_fa_[geometry::tag]',
                 )
-
             #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
@@ -125,7 +125,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            if self.conf.prep_source_pgd == 'flow':
+            if self.conf.pgd_source == 'flow':
                 # else: 1.1.1
                 self._wrapped_input(
                     role           = 'Target Clim',  # PGD
@@ -161,9 +161,11 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Target Surface Conditions',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
+                filling        = 'surf',
                 format         = 'fa',
                 kind           = 'ic',
                 local          = 'PREP1_interpolated.[format]',
+                model          = 'surfex',
             )
             #-------------------------------------------------------------------------------
 
