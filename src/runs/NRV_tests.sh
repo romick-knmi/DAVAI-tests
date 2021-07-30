@@ -4,22 +4,23 @@
 # ASSIM
 # =====
 # BSM = Bator+Screening+Minim
-./runjob.py -t assim.BSM_4D_arpege -n BSM_4D_arpege
-./runjob.py -t assim.BSM_3D_arome -n BSM_3D_arome
+python3 vortex/bin/mkjob.py task=assim.BSM_4D_arpege name=BSM_4D_arpege
+python3 vortex/bin/mkjob.py task=assim.BSM_3D_arome name=BSM_3D_arome
 
 # FORECASTS
 # =========
 # F_ifs = Forecast IFS
-./runjob.py -t forecasts.F_ifs -n F_ifs
+python3 vortex/bin/mkjob.py task=forecasts.F_ifs name=F_ifs
 # PPF = PGD-Prep-Forecast
-./runjob.py -t forecasts.PPF_arpege -n PPF_arpege
-./runjob.py -t forecasts.PPF_arome -n PPF_arome
-#./runjob.py -t forecasts.series -n fc-canonical-series
+python3 vortex/bin/mkjob.py task=forecasts.PPF_arpege name=PPF_arpege
+python3 vortex/bin/mkjob.py task=forecasts.PPF_arome name=PPF_arome
+#python3 vortex/bin/mkjob.py task=forecasts.series name=fc-canonical-series
 
 # FULLPOS
 # =======
-#./runjob.py -t fullpos.series -n fullpos-canonical-series
+#python3 vortex/bin/mkjob.py task=fullpos.series name=fullpos-canonical-series
 
+# ... (to be completed)
 
 # ---------------------------------------------------------------------------------------------------------
 vapp=$(basename $(dirname $PWD))

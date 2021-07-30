@@ -16,8 +16,8 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     # TODO: add fields_in_file
-    #experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
+    experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
+    #experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
     lead_expert = experts[0]
 
     def output_block(self):
@@ -38,6 +38,30 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Reference',  # ModelState gp atm
+                block          = self.output_block(),
+                experiment     = self.conf.ref_xpid,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ref.ICMUAFCST+{:06d}'.format(int(self.conf.expertise_term)),
+                nativefmt      = 'grib',
+                subset         = 'gpatm',
+                term           = self.conf.expertise_term,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Reference',  # ModelState spec atm
+                block          = self.output_block(),
+                experiment     = self.conf.ref_xpid,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ref.ICMSHFCST+{:06d}'.format(int(self.conf.expertise_term)),
+                nativefmt      = 'grib',
+                subset         = 'specatm',
+                term           = self.conf.expertise_term,
+            )
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:

@@ -10,7 +10,7 @@ from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from tasks.surfex.pgd import PGD
 from tasks.surfex.prep import Prep
-from .models.arpege import ArpegeForecast as Forecast
+from .models.arpege import StandaloneArpegeForecast as Forecast
 
 
 def setup(t, **kw):

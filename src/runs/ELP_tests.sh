@@ -7,14 +7,15 @@
 # __obstype indicates one Bator+Screening execution per obstype
 # -------------------------------------------------------------
 # Arpege
-./runjob.py -t assim.BSM_3D_arpege -n BSM_3D_arpege
-./runjob.py -t assim.BSM_4D_arpege -n BSM_4D_arpege
-./runjob.py -t assim.BS_3D_arpege__obstype -n BS_3D_arpege__obstype
-./runjob.py -t assim.BS_4D_arpege__obstype -n BS_4D_arpege__obstype
+python3 vortex/bin/mkjob.py task=assim.BSM_3D_arpege name=BSM_3D_arpege
+python3 vortex/bin/mkjob.py task=assim.BSM_4D_arpege name=BSM_4D_arpege
+python3 vortex/bin/mkjob.py task=assim.BS_3D_arpege__obstype name=BS_3D_arpege__obstype
+python3 vortex/bin/mkjob.py task=assim.BS_4D_arpege__obstype name=BS_4D_arpege__obstype
 # Arome
-./runjob.py -t assim.BSM_3D_arome -n BSM_3D_arome
-./runjob.py -t assim.BS_3D_arome__obstype -n BS_3D_arome__obstype
+python3 vortex/bin/mkjob.py task=assim.BSM_3D_arome name=BSM_3D_arome
+python3 vortex/bin/mkjob.py task=assim.BS_3D_arome__obstype name=BS_3D_arome__obstype
 
+# ... (to be completed)
 
 # ---------------------------------------------------------------------------------------------------------
 vapp=$(basename $(dirname $PWD))

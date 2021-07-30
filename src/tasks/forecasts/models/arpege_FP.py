@@ -3,6 +3,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from footprints import FPDict
+from footprints.util import rangex
 
 import vortex
 from vortex import toolbox
@@ -13,11 +14,11 @@ import davai
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     # TODO: add fields_in_file
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    #experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
+    #experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
+    experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
     lead_expert = experts[0]
 
     def _flow_input_pgd_block(self):
@@ -30,7 +31,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     def output_block(self):
         return '.'.join([self.conf.model,
-                         'standalone_fcst'])
+                         'fcst_FPin'])
 
     def process(self):
         self._wrapped_init()
@@ -46,33 +47,6 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Reference',  # ModelState
-                block          = self.output_block(),
-                experiment     = self.conf.ref_xpid,
-                fatal          = False,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                #local          = 'ref.ICMSHFCST+{:04d}'.format(int(self.conf.expertise_term)),
-                local          = 'ref.ICMSHFCST+[term:fmthm]',
-                nativefmt      = 'fa',
-                term           = self.conf.expertise_term,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Reference',  # SurfState
-                block          = self.output_block(),
-                experiment     = self.conf.ref_xpid,
-                fatal          = False,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                #local          = 'ref.ICMSHFCST+{:04d}.sfx'.format(int(self.conf.expertise_term)),
-                local          = 'ref.ICMSHFCST+[term:fmthm].sfx',
-                model          = 'surfex',
-                nativefmt      = 'fa',
-                term           = self.conf.expertise_term,
-            )
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
@@ -124,6 +98,16 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 month          = self.conf.rundate,
             )
             #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Local Clim',
+                format         = 'fa',
+                genv           = self.conf.appenv,
+                geometry       = 'GLOB025,EURAT01,ATOURX01,EURAT1S20,GLOB01',
+                kind           = 'clim_bdap',
+                local          = 'const.clim.[geometry::area]',
+                month          = self.conf.rundate,
+            )
+            #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
@@ -143,10 +127,9 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             tboptions = self._wrapped_input(
                 role           = 'Namelist Deltas to add/remove options',
                 binary         = 'arpifs',
-                component      = 'noFPinline.nam,noDDH.nam,spnorms.nam',
+                component      = 'spnorms.nam',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                intent         = 'in',
                 kind           = 'namelist',
                 local          = '[component]',
                 source         = 'model/options_delta/[component]',
@@ -162,6 +145,28 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'namelist',
                 local          = 'fort.4',
                 source         = 'namelistfc',
+            )
+            #-------------------------------------------------------------------------------
+            tbdef = self._wrapped_input(
+                role           = 'FullPos Mapping',
+                binary         = '[model]',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namselectdef',
+                local          = 'xxt.def',
+                source         = 'xxt.def.[cutoff]',
+            )
+            #-------------------------------------------------------------------------------
+            tbdef = self._wrapped_input(
+                role           = 'FullPos Selection',
+                binary         = '[model]',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                helper         = tbdef[0].contents,
+                kind           = 'namselect',
+                local          = '[helper::xxtnam]',
+                source         = '[helper::xxtsrc]',
+                term           = rangex(0, self.conf.fcst_term, 1),
             )
             #-------------------------------------------------------------------------------
 
@@ -247,11 +252,13 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
+                ddhpack        = True,
                 drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
-                kind           = 'forecast',
                 fcterm         = self.conf.fcst_term,
                 fcunit         = 'h',
+                kind           = 'forecast',
+                outputid       = 'arpifs-davai-assim-fc',
                 timestep       = self.conf.timestep,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
