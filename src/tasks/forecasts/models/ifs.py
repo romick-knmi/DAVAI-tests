@@ -43,6 +43,7 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Reference',  # ModelState gp atm
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
+                fatal          = False,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ref.ICMUAFCST+{:06d}'.format(int(self.conf.expertise_term)),
@@ -55,6 +56,7 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Reference',  # ModelState spec atm
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
+                fatal          = False,
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ref.ICMSHFCST+{:06d}'.format(int(self.conf.expertise_term)),

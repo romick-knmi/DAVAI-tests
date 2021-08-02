@@ -265,6 +265,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
     def _notify_start(self):
         """At the very beginning of the task, notify Ciboulai that the task has started."""
+        # TODO: notify also the end of inputs / begin. of compute ?
         if 'early-fetch' in self.steps:
             from ial_expertise.task import TaskSummary, task_status
             notification_file = '.started.json'
