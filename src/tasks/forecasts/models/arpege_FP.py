@@ -35,7 +35,7 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     def process(self):
         self._wrapped_init()
-        self._notify_start()
+        self._notify_start_inputs()
 
         # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
@@ -78,16 +78,14 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source         = 'ecoclimap',
             )
             #-------------------------------------------------------------------------------
-            if self.conf.pgd_source == 'static':
-                self._wrapped_input(
-                    role           = 'ClimPGD',
-                    format         = 'fa',
-                    genv           = self.conf.appenv,
-                    gvar           = 'pgd_fa_[geometry::tag]',
-                    kind           = 'pgdfa',
-                    local          = 'Const.Clim.sfx',
-                )
-                # else: 2.1
+            self._wrapped_input(
+                role           = 'ClimPGD',
+                format         = 'fa',
+                genv           = self.conf.appenv,
+                gvar           = 'pgd_fa_[geometry::tag]',
+                kind           = 'pgdfa',
+                local          = 'Const.Clim.sfx',
+            )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Global Clim',
@@ -200,55 +198,30 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
-            if self.conf.surf_ic_source == 'static':
-                self._wrapped_input(
-                    role           = 'Surface Initial conditions',
-                    block          = 'surfan',
-                    date           = self.conf.rundate,
-                    experiment     = self.conf.input_shelf,
-                    filling        = 'surf',
-                    format         = '[nativefmt]',
-                    kind           = 'analysis',
-                    local          = 'ICMSHFCSTINIT.sfx',
-                    model          = 'surfex',
-                    nativefmt      = 'fa',
-                    vapp           = self.conf.shelves_vapp,
-                    vconf          = self.conf.shelves_vconf,
-                )
-                # else: 2.1
+            self._wrapped_input(
+                role           = 'Surface Initial conditions',
+                block          = 'surfan',
+                date           = self.conf.rundate,
+                experiment     = self.conf.input_shelf,
+                filling        = 'surf',
+                format         = '[nativefmt]',
+                kind           = 'analysis',
+                local          = 'ICMSHFCSTINIT.sfx',
+                model          = 'surfex',
+                nativefmt      = 'fa',
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
             #-------------------------------------------------------------------------------
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            if self.conf.pgd_source == 'flow':
-                self._wrapped_input(
-                    role           = 'PGD',
-                    block          = self._flow_input_pgd_block(),
-                    experiment     = self.conf.xpid,
-                    format         = 'fa',
-                    kind           = 'pgdfa',
-                    local          = 'Const.Clim.sfx',
-                )
-                # else: 1.1.1
-            #-------------------------------------------------------------------------------
-            if self.conf.surf_ic_source == 'flow':
-                self._wrapped_input(
-                    role           = 'Surface Initial conditions',
-                    block          = self._flow_input_surf_ic_block(),
-                    date           = self.conf.rundate,
-                    experiment     = self.conf.xpid,
-                    format         = '[nativefmt]',
-                    filling        = 'surf',
-                    kind           = 'ic',
-                    local          = 'ICMSHFCSTINIT.sfx',
-                    model          = 'surfex',
-                    nativefmt      = 'fa',
-                )
-                # else: 1.2
+            pass
             #-------------------------------------------------------------------------------
 
         # 2.2/ Compute step
         if 'compute' in self.steps:
+            self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,

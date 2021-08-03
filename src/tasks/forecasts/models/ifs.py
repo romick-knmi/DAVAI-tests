@@ -15,9 +15,7 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-    # TODO: add fields_in_file
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    #experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
     lead_expert = experts[0]
 
     def output_block(self):
@@ -26,7 +24,7 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     def process(self):
         self._wrapped_init()
-        self._notify_start()
+        self._notify_start_inputs()
 
         # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
@@ -176,6 +174,7 @@ class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.2/ Compute step
         if 'compute' in self.steps:
+            self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,

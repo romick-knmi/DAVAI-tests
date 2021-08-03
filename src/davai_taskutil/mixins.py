@@ -265,7 +265,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
     def _notify_start(self):
         """At the very beginning of the task, notify Ciboulai that the task has started."""
-        # TODO: notify also the end of inputs / begin. of compute ?
+        # TODO: CLEANME, deprecated
         if 'early-fetch' in self.steps:
             from ial_expertise.task import TaskSummary, task_status
             notification_file = '.started.json'
@@ -279,6 +279,33 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             description['namespace'] = 'vortex.cache.fr'
             toolbox.output(**description)
             self.ticket.sh.remove(notification_file)
+
+    def _notify_start_step(self, step):
+        """Notify Ciboulai that a step has started."""
+        from ial_expertise.task import TaskSummary, task_status
+        task_summary = TaskSummary()
+        if step == 'inputs':
+            task_summary['Status'] = task_status['I...']
+        elif step == 'compute':
+            task_summary['Status'] = task_status['C...']
+        notification_file = '.{}_started.json'.format(step)
+        task_summary['Context'] = context_info_for_task_summary(self.ticket.context)
+        task_summary['Updated'] = utcnow().isoformat().split('.')[0]
+        task_summary.dump(notification_file)
+        description = self._output_expertise()
+        description['task'] = step
+        description['local'] = notification_file
+        description['namespace'] = 'vortex.cache.fr'
+        toolbox.output(**description)
+        self.ticket.sh.remove(notification_file)
+
+    def _notify_start_inputs(self):
+        if 'early-fetch' in self.steps:
+            self._notify_start_step('inputs')
+
+    def _notify_start_compute(self):
+        if 'compute' in self.steps:
+            self._notify_start_step('compute')
 
     def _output_expertise(self):
         return dict(

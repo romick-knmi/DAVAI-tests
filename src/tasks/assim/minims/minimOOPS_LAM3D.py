@@ -31,7 +31,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def process(self):
         self._wrapped_init()
         self._obstype_rundate_association()
-        self._notify_start()
+        self._notify_start_inputs()
 
         # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
@@ -281,6 +281,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.2/ Compute step
         if 'compute' in self.steps:
+            self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
