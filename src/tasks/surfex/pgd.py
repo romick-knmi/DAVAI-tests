@@ -17,10 +17,14 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'fields_in_file'})]
     lead_expert = experts[0]
+    _taskinfo_kind = 'statictaskinfo'
 
     def output_block(self):
-        return '.'.join([self.tag,
-                         self.conf.geometry.tag])
+        if self.conf.geometry.tag in self.tag:
+            return self.tag
+        else:
+            return '.'.join([self.tag,
+                             self.conf.geometry.tag])
 
     def process(self):
         self._wrapped_init()

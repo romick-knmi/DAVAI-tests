@@ -131,6 +131,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     """Provide useful methods for Davai IOs."""
     experts = []
     lead_expert = None
+    _taskinfo_kind = 'taskinfo'  # Flow taskinfo, can be forced to 'statictaskinfo' for non-flow tasks (e.g. pgd, build...)
 
     @property
     def obs_tslots(self):
@@ -180,7 +181,6 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             print(self.ticket.prompt, 'tbexpertise =', tbexpertise)
             print()
             self.component_runner(tbexpertise, [None])
-            #tbexpertise.run()
 
     def output_block(self):
         """Output block method: TO BE OVERWRITTEN in real tasks."""
@@ -218,7 +218,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             hook_train     = ('davai.hooks.take_the_DAVAI_train',
                               self.conf.expertise_fatal_exceptions,
                               self.conf.hook_davai_wagons),
-            kind           = 'taskinfo',
+            kind           = self._taskinfo_kind,
             local          = 'task_summary.[format]',
             namespace      = self._expertise_namespace,
             nativefmt      = '[format]',
@@ -233,7 +233,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             block          = self.output_block(),
             fatal          = False,
             format         = 'json',
-            kind           = 'taskinfo',
+            kind           = self._taskinfo_kind,
             local          = 'ref_summary.[format]',
             nativefmt      = '[format]',
             scope          = 'itself',
@@ -246,7 +246,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             block          = self.conf.consistency_ref_block,
             fatal          = False,
             format         = 'json',
-            kind           = 'taskinfo',
+            kind           = self._taskinfo_kind,
             local          = 'ref_summary.[format]',
             nativefmt      = '[format]',
             scope          = 'itself',
@@ -262,23 +262,6 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             fatal_exceptions = self.conf.expertise_fatal_exceptions,
             ignore_reference = self.conf.ignore_reference,
             kind           = 'expertise')
-
-    def _notify_start(self):
-        """At the very beginning of the task, notify Ciboulai that the task has started."""
-        # TODO: CLEANME, deprecated
-        if 'early-fetch' in self.steps:
-            from ial_expertise.task import TaskSummary, task_status
-            notification_file = '.started.json'
-            task_summary = TaskSummary()
-            task_summary['Status'] = task_status['...']
-            task_summary['Context'] = context_info_for_task_summary(self.ticket.context)
-            task_summary['Updated'] = utcnow().isoformat().split('.')[0]
-            task_summary.dump(notification_file)
-            description = self._output_expertise()
-            description['local'] = notification_file
-            description['namespace'] = 'vortex.cache.fr'
-            toolbox.output(**description)
-            self.ticket.sh.remove(notification_file)
 
     def _notify_start_step(self, step):
         """Notify Ciboulai that a step has started."""
@@ -310,7 +293,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     def _output_expertise(self):
         return dict(
             role           = 'TaskSummary',
-            kind           = 'taskinfo',
+            kind           = self._taskinfo_kind,
             block          = self.output_block(),
             experiment     = self.conf.xpid,
             hook_train     = ('davai.hooks.take_the_DAVAI_train',
@@ -327,7 +310,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     def _output_comparison_expertise(self):
         return dict(
             role           = 'TaskAgainstRef',
-            kind           = 'taskinfo',
+            kind           = self._taskinfo_kind,
             block          = self.output_block(),
             experiment     = self.conf.xpid,
             hook_train     = ('davai.hooks.take_the_DAVAI_train',

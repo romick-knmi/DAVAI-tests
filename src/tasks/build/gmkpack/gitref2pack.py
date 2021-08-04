@@ -20,12 +20,13 @@ def setup(t, **kw):
 
 class GitRef2Pack(Task, DavaiTaskMixin):
 
+    _taskinfo_kind = 'statictaskinfo'
+
     def output_block(self):
         return self.tag
 
     def process(self):
         self._wrapped_init()
-        #self._notify_start()  # deactivated for this task: not compatible with wait4build
 
         # 0./ Promises
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
@@ -64,6 +65,7 @@ class GitRef2Pack(Task, DavaiTaskMixin):
 
         # 2.2/ Compute step
         if 'compute' in self.steps:
+            self._notify_start_compute()  # TODO: cleanme: OK now ? deactivated for this task: not compatible with wait4build
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 cleanpack      = self.conf.cleanpack,

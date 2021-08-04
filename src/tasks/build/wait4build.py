@@ -25,10 +25,12 @@ def setup(t, **kw):
 
 class Wait4Build(Task):
 
+    _taskinfo_kind = 'statictaskinfo'
+
     @property
     def _expertise_description(self):
         return dict(
-            kind           = 'taskinfo',
+            kind           = self._taskinfo_kind,
             cutoff         = 'assim',
             experiment     = self.conf.xpid,
             format         = 'json',
