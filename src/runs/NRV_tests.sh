@@ -18,7 +18,13 @@ python3 vortex/bin/mkjob.py -j task=forecasts.PPF_arome name=PPF_arome
 
 # FULLPOS
 # =======
+# Fpi = Fullpos inline
+python3 vortex/bin/mkjob.py -j task=forecasts.Fpi_arpege name=Fpi_arpege
 #python3 vortex/bin/mkjob.py -j task=fullpos.series name=fullpos-canonical-series
+
+# SURFEX
+# ======
+python3 vortex/bin/mkjob.py -j task=surfex.PGD_geo name=PGD_geo
 
 # ... (to be completed)
 

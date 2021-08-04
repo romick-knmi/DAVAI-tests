@@ -17,8 +17,8 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     # TODO: add fields_in_file
-    #experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
+    experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
+    #experts = [FPDict({'kind':'norms', 'plot_spectral':True})] + davai.util.default_experts()
     lead_expert = experts[0]
 
     def _flow_input_pgd_block(self):
@@ -47,6 +47,31 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Reference',  # ModelState
+                block          = self.output_block(),
+                experiment     = self.conf.ref_xpid,
+                fatal          = False,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ref.ICMSHFCST+[term:fmthm]',
+                nativefmt      = 'fa',
+                term           = self.conf.expertise_term,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Reference',  # SurfState
+                block          = self.output_block(),
+                experiment     = self.conf.ref_xpid,
+                fatal          = False,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ref.ICMSHFCST+[term:fmthm].sfx',
+                model          = 'surfex',
+                nativefmt      = 'fa',
+                term           = self.conf.expertise_term,
+            )
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
@@ -125,7 +150,7 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             tboptions = self._wrapped_input(
                 role           = 'Namelist Deltas to add/remove options',
                 binary         = 'arpifs',
-                component      = 'spnorms.nam',
+                component      = 'spnorms.nam,FPinline_6h.nam',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
