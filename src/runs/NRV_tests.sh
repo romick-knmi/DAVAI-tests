@@ -11,10 +11,14 @@ python3 vortex/bin/mkjob.py -j task=assim.BSM_3D_arome name=BSM_3D_arome
 # =========
 # F_ifs = Forecast IFS
 python3 vortex/bin/mkjob.py -j task=forecasts.F_ifs name=F_ifs
-# PPF = PGD-Prep-Forecast
-python3 vortex/bin/mkjob.py -j task=forecasts.PPF_arpege name=PPF_arpege
-python3 vortex/bin/mkjob.py -j task=forecasts.PPF_arome name=PPF_arome
 #python3 vortex/bin/mkjob.py -j task=forecasts.series name=fc-canonical-series
+
+# MIXS
+# ====
+# PPF = PGD-Prep-Forecast
+python3 vortex/bin/mkjob.py -j task=mixs.PPF_arpege name=PPF_arpege
+python3 vortex/bin/mkjob.py -j task=mixs.PPF_arome name=PPF_arome
+
 
 # FULLPOS
 # =======
@@ -24,7 +28,8 @@ python3 vortex/bin/mkjob.py -j task=forecasts.Fpi_arpege name=Fpi_arpege
 
 # SURFEX
 # ======
-python3 vortex/bin/mkjob.py -j task=surfex.PGD_geo name=PGD_geo
+# PP_geo = PGD+Prep on a range of Gauss & LAM geometries
+python3 vortex/bin/mkjob.py -j task=surfex.PP_geo name=PP_geo
 
 # ... (to be completed)
 

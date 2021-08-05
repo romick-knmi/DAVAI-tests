@@ -39,7 +39,7 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(
-                role           = 'Reference PgdFile',
+                role           = 'Reference',  # PgdFile
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
                 fatal          = False,

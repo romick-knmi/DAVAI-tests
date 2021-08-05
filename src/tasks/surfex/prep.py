@@ -23,8 +23,11 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                          self.conf.geometry.tag])
 
     def output_block(self):
-        return '.'.join([self.tag,
-                         self.conf.geometry.tag])
+        if self.conf.geometry.tag in self.tag:
+            return self.tag
+        else:
+            return '.'.join([self.tag,
+                             self.conf.geometry.tag])
 
     def process(self):
         self._wrapped_init()
@@ -38,7 +41,18 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
-            #TODO: ref IC file # self._wrapped_input(**self._reference_continuity_listing())
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Reference',  # Surface output IC
+                block          = self.output_block(),
+                experiment     = self.conf.ref_xpid,
+                filling        = 'surf',
+                fatal          = False,
+                format         = 'fa',
+                kind           = 'ic',
+                local          = 'ref.PREP1_interpolated.[format]',
+                model          = 'surfex',
+            )
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
