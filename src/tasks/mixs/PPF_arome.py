@@ -10,6 +10,7 @@ from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from tasks.surfex.pgd import PGD
 from tasks.surfex.prep import Prep
+from tasks.forecasts.models.arome import StandaloneAromeForecast as Forecast
 
 
 def setup(t, **kw):
@@ -19,8 +20,7 @@ def setup(t, **kw):
                 PGD(tag='pgd', ticket=t, **kw),
                 ], **kw),
             Prep(tag='prep', ticket=t, **kw),
-                #Forecast(tag='pgd', ticket=t, **kw),
-                #], **kw),
+            Forecast(tag='forecast', ticket=t, **kw),
             ], **kw),
         ],
     )
