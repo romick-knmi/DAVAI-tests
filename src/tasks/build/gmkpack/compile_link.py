@@ -25,7 +25,6 @@ def setup(t, **kw):
 class PackCompileLink(Task, DavaiTaskMixin):
 
     experts = [FPDict({'kind':'gmkpack_build'}),]
-    lead_expert = experts[0]
     _taskinfo_kind = 'statictaskinfo'
 
     def process(self):

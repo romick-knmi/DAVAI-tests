@@ -16,7 +16,6 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class IFS_Forecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    lead_expert = experts[0]
 
     def output_block(self):
         return '.'.join([self.conf.model,

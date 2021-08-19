@@ -17,7 +17,6 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
-    lead_expert = experts[0]
 
     def _flow_input_pgd_block(self):
         return '.'.join(['pgd',

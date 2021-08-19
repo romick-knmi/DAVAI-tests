@@ -16,7 +16,6 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'fields_in_file'})]
-    lead_expert = experts[0]
     _taskinfo_kind = 'statictaskinfo'
 
     def output_block(self):

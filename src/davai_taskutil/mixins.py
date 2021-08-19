@@ -130,8 +130,12 @@ class WrappedToolboxMixin(object):
 class DavaiTaskMixin(WrappedToolboxMixin):
     """Provide useful methods for Davai IOs."""
     experts = []
-    lead_expert = None
     _taskinfo_kind = 'taskinfo'  # Flow taskinfo, can be forced to 'statictaskinfo' for non-flow tasks (e.g. pgd, build...)
+
+    @property
+    def lead_expert(self):
+        """Default, can still be overwritten in class definition."""
+        return self.experts[0]
 
     @property
     def obs_tslots(self):
@@ -142,6 +146,14 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     @property
     def NDVar(self):
         return '4DVar' if int(self.conf.timeslots) > 1 else '3DVar'
+
+    @property
+    def month(self):
+        """TEMPORARY workaround ?"""
+        if hasattr(self.conf.rundate, 'month'):
+            return self.conf.rundate.month
+        else:
+            return int(self.conf.rundate[4:6])
 
     def guess_term(self, force_window_start=False):
         term = Period(self.conf.cyclestep)

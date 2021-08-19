@@ -16,7 +16,6 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
-    lead_expert = experts[0]
 
     def output_block(self):
         return '.'.join([self.conf.model,

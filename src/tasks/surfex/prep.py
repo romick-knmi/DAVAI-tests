@@ -16,7 +16,6 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'fields_in_file'})]
-    lead_expert = experts[0]
 
     def _flow_input_pgd_block(self):
         return '.'.join(['pgd',

@@ -15,7 +15,6 @@ from davai_taskutil.mixins import DavaiTaskMixin
 class BatorODB(Task, DavaiTaskMixin):
 
     experts = [FPDict({'kind':'bator_obscount'}), FPDict({'kind':'bator_profile'})]
-    lead_expert = experts[0]
 
     def output_block(self):
         return '.'.join([self.conf.model,
