@@ -8,14 +8,14 @@ from footprints import FPDict, FPList
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
+from common.util.hooks import update_namelist
 import davai
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'fields_in_file'}), FPDict({'kind':'norms'})] + davai.util.default_experts()
-    lead_expert = experts[0]
 
     def process(self):
         self._wrapped_init()
@@ -36,10 +36,11 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Reference',  # LBC files
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
+                fatal          = False,
                 format         = 'fa',
                 geometry       = self.conf.target_geometries,
                 kind           = 'boundary',
-                local          = 'ref.[geometry::tag]/MODELSTATE_[model]_[term::fmthm].[geometry::area::upper].out',
+                local          = 'ref.[geometry::tag]/ATM_SP+[term::fmthm].[geometry::area::upper].out',
                 source_app     = self.conf.source_vapp,
                 source_conf    = self.conf.source_vconf,
                 source_cutoff  = self.conf.cutoff,
@@ -52,15 +53,6 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Initial Clim',
-                format         = 'fa',
-                genv           = self.conf.appenv,
-                kind           = 'clim_model',
-                local          = 'Const.Clim.m[month]',
-                month          = [self.conf.rundate.month, self.conf.rundate.month + 1],
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
                 role           = 'Target Clim',
                 format         = 'fa',
                 genv           = self.conf.appenv,
@@ -68,14 +60,14 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'clim_model',
                 local          = 'const.clim.[geometry::area::upper].m[month]',
                 model          = 'aladin',
-                month          = [self.conf.rundate.month, self.conf.rundate.month +1],
+                month          = [self.month, self.month +1],
             )
             #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
-                role           = 'ObjectNamelist',
+                role           = 'ObjectNamelist',  # target geometries definitions
                 binary         = 'aladin',
                 format         = 'ascii',
                 fp_terms       = {'geotag':{g.tag:FPList(self.conf.terms) for g in self.conf.target_geometries}},
@@ -87,15 +79,27 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source         = 'geometries/[geotag]_[cutoff].nam',
             )
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Namelist',
-                binary         = 'aladin',
+            tbport = self._wrapped_input(
+                role           = 'PortabilityNamelist',
+                binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                intent         = 'in',
+                kind           = 'namelist',
+                local          = 'portability.nam',
+                source         = 'portability/{}'.format(self.conf.target_host),
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Namelist',
+                binary         = 'arpifs',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                hook_port      = (update_namelist, tbport),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'e903_noMCUF.nam',
+                source         = 'IFS/e903.nam',
             )
             #-------------------------------------------------------------------------------
 
@@ -106,8 +110,8 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Binary',
                 binmap         = 'gmap',
                 format         = 'bullx',
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.EX',
+                kind           = 'ifsmodel',
+                local          = 'IFS.EX',
                 remote         = self.guess_pack(),
                 setcontent     = 'binaries',
             )
@@ -116,12 +120,45 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
-                role           = 'Model State',
-                block          = 'forecast',
+                role           = 'ModelState SH',  # spectral atmospheric fields
+                block          = 'mars_nwp',
+                date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
-                format         = 'fa',
+                format         = '[nativefmt]',
                 kind           = 'historic',
-                local          = 'MODELSTATE_[model]_[term::fmthm]',
+                local          = 'ATM_SP+[term::fmthm]',
+                nativefmt      = 'grib',
+                subset         = 'specatm',
+                term           = self.conf.terms,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'ModelState UA', # gridpoint atmospheric fields
+                block          = 'mars_nwp',
+                date           = self.conf.rundate,
+                experiment     = self.conf.input_shelf,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ATM_GP+[term::fmthm]',
+                nativefmt      = 'grib',
+                subset         = 'gpatm',
+                term           = self.conf.terms,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'ModelState GG',  # surface gridpoint fields
+                block          = 'mars_nwp',
+                date           = self.conf.rundate,
+                experiment     = self.conf.input_shelf,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'SURF_GP+[term::fmthm]',
+                nativefmt      = 'grib',
+                subset         = 'gpsurf',
                 term           = self.conf.terms,
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
@@ -160,7 +197,7 @@ class LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'fa',
                 geometry       = self.conf.target_geometries,
                 kind           = 'boundary',
-                local          = '[geometry::tag]/MODELSTATE_[model]_[term::fmthm].[geometry::area::upper].out',
+                local          = '[geometry::tag]/ATM_SP+[term::fmthm].000.out',
                 source_app     = self.conf.source_vapp,
                 source_conf    = self.conf.source_vconf,
                 source_cutoff  = self.conf.cutoff,

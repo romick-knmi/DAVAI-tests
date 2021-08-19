@@ -8,19 +8,20 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
-from .lbc import LBCbyFullpos
+from .arpege_lbc import ArpegeLBCbyFullpos
+from .ifs_lbc import IFS_LBCbyFullpos
 
 
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            LBCbyFullpos(tag='fb_lbc.from-arpege', ticket=t, **kw),
+            ArpegeLBCbyFullpos(tag='fp_lbc-arpege', ticket=t, **kw),
             ], **kw),
-        #Family(tag='ifs', ticket=t, nodes=[
-        #    LBCbyFullpos(tag='fp_lbc.ifs', ticket=t, **kw),
-        #    ], **kw),
+        Family(tag='ifs', ticket=t, nodes=[
+            IFS_LBCbyFullpos(tag='fp_lbc-ifs', ticket=t, **kw),
+            ], **kw),
         #Family(tag='arome', ticket=t, nodes=[
-        #    LBCbyFullpos(tag='fp_lbc.arome', ticket=t, **kw),
+        #    LBCbyFullpos(tag='fp_lbc.from-arome', ticket=t, **kw),
         #    ], **kw),
         ],
     )
