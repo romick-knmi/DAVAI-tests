@@ -14,21 +14,14 @@ import davai
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
-
+class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+    """An Arpege canonical forecast with inline Fullpos and DDH."""
+    # TODO: add DDH
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
 
-    def _flow_input_pgd_block(self):
-        return '.'.join(['pgd',
-                         self.conf.geometry.tag])
-
-    def _flow_input_surf_ic_block(self):
-        return '.'.join(['prep',
-                         self.conf.geometry.tag])
-
     def output_block(self):
-        return '.'.join([self.conf.model,
-                         'standalone_fcst'])
+        return '-'.join([self.conf.prefix,
+                         self.tag])
 
     def process(self):
         self._wrapped_init()
@@ -100,23 +93,31 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source         = 'ecoclimap',
             )
             #-------------------------------------------------------------------------------
-            if self.conf.pgd_source == 'static':
-                self._wrapped_input(
-                    role           = 'ClimPGD',
-                    format         = 'fa',
-                    genv           = self.conf.appenv,
-                    gvar           = 'pgd_fa_[geometry::tag]',
-                    kind           = 'pgdfa',
-                    local          = 'Const.Clim.sfx',
-                )
-                # else: 2.1
+            self._wrapped_input(
+                role           = 'ClimPGD',
+                format         = 'fa',
+                genv           = self.conf.appenv,
+                gvar           = 'pgd_fa_[geometry::tag]',
+                kind           = 'pgdfa',
+                local          = 'Const.Clim.sfx',
+            )
             #-------------------------------------------------------------------------------
-            tbclim = self._wrapped_input(
-                role           = 'Clim',
+            self._wrapped_input(
+                role           = 'Global Clim',
                 format         = 'fa',
                 genv           = self.conf.appenv,
                 kind           = 'clim_model',
                 local          = 'Const.Clim',
+                month          = self.conf.rundate,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Local Clim',
+                format         = 'fa',
+                genv           = self.conf.appenv,
+                geometry       = 'GLOB025,EURAT01,ATOURX01,EURAT1S20,GLOB01',
+                kind           = 'clim_bdap',
+                local          = 'const.clim.[geometry::area]',
                 month          = self.conf.rundate,
             )
             #-------------------------------------------------------------------------------
@@ -126,23 +127,22 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'NamelistSurfex',
-                binary         = 'arpifs',
+                binary         = '[model]',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'EXSEG1.nam',
-                source         = 'model/[model]/fcst.assistances.nam_surfex',
+                source         = 'namel_previ_surfex',
             )
             #-------------------------------------------------------------------------------
             # deactivate FPinline & DDH, activate spnorms:
             tboptions = self._wrapped_input(
                 role           = 'Namelist Deltas to add/remove options',
                 binary         = 'arpifs',
-                component      = 'noFPinline.nam,noDDH.nam,spnorms.nam',
+                component      = 'spnorms.nam,FPinline_6h.nam',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                intent         = 'in',
                 kind           = 'namelist',
                 local          = '[component]',
                 source         = 'model/options_delta/[component]',
@@ -150,14 +150,36 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
-                binary         = 'arpifs',
+                binary         = '[model]',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_options   = (update_namelist, tboptions),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'model/[model]/fcst.assistances.nam',
+                source         = 'namelistfc',
+            )
+            #-------------------------------------------------------------------------------
+            tbdef = self._wrapped_input(
+                role           = 'FullPos Mapping',
+                binary         = '[model]',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namselectdef',
+                local          = 'xxt.def',
+                source         = 'xxt.def.[cutoff]',
+            )
+            #-------------------------------------------------------------------------------
+            tbdef = self._wrapped_input(
+                role           = 'FullPos Selection',
+                binary         = '[model]',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                helper         = tbdef[0].contents,
+                kind           = 'namselect',
+                local          = '[helper::xxtnam]',
+                source         = '[helper::xxtsrc]',
+                term           = rangex(0, self.conf.fcst_term, 1),
             )
             #-------------------------------------------------------------------------------
 
@@ -169,7 +191,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binmap         = 'gmap',
                 format         = 'bullx',  # TODO: cleanme ? (everywhere) or in conf
                 kind           = 'mfmodel',
-                local          = 'AROME.X',
+                local          = 'ARPEGE.X',
                 remote         = self.guess_pack(),
                 setcontent     = 'binaries',
             )
@@ -180,69 +202,28 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Atmospheric Initial Conditions',
-                block          = 'coupling',
+                block          = '4dupd2',
                 date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
-                intent         = 'inout',
-                kind           = 'boundary',
+                kind           = 'analysis',
                 local          = 'ICMSHFCSTINIT',
                 nativefmt      = 'fa',
-                source_app     = 'arpege',
-                source_conf    = '4dvarfr',
-                term           = 0,
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            if self.conf.surf_ic_source == 'static':
-                self._wrapped_input(
-                    role           = 'Surface Initial conditions',
-                    block          = 'surfan',
-                    date           = self.conf.rundate,
-                    experiment     = self.conf.input_shelf,
-                    filling        = 'surf',
-                    format         = '[nativefmt]',
-                    kind           = 'analysis',
-                    local          = 'ICMSHFCSTINIT.sfx',
-                    model          = 'surfex',
-                    nativefmt      = 'fa',
-                    vapp           = self.conf.shelves_vapp,
-                    vconf          = self.conf.shelves_vconf,
-                )
-                # else: 2.1
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'BoundaryConditions',  # Initial
-                block          = 'coupling',
-                date           = self.conf.rundate,
-                experiment     = self.conf.input_shelf,
-                format         = '[nativefmt]',
-                intent         = 'inout',
-                kind           = 'boundary',
-                local          = 'CPLIN+START',
-                nativefmt      = 'fa',
-                source_app     = 'arpege',
-                source_conf    = '4dvarfr',
-                term           = 0,
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'BoundaryConditions',
-                block          = 'coupling',
+                role           = 'Surface Initial conditions',
+                block          = 'surfan',
                 date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
+                filling        = 'surf',
                 format         = '[nativefmt]',
-                intent         = 'inout',
-                kind           = 'boundary',
-                local          = 'CPLIN+[term::fmthm]',
+                kind           = 'analysis',
+                local          = 'ICMSHFCSTINIT.sfx',
+                model          = 'surfex',
                 nativefmt      = 'fa',
-                source_app     = 'arpege',
-                source_conf    = '4dvarfr',
-                term           = rangex(self.conf.coupling_frequency, self.conf.fcst_term,
-                                        self.conf.coupling_frequency),
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
@@ -250,31 +231,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            if self.conf.pgd_source == 'flow':
-                self._wrapped_input(
-                    role           = 'PGD',
-                    block          = self._flow_input_pgd_block(),
-                    experiment     = self.conf.xpid,
-                    format         = 'fa',
-                    kind           = 'pgdfa',
-                    local          = 'Const.Clim.sfx',
-                )
-                # else: 1.1.1
-            #-------------------------------------------------------------------------------
-            if self.conf.surf_ic_source == 'flow':
-                self._wrapped_input(
-                    role           = 'Surface Initial conditions',
-                    block          = self._flow_input_surf_ic_block(),
-                    date           = self.conf.rundate,
-                    experiment     = self.conf.xpid,
-                    format         = '[nativefmt]',
-                    filling        = 'surf',
-                    kind           = 'ic',
-                    local          = 'ICMSHFCSTINIT.sfx',
-                    model          = 'surfex',
-                    nativefmt      = 'fa',
-                )
-                # else: 1.2
+            pass
             #-------------------------------------------------------------------------------
 
         # 2.2/ Compute step
@@ -283,11 +240,13 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
+                ddhpack        = True,
                 drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
-                kind           = 'lamfc',
                 fcterm         = self.conf.fcst_term,
                 fcunit         = 'h',
+                kind           = 'forecast',
+                outputid       = 'arpifs-davai-assim-fc',
                 timestep       = self.conf.timestep,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)

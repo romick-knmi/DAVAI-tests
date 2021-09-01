@@ -18,16 +18,22 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
 
     def _flow_input_pgd_block(self):
-        return '.'.join(['pgd',
+        """Block of PGD in case of a PPF flow-chained job."""
+        return '-'.join([self.conf.prefix,
+                         'pgd',
+                         self.conf.model,
                          self.conf.geometry.tag])
 
     def _flow_input_surf_ic_block(self):
-        return '.'.join(['prep',
+        """Block of surf IC in case of a PPF flow-chained job."""
+        return '-'.join([self.conf.prefix,
+                         'prep',
+                         self.conf.model,
                          self.conf.geometry.tag])
 
     def output_block(self):
-        return '.'.join([self.conf.model,
-                         'standalone_fcst'])
+        return '-'.join([self.conf.prefix,
+                         self.tag])
 
     def process(self):
         self._wrapped_init()

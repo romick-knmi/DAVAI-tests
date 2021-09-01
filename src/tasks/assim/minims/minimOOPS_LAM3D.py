@@ -18,12 +18,12 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
 
     def output_block(self):
-        return '.'.join([self.conf.model,
+        return '-'.join([self.conf.model,
                          self.NDVar,
                          self.tag])
 
     def obs_input_block(self):
-        return '.'.join([self.conf.model,
+        return '-'.join([self.conf.model,
                          self.NDVar,
                          'screening' + self._tag_suffix()])
 

@@ -135,7 +135,10 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     @property
     def lead_expert(self):
         """Default, can still be overwritten in class definition."""
-        return self.experts[0]
+        if len(self.experts) > 0:
+            return self.experts[0]
+        else:
+            return None
 
     @property
     def obs_tslots(self):
@@ -146,14 +149,6 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     @property
     def NDVar(self):
         return '4DVar' if int(self.conf.timeslots) > 1 else '3DVar'
-
-    @property
-    def month(self):
-        """TEMPORARY workaround ?"""
-        if hasattr(self.conf.rundate, 'month'):
-            return self.conf.rundate.month
-        else:
-            return int(self.conf.rundate[4:6])
 
     def guess_term(self, force_window_start=False):
         term = Period(self.conf.cyclestep)
@@ -194,9 +189,16 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             print()
             self.component_runner(tbexpertise, [None])
 
+    @property
+    def taskid(self):
+        return self.output_block()
+
     def output_block(self):
-        """Output block method: TO BE OVERWRITTEN in real tasks."""
-        return '.'.join([self.tag])
+        """
+        Output block method: should map more or less Family tree.
+        TO BE OVERWRITTEN in real tasks
+        """
+        return '-'.join([self.tag])
 
     def _tag_suffix(self):
         """Get the suffix part of the tag, in case of a LoopFamily-ed task."""

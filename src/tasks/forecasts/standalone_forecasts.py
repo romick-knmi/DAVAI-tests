@@ -1,0 +1,31 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from footprints import FPDict
+
+import vortex
+from vortex import toolbox
+from vortex.layout.nodes import Task, Family, Driver
+from common.util.hooks import update_namelist
+import davai
+
+from .standalone.ifs import StandaloneIFSForecast
+from .standalone.arpege import StandaloneArpegeForecast
+
+
+def setup(t, **kw):
+    return Driver(tag='drv', ticket=t, options=kw, nodes=[
+        Family(tag='ifs', ticket=t, nodes=[
+            Family(tag='global21', ticket=t, nodes=[
+                StandaloneIFSForecast(tag='forecast-ifs-global21', ticket=t, **kw),
+                ], **kw),
+            ], **kw),
+        Family(tag='arpege', ticket=t, nodes=[
+            Family(tag='globaltst149c24', ticket=t, nodes=[
+                StandaloneArpegeForecast(tag='forecast-arpege-globaltst149c24', ticket=t, **kw),
+                ], **kw),
+            ], **kw),
+        ],
+    )
+

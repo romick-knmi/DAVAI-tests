@@ -14,10 +14,10 @@ from .ifs_lbc import IFS_LBCbyFullpos
 
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
-        Family(tag='arpege', ticket=t, nodes=[
+        Family(tag='arpege', ticket=t, on_error='delayed_fail', nodes=[
             ArpegeLBCbyFullpos(tag='fp_lbc-arpege', ticket=t, **kw),
             ], **kw),
-        Family(tag='ifs', ticket=t, nodes=[
+        Family(tag='ifs', ticket=t, on_error='delayed_fail', nodes=[
             IFS_LBCbyFullpos(tag='fp_lbc-ifs', ticket=t, **kw),
             ], **kw),
         #Family(tag='arome', ticket=t, nodes=[

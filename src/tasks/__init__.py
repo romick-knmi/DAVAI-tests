@@ -21,6 +21,7 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
     def plugable_env_setup(self, t, **kw):  # @UnusedVariable
         t.env.DAVAI_SERVER = self.masterja.conf.DAVAI_SERVER
         t.env.EC_MEMINFO = '0'
+        t.env.OMP_STACKSIZE = "4G"  # FIXME: tempo hack, should come from target conf file, section [fortran]
 
 
 class DavaiDevJobAssistantPlugin(DavaiJobAssistantPlugin):

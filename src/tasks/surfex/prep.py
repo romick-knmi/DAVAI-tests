@@ -18,15 +18,14 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     experts = [FPDict({'kind':'fields_in_file'})]
 
     def _flow_input_pgd_block(self):
-        return '.'.join(['pgd',
+        return '-'.join([self.conf.prefix,
+                         'pgd',
+                         self.conf.model,
                          self.conf.geometry.tag])
 
     def output_block(self):
-        if self.conf.geometry.tag in self.tag:
-            return self.tag
-        else:
-            return '.'.join([self.tag,
-                             self.conf.geometry.tag])
+        return '-'.join([self.conf.prefix,
+                         self.tag])
 
     def process(self):
         self._wrapped_init()

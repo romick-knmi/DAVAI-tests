@@ -57,7 +57,7 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'clim_model',
                 local          = 'Const.Clim.m[month]',
-                month          = [self.month, self.month + 1],
+                month          = [self.conf.rundate.month, self.conf.rundate.month + 1],
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(

@@ -19,11 +19,8 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     _taskinfo_kind = 'statictaskinfo'
 
     def output_block(self):
-        if self.conf.geometry.tag in self.tag:
-            return self.tag
-        else:
-            return '.'.join([self.tag,
-                             self.conf.geometry.tag])
+        return '-'.join([self.conf.prefix,
+                         self.tag])
 
     def process(self):
         self._wrapped_init()

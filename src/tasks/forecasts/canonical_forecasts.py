@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-PPF = PGD-Prep-Forecast (to test the update of Surfex PGD and IC files before forecast)
+Canonical Forecasts: with the components they usually embark in operational context
+(e.g. inline Fullpos, DDH, sometimes IAU...)
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -10,18 +11,19 @@ from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from tasks.surfex.pgd import PGD
 from tasks.surfex.prep import Prep
-from tasks.forecasts.models.arpege import StandaloneArpegeForecast as Forecast
+from .canonical.arpege import CanonicalArpegeForecast
 
 
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
-            Family(tag='arpege_physiography', ticket=t, nodes=[
-                PGD(tag='pgd', ticket=t, **kw),
+            Family(tag='global798c22', ticket=t, nodes=[
+                CanonicalArpegeForecast(tag='forecast-arpege-global798c22', ticket=t, **kw),
                 ], **kw),
-            Prep(tag='prep', ticket=t, **kw),
-            Forecast(tag='forecast', ticket=t, **kw),
             ], **kw),
+        #Family(tag='arome', ticket=t, nodes=[
+        #    Forecast(tag='arome_canonical_forecast', ticket=t, **kw),
+        #    ], **kw),
         ],
     )
 

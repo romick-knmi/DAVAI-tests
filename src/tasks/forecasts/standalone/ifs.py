@@ -3,7 +3,6 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from footprints import FPDict
-from footprints.util import rangex
 
 import vortex
 from vortex import toolbox
@@ -14,21 +13,13 @@ import davai
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
 
-    def _flow_input_pgd_block(self):
-        return '.'.join(['pgd',
-                         self.conf.geometry.tag])
-
-    def _flow_input_surf_ic_block(self):
-        return '.'.join(['prep',
-                         self.conf.geometry.tag])
-
     def output_block(self):
-        return '.'.join([self.conf.model,
-                         'fcst_FPin'])
+        return '-'.join([self.conf.prefix,
+                         self.tag])
 
     def process(self):
         self._wrapped_init()
@@ -46,27 +37,28 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Reference',  # ModelState
+                role           = 'Reference',  # ModelState gp atm
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
                 fatal          = False,
                 format         = '[nativefmt]',
                 kind           = 'historic',
-                local          = 'ref.ICMSHFCST+[term:fmthm]',
-                nativefmt      = 'fa',
+                local          = 'ref.ICMUAFCST+{:06d}'.format(int(self.conf.expertise_term)),
+                nativefmt      = 'grib',
+                subset         = 'gpatm',
                 term           = self.conf.expertise_term,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Reference',  # SurfState
+                role           = 'Reference',  # ModelState spec atm
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
                 fatal          = False,
                 format         = '[nativefmt]',
                 kind           = 'historic',
-                local          = 'ref.ICMSHFCST+[term:fmthm].sfx',
-                model          = 'surfex',
-                nativefmt      = 'fa',
+                local          = 'ref.ICMSHFCST+{:06d}'.format(int(self.conf.expertise_term)),
+                nativefmt      = 'grib',
+                subset         = 'specatm',
                 term           = self.conf.expertise_term,
             )
             #-------------------------------------------------------------------------------
@@ -83,110 +75,31 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'rrtm.const.tgz',
             )
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'RtCoef',
-                format         = 'unknown',
-                genv           = self.conf.commonenv,
-                kind           = 'rtcoef',
-                local          = 'var.sat.misc_rtcoef.01.tgz',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'CoverParams',
-                format         = 'foo',
-                genv           = self.conf.commonenv,
-                kind           = 'coverparams',
-                local          = 'ecoclimap_covers_param.tgz',
-                source         = 'ecoclimap',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'ClimPGD',
-                format         = 'fa',
-                genv           = self.conf.appenv,
-                gvar           = 'pgd_fa_[geometry::tag]',
-                kind           = 'pgdfa',
-                local          = 'Const.Clim.sfx',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Global Clim',
-                format         = 'fa',
-                genv           = self.conf.appenv,
-                kind           = 'clim_model',
-                local          = 'Const.Clim',
-                month          = self.conf.rundate,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Local Clim',
-                format         = 'fa',
-                genv           = self.conf.appenv,
-                geometry       = 'GLOB025,EURAT01,ATOURX01,EURAT1S20,GLOB01',
-                kind           = 'clim_bdap',
-                local          = 'const.clim.[geometry::area]',
-                month          = self.conf.rundate,
-            )
-            #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'NamelistSurfex',
-                binary         = '[model]',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                intent         = 'inout',
-                kind           = 'namelist',
-                local          = 'EXSEG1.nam',
-                source         = 'namel_previ_surfex',
-            )
-            #-------------------------------------------------------------------------------
-            # deactivate FPinline & DDH, activate spnorms:
-            tboptions = self._wrapped_input(
-                role           = 'Namelist Deltas to add/remove options',
+            tbport = self._wrapped_input(
+                role           = 'PortabilityNamelist',
                 binary         = 'arpifs',
-                component      = 'spnorms.nam,FPinline_6h.nam',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                intent         = 'in',
                 kind           = 'namelist',
-                local          = '[component]',
-                source         = 'model/options_delta/[component]',
+                local          = 'portability.nam',
+                source         = 'portability/{}'.format(self.conf.target_host),
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
-                binary         = '[model]',
+                binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_options   = (update_namelist, tboptions),
+                hook_port      = (update_namelist, tbport),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'namelistfc',
-            )
-            #-------------------------------------------------------------------------------
-            tbdef = self._wrapped_input(
-                role           = 'FullPos Mapping',
-                binary         = '[model]',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                kind           = 'namselectdef',
-                local          = 'xxt.def',
-                source         = 'xxt.def.[cutoff]',
-            )
-            #-------------------------------------------------------------------------------
-            tbdef = self._wrapped_input(
-                role           = 'FullPos Selection',
-                binary         = '[model]',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                helper         = tbdef[0].contents,
-                kind           = 'namselect',
-                local          = '[helper::xxtnam]',
-                source         = '[helper::xxtsrc]',
-                term           = rangex(0, self.conf.fcst_term, 1),
+                source         = 'IFS/namelist_fc',
             )
             #-------------------------------------------------------------------------------
 
@@ -196,9 +109,9 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             tbx = self._wrapped_executable(
                 role           = 'Binary',
                 binmap         = 'gmap',
-                format         = 'bullx',  # TODO: cleanme ? (everywhere) or in conf
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.X',
+                format         = 'bullx',
+                kind           = 'ifsmodel',
+                local          = 'IFS.X',
                 remote         = self.guess_pack(),
                 setcontent     = 'binaries',
             )
@@ -208,29 +121,46 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Atmospheric Initial Conditions',
-                block          = '4dupd2',
+                role           = 'ModelStateIn # spec atm',
+                block          = 'init',
                 date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
-                kind           = 'analysis',
+                kind           = 'historic',
                 local          = 'ICMSHFCSTINIT',
-                nativefmt      = 'fa',
+                nativefmt      = 'grib',
+                subset         = 'specatm',
+                term           = 0,
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Surface Initial conditions',
-                block          = 'surfan',
+                role           = 'ModelStateIn # gp atm',
+                block          = 'init',
                 date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
-                filling        = 'surf',
                 format         = '[nativefmt]',
-                kind           = 'analysis',
-                local          = 'ICMSHFCSTINIT.sfx',
-                model          = 'surfex',
-                nativefmt      = 'fa',
+                kind           = 'historic',
+                local          = 'ICMGGFCSTINIUA',
+                nativefmt      = 'grib',
+                subset         = 'gpatm',
+                term           = 0,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'ModelStateIn # surf',
+                block          = 'init',
+                date           = self.conf.rundate,
+                experiment     = self.conf.input_shelf,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ICMGGFCSTINIT',
+                nativefmt      = 'grib',
+                subset         = 'gpsurf',
+                term           = 0,
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
@@ -247,14 +177,9 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
-                ddhpack        = True,
                 drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
-                fcterm         = self.conf.fcst_term,
-                fcunit         = 'h',
                 kind           = 'forecast',
-                outputid       = 'arpifs-davai-assim-fc',
-                timestep       = self.conf.timestep,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
@@ -267,25 +192,26 @@ class ArpegeForecastFullPosInline(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'backup' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_output(
-                role           = 'ModelState',
+                role           = 'ModelStateOut # gp atm',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
                 format         = '[nativefmt]',
                 kind           = 'historic',
-                local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}',
-                nativefmt      = 'fa',
+                local          = 'ICMUAFCST+{glob:term:\d+}',
+                nativefmt      = 'grib',
+                subset         = 'gpatm',
                 term           = '[glob:term]',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
-                role           = 'SurfState',
+                role           = 'ModelStateOut # spec atm',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
                 format         = '[nativefmt]',
                 kind           = 'historic',
-                local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}.sfx',
-                model          = 'surfex',
-                nativefmt      = 'fa',
+                local          = 'ICMSHFCST+{glob:term:\d+}',
+                nativefmt      = 'grib',
+                subset         = 'specatm',
                 term           = '[glob:term]',
             )
             #-------------------------------------------------------------------------------

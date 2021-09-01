@@ -60,7 +60,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'clim_model',
                 local          = 'const.clim.[geometry::area::upper].m[month]',
                 model          = 'aladin',
-                month          = [self.month, self.month +1],
+                month          = [self.conf.rundate.month, self.conf.rundate.month +1],
             )
             #-------------------------------------------------------------------------------
 
@@ -197,7 +197,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'fa',
                 geometry       = self.conf.target_geometries,
                 kind           = 'boundary',
-                local          = '[geometry::tag]/ATM_SP+[term::fmthm].000.out',
+                local          = '[geometry::tag]/ATM_SP+[term::fmthm].[geometry::area::upper].out',
                 source_app     = self.conf.source_vapp,
                 source_conf    = self.conf.source_vconf,
                 source_cutoff  = self.conf.cutoff,

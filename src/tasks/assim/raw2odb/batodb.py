@@ -17,7 +17,7 @@ class BatorODB(Task, DavaiTaskMixin):
     experts = [FPDict({'kind':'bator_obscount'}), FPDict({'kind':'bator_profile'})]
 
     def output_block(self):
-        return '.'.join([self.conf.model,
+        return '-'.join([self.conf.model,
                          self.NDVar,
                          self.tag])
 
