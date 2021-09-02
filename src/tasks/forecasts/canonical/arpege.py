@@ -16,7 +16,7 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     """An Arpege canonical forecast with inline Fullpos and DDH."""
-    # TODO: add DDH
+
     experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
 
     def output_block(self):
@@ -189,7 +189,6 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             tbx = self._wrapped_executable(
                 role           = 'Binary',
                 binmap         = 'gmap',
-                format         = 'bullx',  # TODO: cleanme ? (everywhere) or in conf
                 kind           = 'mfmodel',
                 local          = 'ARPEGE.X',
                 remote         = self.guess_pack(),
@@ -279,6 +278,18 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}.sfx',
                 model          = 'surfex',
                 nativefmt      = 'fa',
+                term           = '[glob:term]',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_output(
+                role           = 'DDH',
+                block          = self.output_block(),
+                experiment     = self.conf.xpid,
+                format         = 'ddhpack',
+                kind           = 'ddh',
+                local          = 'ddhpack_{glob:s:\w+}',
+                nativefmt      = '[format]',
+                scope          = '[glob:s]',
                 term           = '[glob:term]',
             )
             #-------------------------------------------------------------------------------

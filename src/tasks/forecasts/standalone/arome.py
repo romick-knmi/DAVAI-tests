@@ -173,7 +173,6 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             tbx = self._wrapped_executable(
                 role           = 'Binary',
                 binmap         = 'gmap',
-                format         = 'bullx',  # TODO: cleanme ? (everywhere) or in conf
                 kind           = 'mfmodel',
                 local          = 'AROME.X',
                 remote         = self.guess_pack(),

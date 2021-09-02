@@ -12,6 +12,7 @@ import davai
 
 from .standalone.ifs import StandaloneIFSForecast
 from .standalone.arpege import StandaloneArpegeForecast
+from .standalone.arome import StandaloneAromeForecast
 
 
 def setup(t, **kw):
@@ -24,6 +25,11 @@ def setup(t, **kw):
         Family(tag='arpege', ticket=t, nodes=[
             Family(tag='globaltst149c24', ticket=t, nodes=[
                 StandaloneArpegeForecast(tag='forecast-arpege-globaltst149c24', ticket=t, **kw),
+                ], **kw),
+            ], **kw),
+        Family(tag='arome', ticket=t, nodes=[
+            Family(tag='corsica2500', ticket=t, nodes=[
+                StandaloneAromeForecast(tag='forecast-arome-corsica2500', ticket=t, **kw),
                 ], **kw),
             ], **kw),
         ],
