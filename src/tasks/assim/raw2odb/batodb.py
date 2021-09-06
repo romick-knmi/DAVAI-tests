@@ -18,7 +18,7 @@ class BatorODB(Task, DavaiTaskMixin):
 
     def output_block(self):
         return '-'.join([self.conf.model,
-                         self.NDVar,
+                         self.conf.assim_scheme,
                          self.tag])
 
     def process(self):
@@ -94,7 +94,7 @@ class BatorODB(Task, DavaiTaskMixin):
                 intent         = 'inout',
                 kind           = 'namutil',
                 local          = 'NAMELIST',
-                source         = 'namel_bator_assim',
+                source         = self.conf.bator_namelist,
             )
             #-------------------------------------------------------------------------------
             if self.conf.LAM:
@@ -145,6 +145,7 @@ class BatorODB(Task, DavaiTaskMixin):
                 # if obstype is not specified (in conf or loop), get all obstypes from Bator Map:
                 only           = FPSet([obstype]) if obstype else None,
                 discard        = FPSet([self.conf.discard_obstype]) if 'discard_obstype' in self.conf else None,
+                scope          = self.conf.obsmap_scope,
                 stage          = 'extract',
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,

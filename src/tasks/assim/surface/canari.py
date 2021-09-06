@@ -3,25 +3,29 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from footprints import FPDict
-from footprints.util import rangex
 
 import vortex
 from vortex import toolbox
-from vortex.layout.nodes import Task, Family, Driver
-from common.util.hooks import update_namelist
+from vortex.layout.nodes import Task
+from common.util import usepygram
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 
-class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
-    """An Arpege canonical forecast with inline Fullpos and DDH."""
+class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
+    experts = [FPDict({'kind':'canari_stats'}), FPDict({'kind':'norms'})] + davai.util.default_experts()
 
     def output_block(self):
-        return '-'.join([self.conf.prefix,
+        return '-'.join([self.conf.model,
+                         self.conf.assim_scheme,
                          self.tag])
+
+    def obs_input_block(self):
+        return '-'.join([self.conf.model,
+                         self.conf.assim_scheme,
+                         'batodb' + self._tag_suffix()])
 
     def process(self):
         self._wrapped_init()
@@ -38,51 +42,10 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Reference',  # ModelState
-                block          = self.output_block(),
-                experiment     = self.conf.ref_xpid,
-                fatal          = False,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ref.ICMSHFCST+[term:fmthm]',
-                nativefmt      = 'fa',
-                term           = self.conf.expertise_term,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Reference',  # SurfState
-                block          = self.output_block(),
-                experiment     = self.conf.ref_xpid,
-                fatal          = False,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ref.ICMSHFCST+[term:fmthm].sfx',
-                model          = 'surfex',
-                nativefmt      = 'fa',
-                term           = self.conf.expertise_term,
-            )
-            #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'RrtmConst',
-                format         = 'unknown',
-                genv           = self.conf.commonenv,
-                kind           = 'rrtm',
-                local          = 'rrtm.const.tgz',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'RtCoef',
-                format         = 'unknown',
-                genv           = self.conf.commonenv,
-                kind           = 'rtcoef',
-                local          = 'var.sat.misc_rtcoef.01.tgz',
-            )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'CoverParams',
@@ -91,6 +54,30 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Isba Parameters',
+                format         = 'ascii',
+                genv           = self.conf.commonenv,
+                kind           = 'isbaan',
+                local          = 'fort.61',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'AmvError',
+                format         = 'ascii',
+                genv           = self.conf.commonenv,
+                kind           = 'amv_error',
+                local          = 'amv_p_and_tracking_error',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'AmvBias',
+                format         = 'ascii',
+                genv           = self.conf.commonenv,
+                kind           = 'amv_bias',
+                local          = 'amv_bias_info',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -103,22 +90,23 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Global Clim',
+                role           = 'Current Global Clim',
                 format         = 'fa',
                 genv           = self.conf.appenv,
+                gvar           = 'clim_[model]_[geometry::tag]',
                 kind           = 'clim_model',
-                local          = 'Const.Clim',
+                local          = 'ICMSHCANSCLIM',
                 month          = self.conf.rundate,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Local Clim',
+                role           = 'Closest Global Clim',
                 format         = 'fa',
                 genv           = self.conf.appenv,
-                geometry       = 'GLOB025,EURAT01,ATOURX01,EURAT1S20,GLOB01',
-                kind           = 'clim_bdap',
-                local          = 'const.clim.[geometry::area]',
-                month          = self.conf.rundate,
+                gvar           = 'clim_[model]_[geometry::tag]',
+                kind           = 'clim_model',
+                local          = 'ICMSHCANSCLI2',
+                month          = self.conf.rundate.month + (1 if self.conf.rundate.day > 15 else -1),
             )
             #-------------------------------------------------------------------------------
 
@@ -126,26 +114,14 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'NamelistSurfex',
-                binary         = '[model]',
+                role           = 'Namelistsurf',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'EXSEG1.nam',
-                source         = 'namel_previ_surfex',
-            )
-            #-------------------------------------------------------------------------------
-            # deactivate FPinline & DDH, activate spnorms:
-            tboptions = self._wrapped_input(
-                role           = 'Namelist Deltas to add/remove options',
-                binary         = 'arpifs',
-                component      = 'spnorms.nam,FPinline_6h.nam',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                kind           = 'namelist',
-                local          = '[component]',
-                source         = 'model/options_delta/[component]',
+                source         = 'namel_ana_surfex',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -153,33 +129,10 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = '[model]',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_options   = (update_namelist, tboptions),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'namelistfc',
-            )
-            #-------------------------------------------------------------------------------
-            tbdef = self._wrapped_input(
-                role           = 'FullPos Mapping',
-                binary         = '[model]',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                kind           = 'namselectdef',
-                local          = 'xxt.def',
-                source         = 'xxt.def.[cutoff]',
-            )
-            #-------------------------------------------------------------------------------
-            tbdef = self._wrapped_input(
-                role           = 'FullPos Selection',
-                binary         = '[model]',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                helper         = tbdef[0].contents,
-                kind           = 'namselect',
-                local          = '[helper::xxtnam]',
-                source         = '[helper::xxtsrc]',
-                term           = rangex(0, self.conf.fcst_term, 1),
+                source         = 'namel_canari',
             )
             #-------------------------------------------------------------------------------
 
@@ -190,7 +143,7 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Binary',
                 binmap         = 'gmap',
                 kind           = 'mfmodel',
-                local          = 'ARPEGE.X',
+                local          = 'ARPEGE.EX',
                 remote         = self.guess_pack(),
                 setcontent     = 'binaries',
             )
@@ -200,29 +153,71 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Atmospheric Initial Conditions',
-                block          = '4dupd2',
-                date           = self.conf.rundate,
+                role           = 'SurfaceGuess',
+                block          = 'forecast',
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_shelf,
-                format         = '[nativefmt]',
+                format         = 'fa',
+                intent         = 'inout',
+                kind           = 'historic',
+                local          = 'ICMSHCANSINIT.sfx,ICMSHCANS+0000.sfx',
+                model          = 'surfex',
+                term           = self.guess_term(),
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            tbana = self._wrapped_input(
+                role           = 'Analysis',
+                block          = 'surfan',
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
+                experiment     = self.conf.input_shelf,
+                filling        = 'surf',
+                format         = 'fa',
                 kind           = 'analysis',
-                local          = 'ICMSHFCSTINIT',
-                nativefmt      = 'fa',
+                local          = 'analyse.fa',
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Surface Initial conditions',
-                block          = 'surfan',
-                date           = self.conf.rundate,
+                role           = 'Guess',
+                block          = 'forecast',
+                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_shelf,
-                filling        = 'surf',
-                format         = '[nativefmt]',
-                kind           = 'analysis',
-                local          = 'ICMSHFCSTINIT.sfx',
-                model          = 'surfex',
-                nativefmt      = 'fa',
+                format         = 'fa',
+                hook_ts        = (usepygram.overwritefield,
+                                  tbana[0], ('SURFTEMPERATURE',), None, dict(KNBPDG=24)),
+                intent         = 'inout',
+                kind           = 'historic',
+                local          = 'ICMSHCANSINIT',
+                term           = self.guess_term(),
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'SST Analysis',
+                block          = 'c931',
+                experiment     = self.conf.input_shelf,
+                fields         = 'sst',
+                format         = 'fa',
+                geometry       = self.conf.sst_geometry,
+                kind           = 'geofields',
+                local          = 'ICMSHCANSSST',
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Sea Ice Analysis',
+                block          = 'c932',
+                experiment     = self.conf.input_shelf,
+                fields         = 'seaice',
+                format         = 'fa',
+                geometry       = self.conf.seaice_geometry,
+                kind           = 'geofields',
+                local          = 'ICMSHCANSSEAICE',
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
@@ -230,7 +225,18 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
-            pass
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Observations',
+                block          = self.obs_input_block(),
+                experiment     = self.conf.xpid,
+                format         = 'odb',
+                intent         = 'in',
+                kind           = 'observations',
+                local          = 'ECMA_CAN',
+                part           = 'surf',
+                stage          = 'build',
+            )
             #-------------------------------------------------------------------------------
 
         # 2.2/ Compute step
@@ -239,14 +245,11 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 crash_witness  = True,
-                ddhpack        = True,
                 drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
-                fcterm         = self.conf.fcst_term,
-                fcunit         = 'h',
-                kind           = 'forecast',
-                outputid       = 'arpifs-davai-assim-fc',
-                timestep       = self.conf.timestep,
+                kind           = 'canari',
+                npool          = self.conf.obs_npools,
+                timestep       = 1,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
@@ -259,37 +262,24 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'backup' in self.steps:
             #-------------------------------------------------------------------------------
             self._wrapped_output(
-                role           = 'ModelState',
+                role           = 'Surface Analysis',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}',
-                nativefmt      = 'fa',
-                term           = '[glob:term]',
+                filling        = 'surf',
+                format         = 'fa',
+                kind           = 'analysis',
+                local          = 'ICMSHCANS+0000',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
-                role           = 'SurfState',
+                role           = 'Surfex Analysis',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
-                format         = '[nativefmt]',
-                kind           = 'historic',
-                local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}.sfx',
+                filling        = 'surf',
+                format         = 'fa',
+                kind           = 'analysis',
+                local          = 'ICMSHCANS+0000.sfx',
                 model          = 'surfex',
-                nativefmt      = 'fa',
-                term           = '[glob:term]',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_output(
-                role           = 'DDH',
-                block          = self.output_block(),
-                experiment     = self.conf.xpid,
-                format         = 'ddhpack',
-                kind           = 'ddh',
-                local          = 'ddhpack_{glob:s:\w+}',
-                nativefmt      = '[format]',
-                scope          = '[glob:s]',
             )
             #-------------------------------------------------------------------------------
 

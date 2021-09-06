@@ -4,8 +4,10 @@
 # ASSIM
 # =====
 # BSM = Bator+Screening+Minim
+# BsC = Bator_surf+Canari
 python3 vortex/bin/mkjob.py -j task=assim.BSM_4D_arpege name=BSM_4D_arpege
 python3 vortex/bin/mkjob.py -j task=assim.BSM_3D_arome name=BSM_3D_arome
+python3 vortex/bin/mkjob.py -j task=assim.BsC_arpege name=BsC_arpege
 
 # FORECASTS
 # =========
