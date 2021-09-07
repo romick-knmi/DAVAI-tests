@@ -1,22 +1,23 @@
 DAVAI tests templates and interface
 ===================================
 
-_more info to come later_
+This project contains the necessary files to run the DAVAI tests as Vortex tasks.
+
+It is composed of:
+- tasks templates | `src/tasks`
+- configuration files to implement actual tasks | `conf`
+- wrappers to setup a DAVAI experiment, build executables from git, and run the families of tests | `src/runs`
+- toolbox of utilities for DAVAI experiments and tasks | `src/davai_taskutil`
 
 Installation
 ------------
 
-1. assert to have a recent version of git:
-   (e.g. on belenos `module load git`)
-2. `bin/davai_init`
+It is installed as a sub-project of the broader `davai` project.
 
 Correspondance of tests version with IAL code to be tested
 ----------------------------------------------------------
 
 | Basis of the dev | Nominal tests version | Reference XPID |
 |:-----------------|:----------------------|:---------------|
-| `CY48T1` | `DV48T1_dev` | |
-| `CY48_T1cib.05` | `master (temporarily)` | |
-| `CY48_T1cib.01` | `DV48_T1cib` | |
-| `CY48` | `DV48` | |
+| `CY48T1` | `DV48T1_dev` | (not yet) |
 

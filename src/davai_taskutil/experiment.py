@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Handle a Davai experiment.
+Handle a Davai experiment metadata (context) for Ciboulai.
 """
 
 from __future__ import print_function, absolute_import, division, unicode_literals
