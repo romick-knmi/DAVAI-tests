@@ -1,7 +1,7 @@
-DAVAI tests templates and interface
-===================================
+DAVAI tests templates and running interface
+===========================================
 
-This project contains the necessary files to run the DAVAI tests as Vortex tasks.
+This project contains the necessary files to run the DAVAI tests.
 
 It is composed of:
 - tasks templates | `src/tasks`
@@ -12,7 +12,7 @@ It is composed of:
 Installation
 ------------
 
-It is installed as a sub-project of the broader `davai` project.
+It is installed as a sub-project of the broader `davai-env` project.
 
 Correspondance of tests version with IAL code to be tested
 ----------------------------------------------------------
