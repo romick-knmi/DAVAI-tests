@@ -161,6 +161,7 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 geometry       = self.conf.target_geometries,
                 kind           = 'boundary',
                 local          = '[geometry::tag]/MODELSTATE_[model]_[term::fmthm].[geometry::area::upper].out',
+                namespace      = self.REF_OUTPUT,
                 source_app     = self.conf.source_vapp,
                 source_conf    = self.conf.source_vconf,
                 source_cutoff  = self.conf.cutoff,

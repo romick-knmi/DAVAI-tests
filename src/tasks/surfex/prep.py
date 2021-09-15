@@ -179,6 +179,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'ic',
                 local          = 'PREP1_interpolated.[format]',
                 model          = 'surfex',
+                namespace      = self.REF_OUTPUT,
             )
             #-------------------------------------------------------------------------------
 

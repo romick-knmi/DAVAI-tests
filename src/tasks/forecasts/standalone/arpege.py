@@ -272,6 +272,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = '[nativefmt]',
                 kind           = 'historic',
                 local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}',
+                namespace      = self.REF_OUTPUT,
                 nativefmt      = 'fa',
                 term           = '[glob:term]',
             )
@@ -284,6 +285,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'historic',
                 local          = 'ICMSHFCST+{glob:term:\d+(?::\d+)?}.sfx',
                 model          = 'surfex',
+                namespace      = self.REF_OUTPUT,
                 nativefmt      = 'fa',
                 term           = '[glob:term]',
             )

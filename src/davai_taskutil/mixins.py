@@ -84,6 +84,15 @@ class WrappedToolboxMixin(object):
     Requires process() method to call _wrapped_init() to set additional attributes
     """
 
+    REF_OUTPUT = '__archive_if_ref__'
+
+    @property
+    def output_namespace(self, namespace):
+        if namespace == self.REF_OUTPUT and self.conf.archive_as_ref:
+            return 'vortex.multi.fr'
+        else:
+            return 'vortex.cache.fr'
+
     def _wrapped_init(self):
         self._tb_input = []
         self._tb_promise = []
@@ -102,6 +111,7 @@ class WrappedToolboxMixin(object):
     def _wrapped_promise(self, **description):
         promise_number = len(self._tb_promise) + 1
         self.sh.title('Toolbox promise {:02}'.format(promise_number))
+        description['namespace'] = self.output_namespace(description.get('namespace'))
         r = toolbox.promise(**description)
         self._tb_promise.append(r)
         print(self.ticket.prompt, 'tb promise {:02} ='.format(promise_number), r)
@@ -120,6 +130,7 @@ class WrappedToolboxMixin(object):
     def _wrapped_output(self, **description):
         output_number = len(self._tb_output) + 1
         self.sh.title('Toolbox output {:02}'.format(output_number))
+        description['namespace'] = self.output_namespace(description.get('namespace'))
         r = toolbox.output(**description)
         self._tb_output.append(r)
         print(self.ticket.prompt, 'tb output {:02} ='.format(output_number), r)
@@ -204,10 +215,6 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         """Get the suffix part of the tag, in case of a LoopFamily-ed task."""
         return self.tag[len(self._configtag):]
 
-    @property
-    def _expertise_namespace(self):
-        return 'vortex.multi.fr' if self.conf.archive_as_ref else 'vortex.cache.fr'
-
     def _reference_continuity_listing(self):
         return dict(
             role           = 'Reference',
@@ -234,7 +241,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
                               self.conf.hook_davai_wagons),
             kind           = self._taskinfo_kind,
             local          = 'task_summary.[format]',
-            namespace      = self._expertise_namespace,
+            namespace      = self.REF_OUTPUT,
             nativefmt      = '[format]',
             scope          = 'itself',
             task           = 'expertise')
@@ -315,7 +322,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
                               self.conf.hook_davai_wagons),
             format         = 'json',
             local          = 'task_summary.[format]',
-            namespace      = self._expertise_namespace,
+            namespace      = self.REF_OUTPUT,
             nativefmt      = '[format]',
             promised       = True,
             scope          = 'itself',
@@ -349,7 +356,7 @@ class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
             format         = 'ascii',
             kind           = 'plisting',
             local          = 'NODE.001_01',
-            namespace      = self._expertise_namespace,
+            namespace      = self.REF_OUTPUT,
             promised       = True,
             seta           = '1',
             setb           = '1',
@@ -364,7 +371,7 @@ class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
             format         = 'ascii',
             kind           = 'plisting',
             local          = 'NODE.{glob:a:\d+}_{glob:b:\d+}',
-            namespace      = self._expertise_namespace,
+            namespace      = self.REF_OUTPUT,
             promised       = True,
             seta           = '[glob:a]',
             setb           = '[glob:b]',

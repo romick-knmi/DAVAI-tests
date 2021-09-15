@@ -198,6 +198,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 geometry       = self.conf.target_geometries,
                 kind           = 'boundary',
                 local          = '[geometry::tag]/ATM_SP+[term::fmthm].[geometry::area::upper].out',
+                namespace      = self.REF_OUTPUT,
                 source_app     = self.conf.source_vapp,
                 source_conf    = self.conf.source_vconf,
                 source_cutoff  = self.conf.cutoff,

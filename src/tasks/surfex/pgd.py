@@ -188,6 +188,7 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'fa',
                 kind           = 'pgdfa',
                 local          = 'PGD.[format]',
+                namespace      = self.REF_OUTPUT,
             )
             #-------------------------------------------------------------------------------
 
