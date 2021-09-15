@@ -19,5 +19,6 @@ Correspondance of tests version with IAL code to be tested
 
 | Basis of the dev | Nominal tests version | Reference XPID |
 |:-----------------|:----------------------|:---------------|
-| `CY48T1` | `DV48T1_dev` | (not yet) |
+| `CY48T1` (contrib to T2) | `DV48T1` (tag) | `0047-CY48T1@mary` |
+| `CY48T1_toT2` (int. branch) | `DV48T1_toT2` (branch) | `0047-CY48T1@mary` (to start with) |
 

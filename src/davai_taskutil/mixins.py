@@ -85,13 +85,15 @@ class WrappedToolboxMixin(object):
     """
 
     REF_OUTPUT = '__archive_if_ref__'
+    DEFAULT_OUTPUT_NAMESPACE = 'vortex.cache.fr'
 
-    @property
     def output_namespace(self, namespace):
         if namespace == self.REF_OUTPUT and self.conf.archive_as_ref:
             return 'vortex.multi.fr'
+        elif namespace in ('vortex.multi.fr', 'vortex.cache.fr', 'vortex.archive.fr'):
+            return namespace
         else:
-            return 'vortex.cache.fr'
+            return self.DEFAULT_OUTPUT_NAMESPACE
 
     def _wrapped_init(self):
         self._tb_input = []
