@@ -16,5 +16,6 @@ if [ "$ok" == "0" ];then
   exit 0
 else
   echo "Build KO ! $ok"
+  echo "See log in $MTOOLDIR/<jobid>"
   exit 1
 fi
