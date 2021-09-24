@@ -370,6 +370,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'fa',
                 kind           = 'analysis',
                 local          = 'ICMSHANAS+0000',
+                namespace      = self.REF_OUTPUT,
             )
 
         # 3.0.1/ Davai expertise:

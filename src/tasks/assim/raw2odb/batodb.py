@@ -258,6 +258,7 @@ class BatorODB(Task, DavaiTaskMixin):
                 format         = 'ascii',
                 kind           = 'listing',
                 local          = 'listing.[part]',
+                namespace      = self.REF_OUTPUT,
                 part           = tbmapout[0].contents.odbset(),
                 task           = self._configtag,
             )
