@@ -15,7 +15,12 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
+    @property
+    def experts(self):
+        """Redefinition as property because of runtime/conf-determined values."""
+        return [FPDict({'kind':'norms', 'plot_spectral':True, 'hide_equal_norms':self.conf.hide_equal_norms}),
+                FPDict({'kind':'fields_in_file'})
+                ] + davai.util.default_experts()
 
     def _flow_input_pgd_block(self):
         """Block of PGD in case of a PPF flow-chained job."""

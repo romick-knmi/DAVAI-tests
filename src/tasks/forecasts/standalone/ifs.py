@@ -15,7 +15,12 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-    experts = [FPDict({'kind':'norms', 'plot_spectral':True}), FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
+    @property
+    def experts(self):
+        """Redefinition as property because of runtime/conf-determined values."""
+        return [FPDict({'kind':'norms', 'plot_spectral':True, 'hide_equal_norms':self.conf.hide_equal_norms}),
+                FPDict({'kind':'fields_in_file'})
+                ] + davai.util.default_experts()
 
     def output_block(self):
         return '-'.join([self.conf.prefix,

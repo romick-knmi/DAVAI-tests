@@ -15,7 +15,12 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 
 class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-    experts = [FPDict({'kind':'canari_stats'}), FPDict({'kind':'norms'})] + davai.util.default_experts()
+    @property
+    def experts(self):
+        """Redefinition as property because of runtime/conf-determined values."""
+        return [FPDict({'kind':'canari_stats'}),
+                FPDict({'kind':'norms', 'hide_equal_norms':self.conf.hide_equal_norms})
+                ] + davai.util.default_experts()
 
     def output_block(self):
         return '-'.join([self.conf.model,
@@ -269,6 +274,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'fa',
                 kind           = 'analysis',
                 local          = 'ICMSHCANS+0000',
+                namespace      = self.REF_OUTPUT,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
@@ -280,6 +286,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'analysis',
                 local          = 'ICMSHCANS+0000.sfx',
                 model          = 'surfex',
+                namespace      = self.REF_OUTPUT,
             )
             #-------------------------------------------------------------------------------
 
