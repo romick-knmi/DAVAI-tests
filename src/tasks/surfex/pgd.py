@@ -42,6 +42,7 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'fa',
                 kind           = 'pgdfa',
                 local          = 'ref.PGD.[format]',
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
 

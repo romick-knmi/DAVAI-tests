@@ -60,6 +60,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'ref.ICMSHFCST+[term:fmthm]',
                 nativefmt      = 'fa',
                 term           = self.conf.expertise_term,
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -73,6 +74,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 model          = 'surfex',
                 nativefmt      = 'fa',
                 term           = self.conf.expertise_term,
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
 

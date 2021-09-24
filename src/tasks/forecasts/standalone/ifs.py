@@ -47,6 +47,7 @@ class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 nativefmt      = 'grib',
                 subset         = 'gpatm',
                 term           = self.conf.expertise_term,
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -60,6 +61,7 @@ class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 nativefmt      = 'grib',
                 subset         = 'specatm',
                 term           = self.conf.expertise_term,
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
 

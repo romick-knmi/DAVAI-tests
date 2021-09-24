@@ -45,6 +45,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source_conf    = self.conf.source_vconf,
                 source_cutoff  = self.conf.cutoff,
                 term           = self.conf.terms,
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
 

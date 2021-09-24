@@ -230,7 +230,8 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             namespace      = self.conf.ref_namespace,
             seta           = '1',
             setb           = '1',
-            task           = self._configtag)
+            task           = self._configtag,
+            vconf          = self.conf.ref_vconf)
 
     def _promised_expertise(self):
         return dict(
@@ -260,7 +261,8 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             local          = 'ref_summary.[format]',
             nativefmt      = '[format]',
             scope          = 'itself',
-            task           = 'expertise')
+            task           = 'expertise',
+            vconf          = self.conf.ref_vconf)
 
     def _reference_consistency_expertise(self):
         return dict(

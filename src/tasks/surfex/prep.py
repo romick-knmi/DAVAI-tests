@@ -50,6 +50,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'ic',
                 local          = 'ref.PREP1_interpolated.[format]',
                 model          = 'surfex',
+                vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
 
