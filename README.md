@@ -17,8 +17,8 @@ It is installed as a sub-project of the broader `davai-env` project.
 Correspondance of tests version with IAL code to be tested
 ----------------------------------------------------------
 
-| Basis of the dev | Nominal tests version | Reference XPID |
-|:-----------------|:----------------------|:---------------|
-| `CY48T1` (contrib to T2) | `DV48T1` (tag) | `0047-CY48T1@mary` |
-| `CY48T1_toT2` (int. branch) | `DV48T1_toT2` (branch) | `0047-CY48T1@mary` (to start with) |
+| _What to test_ | Basis of the dev | Nominal tests version | Reference XPID |
+|:-----------------|:-----------------|:----------------------|:---------------|
+| Contribution to 48T2 | `tag: CY48T1` | `tag: DV48T1` | `0047-CY48T1@mary` |
+| 48T2 Integration branch | `branch: CY48T1_toT2` | `branch: DV48T1_toT2` | `0047-CY48T1@mary` (to start with) |
 
