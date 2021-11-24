@@ -22,6 +22,13 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
         t.env.DAVAI_SERVER = self.masterja.conf.DAVAI_SERVER
         t.env.EC_MEMINFO = '0'  # FIXME: without, some exec crash at EC_MEMINFO setup...
 
+    def plugable_system_setup(self, t, **kw):
+        if self.masterja.conf.promote_coredump:
+            # Unlimited size for core-dump files
+            t.sh.setulimit('core')
+            # Intel wants this variable to be in lowercase... ifort is such a nice compiler :-(
+            t.env.setvar('decfort_dump_flag', 'TRUE', enforce_uppercase=False)
+
 
 class DavaiDevJobAssistantPlugin(DavaiJobAssistantPlugin):
     """JobAssistant plugin for Davai development."""
