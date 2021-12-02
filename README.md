@@ -19,6 +19,6 @@ Correspondance of tests version with IAL code to be tested
 
 | _What to test_ | Basis of the dev | Nominal tests version | Reference XPID |
 |:-----------------|:-----------------|:----------------------|:---------------|
-| Contribution to 48T2 | `tag: CY48T1` | `tag: DV48T1` | `0047-CY48T1@mary` |
-| 48T2 Integration branch | `branch: CY48T1_toT2` | `branch: DV48T1_toT2` | `0047-CY48T1@mary` (to start with) |
+| Contribution to 48T2 | `tag: CY48T1` | `branch: DV48T1_toT2` | `0047-CY48T1@mary` |
+| 48T2 Integration branch | `branch: CY48T1_preT2` | `branch: DV48T1_preT2` | `0058-CY48T1_op0.00@mary` |
 
