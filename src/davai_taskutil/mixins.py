@@ -184,15 +184,16 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             self.conf.rundate = self.conf.obstype_rundate_map[obstype]
             toolbox.defaults(date=self.conf.rundate)
 
-    def guess_pack(self, abspath=True, to_bin=True):
+    def guess_pack(self, abspath=True, homepack=None, to_bin=True):
         """Guess and return pack according to self.conf"""
-        from ial_build.algos import guess_packname
-        return guess_packname(self.conf.IAL_git_ref,
-                              self.conf.gmkpack_compiler_label,
-                              self.conf.gmkpack_packtype,
-                              self.conf.gmkpack_compiler_flag,
-                              abspath=abspath,
-                              to_bin=to_bin)
+        from ial_build.pygmkpack import GmkpackTool
+        return GmkpackTool.guess_pack_name(self.conf.IAL_git_ref,
+                                           self.conf.gmkpack_compiler_label,
+                                           self.conf.gmkpack_compiler_flag,
+                                           self.conf.gmkpack_packtype,
+                                           abspath=abspath,
+                                           homepack=homepack,
+                                           to_bin=to_bin):
 
     def run_expertise(self):
         if 'compute' in self.steps:
