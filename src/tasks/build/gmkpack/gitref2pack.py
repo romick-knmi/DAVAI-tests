@@ -65,7 +65,7 @@ class GitRef2Pack(Task, DavaiTaskMixin):
 
         # 2.2/ Compute step
         if 'compute' in self.steps:
-            self._notify_start_compute()  # TODO: cleanme: OK now ? deactivated for this task: not compatible with wait4build
+            self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 cleanpack      = self.conf.cleanpack,
@@ -75,13 +75,11 @@ class GitRef2Pack(Task, DavaiTaskMixin):
                 engine         = 'algo',
                 git_ref        = self.conf.IAL_git_ref,
                 homepack       = self.conf.get('homepack', None),
-                kind           = 'ia4h_gitref2{}pack'.format(self.conf.gmkpack_packtype),
-                link_filter_file = self.conf.link_filter_file,
-                packname       = '__guess__',
-                populate_filter_file = self.conf.populate_filter_file,
+                kind           = 'ialgitref2pack',
+                pack_type      = self.conf.gmkpack_packtype,
                 preexisting_pack = self.conf.preexisting_pack,
                 repository     = self.conf.IAL_repository,
-                rootpack       = self.conf.get('rootpack', self.env.get('ROOTPACK', None))
+                rootpack       = self.conf.get('rootpack', None)
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()

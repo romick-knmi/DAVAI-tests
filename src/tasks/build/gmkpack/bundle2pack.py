@@ -2,30 +2,28 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-from footprints import FPDict
-
 import vortex
 from vortex import toolbox
-from vortex.layout.nodes import Task, Driver
+from vortex.layout.nodes import Task, Driver, Family
 
 from davai_taskutil.mixins import DavaiTaskMixin
 
 
 def setup(t, **kw):
-    return Driver(
-        tag     = 'packbuild',
-        ticket  = t,
-        nodes   = [
-            PackCompileLink(tag='pack_compile_link', ticket=t, **kw)
+    return Driver(tag='packbuild', ticket=t, options=kw, nodes=[
+        Family(tag='packbuild', ticket=t, nodes=[
+            Bundle2Pack(tag='bundle2pack', ticket=t, **kw)
+            ], **kw),
         ],
-        options=kw
     )
 
 
-class PackCompileLink(Task, DavaiTaskMixin):
+class Bundle2Pack(Task, DavaiTaskMixin):
 
-    experts = [FPDict({'kind':'gmkpack_build'}),]
     _taskinfo_kind = 'statictaskinfo'
+
+    def output_block(self):
+        return self.tag
 
     def process(self):
         self._wrapped_init()
@@ -37,7 +35,7 @@ class PackCompileLink(Task, DavaiTaskMixin):
 
         # 1.1.0/ Reference resources, to be compared to:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_input(**self._reference_continuity_expertise())
+            pass
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
@@ -47,7 +45,18 @@ class PackCompileLink(Task, DavaiTaskMixin):
 
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            pass
+            bundle_provider = dict()
+            if self.conf.bundle_file:
+                bundle_provider['remote'] = self.conf.bundle_file
+            else:
+                bundle_provider['genv'] = self.conf.commonenv
+            self._wrapped_input(
+                role           = 'Bundle',
+                format         = 'yml',
+                kind           = 'bundle',
+                shouldfly      = True
+                **bundle_provider,
+            )
             #-------------------------------------------------------------------------------
 
         # 1.1.3/ Static Resources (executables):
@@ -71,15 +80,14 @@ class PackCompileLink(Task, DavaiTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 cleanpack      = self.conf.cleanpack,
+                compiler_flag  = self.conf.gmkpack_compiler_flag,
+                compiler_label = self.conf.gmkpack_compiler_label,
                 crash_witness  = True,
-                engine         = 'algo',
                 homepack       = self.conf.get('homepack', None),
-                kind           = 'pack_build_executables',
-                packname       = self.guess_pack(abspath=False, to_bin=False),
-                programs       = self.conf.programs,
-                other_options  = FPDict({'GMK_THREADS':self.conf.threads, 'Ofrt':self.conf.Ofrt}),
-                regenerate_ics = self.conf.regenerate_ics,
-                fatal_build_failure = self.conf.fatal_build_failure,
+                kind           = 'bundle2pack',
+                pack_type      = self.conf.gmkpack_packtype,
+                preexisting_pack = self.conf.preexisting_pack,
+                rootpack       = self.conf.get('rootpack', None)
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
@@ -90,20 +98,12 @@ class PackCompileLink(Task, DavaiTaskMixin):
 
         # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
-            self._wrapped_output(
-                role           = 'Binary',
-                #binmap         = 'gmap',
-                kind           = '[glob:b]::lower',
-                local          = '{glob:b}.x',
-                #remote         = self.guess_pack(),
-                #setcontent     = 'binaries',
-            )
+            pass
             #-------------------------------------------------------------------------------
 
         # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:
             self._wrapped_output(**self._output_expertise())
-            self._wrapped_output(**self._output_comparison_expertise())
             #-------------------------------------------------------------------------------
 
         # 3.0.2/ Other output resources of possible interest:

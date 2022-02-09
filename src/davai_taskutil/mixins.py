@@ -193,7 +193,18 @@ class DavaiTaskMixin(WrappedToolboxMixin):
                                            self.conf.gmkpack_packtype,
                                            abspath=abspath,
                                            homepack=homepack,
-                                           to_bin=to_bin):
+                                           to_bin=to_bin)
+
+    def bundle_guess_pack(self, abspath=True, homepack=None, to_bin=True):
+        """Guess and return pack according to self.conf"""
+        from ial_build.bundle import IALBundle
+        b = IALBundle(bundle_file)
+        return b.gmkpack_guess_pack_name(self.conf.gmkpack_packtype,
+                                         self.conf.gmkpack_compiler_label,
+                                         self.conf.gmkpack_compiler_flag,
+                                         abspath=abspath,
+                                         homepack=homepack,
+                                         to_bin=to_bin)
 
     def run_expertise(self):
         if 'compute' in self.steps:

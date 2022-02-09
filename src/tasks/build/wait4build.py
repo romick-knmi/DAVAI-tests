@@ -96,7 +96,7 @@ class Wait4Build(Task):
         return expertise[0]
 
     def process(self):
-        for block in ('gitref2pack', 'pack_compile_link'):
+        for block in self.conf.wait4steps:
             # get compilation expertise
             expertise = self._get_expertise(block=block, **self._expertise_description)
             # check that all builds are successful
