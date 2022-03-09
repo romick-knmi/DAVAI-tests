@@ -12,7 +12,7 @@ It is composed of:
 Installation
 ------------
 
-It is installed as a sub-project of the broader `davai-env` project.
+Should be installed by the `davai-init` command of the [DAVAI-env](https://github.com/ACCORD-NWP/DAVAI-env) project.
 
 Correspondance of tests version with IAL code to be tested
 ----------------------------------------------------------
@@ -21,4 +21,3 @@ Correspondance of tests version with IAL code to be tested
 |:-----------------|:-----------------|:----------------------|:---------------|
 | Contribution to 48T2 | `tag: CY48T1` | `branch: DV48T1_toT2` | `0047-CY48T1@mary` |
 | 48T2 Integration branch | `branch: CY48T1_preT2` | `branch: DV48T1_preT2` | `0058-CY48T1_op0.00@mary` |
-
