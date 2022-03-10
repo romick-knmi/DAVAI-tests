@@ -16,6 +16,7 @@ from bronx.stdtypes import date
 from . import __version__ as tests_version
 
 
+# TODO: cleanme, DEPRECATED / sync with vortex
 class XPMetadata(object):
     """Collect metadata about XP and save it."""
     env_catalog_variables = ('APPENV', 'APPENV_LAM', 'APPENV_GLOBAL',
@@ -47,7 +48,7 @@ class XPMetadata(object):
         self._set_details()
 
     def _gmkpack_info(self):
-        from ial_build.algos import guess_packname
+        from ial_build.algos import guess_packname  # TODO: to replace by GmkpackTool.guess_pack_name
         pack = guess_packname(os.environ.get('IA4H_GITREF', os.environ.get('IAL_GIT_REF')),
                               os.environ.get('GMKPACK_COMPILER_LABEL'),
                               os.environ.get('GMKPACK_PACKTYPE'),
@@ -76,23 +77,9 @@ class XPMetadata(object):
                 for k in self.env_catalog_variables
                 if k.lower() in self._dict}
 
-    @classmethod
-    def _get_env_catalog_details(cls, env):
-        from gco.tools import uenv, genv
-        if any([env.startswith(scheme) for scheme in ('uget:', 'uenv:')]):
-            # uenv
-            details = uenv.nicedump(env,
-                                    scheme='uget',
-                                    netloc='uget.multi.fr')
-        else:
-            # genv
-            details = ['%s="%s"' % (k, v)
-                       for (k, v) in genv.autofill(env).items()]
-        return details
-
     def _set_details(self):
         for k, env in self._which_env_catalog_details.items():
-            details = self._get_env_catalog_details(env)
+            details = _get_env_catalog_details(env)
             self._dict['{}_details'.format(k.lower())] = '<br>'.join(details)
 
     def write(self):
@@ -100,3 +87,38 @@ class XPMetadata(object):
         with open('xpinfo.json', 'w') as out:
             json.dump(self._dict, out, indent=4, sort_keys=True)
 
+
+def _get_env_catalog_details(env):
+    from gco.tools import uenv, genv
+    if any([env.startswith(scheme) for scheme in ('uget:', 'uenv:')]):
+        # uenv
+        details = uenv.nicedump(env,
+                                scheme='uget',
+                                netloc='uget.multi.fr')
+    else:
+        # genv
+        details = ['%s="%s"' % (k, v)
+                   for (k, v) in genv.autofill(env).items()]
+    return details
+
+
+def gather_mkjob_xp_conf(xpid, conf):
+    """
+    Gather info from mjob conf file + additional, and write it to file ('xpinfo.json')
+    to be sent to Ciboulai to initialize XP.
+    """
+    env_catalog_variables = ('appenv_global', 'appenv_lam', 'appenv_clim', 'commonenv')
+    # set dynamically additional info
+    if conf['ref_xpid'] == xpid:
+        conf['ref_xpid'] = None
+    conf.update(xpid=xpid,
+                initial_time_of_launch=date.utcnow().isoformat().split('.')[0],
+                user=os.environ['USER'])
+    # get uenv details
+    for k in env_catalog_variables:
+        env = conf[k]
+        details = _get_env_catalog_details(env)
+        conf['{}_details'.format(k)] = '<br>'.join(details)
+    # write to file
+    with open('xpinfo.json', 'w') as out:
+        json.dump(conf, out, indent=4, sort_keys=True)

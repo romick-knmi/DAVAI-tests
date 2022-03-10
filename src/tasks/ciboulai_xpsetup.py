@@ -2,11 +2,12 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+from footprints import FPDict, FPList
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
 
-import davai
+import davai  # for algos and specific resources
 
 
 def setup(t, **kw):
@@ -21,31 +22,24 @@ def setup(t, **kw):
 
 
 class CiboulaiXpSetup(Task):
-    conf2env = ('IAL_git_ref',  # for packname
-                'gmkpack_compiler_label', 'gmkpack_packtype', 'gmkpack_compiler_flag',  # for packname
-                'HOMEPACK',  # for packname (path)
-                'comment', 'usecase', 'ref_xpid',  # the xp itself
-                'appenv_LAM', 'appenv_global', 'commonenv', 'appenv_clim',  # uenv's
-                'input_shelf_LAM', 'input_shelf_global',  # input shelves
-                )
-
-    def _set_env_from_conf(self):
-        """Export some conf variables to environment."""
-        for v in self.conf2env:
-            if v in self.conf and v.upper() not in self.env:
-                self.env.setvar(v.upper(), self.conf.get(v))
 
     def process(self):
         t = self.ticket
         sh = self.sh
-        self._set_env_from_conf()
+
+        # convert conf to be passed to algo through footprints
+        conf = FPDict(self.conf)
+        for k, v in conf.items():
+            if isinstance(v, list):
+                conf[k] = FPList(v)
 
         if 'compute' in self.steps or 'early-fetch' in self.steps:  # it should run on transfert nodes
             sh.title('Toolbox algo tb01 = tbalgo')
             tb01 = tbalgo = toolbox.algo(
                 engine         = 'algo',
-                kind           = 'xpsetup',
+                kind           = 'ciboulai_xpsetup_mkjob',
                 xpid           = self.conf.xpid,
+                conf           = conf,
             )
             print(t.prompt, 'tb01 =', tb01)
             print()
@@ -66,5 +60,3 @@ class CiboulaiXpSetup(Task):
             )
             print(t.prompt, 'tb02 =', tb02)
             print()
-
-
