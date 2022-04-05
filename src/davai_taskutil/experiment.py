@@ -48,11 +48,13 @@ class XPMetadata(object):
         self._set_details()
 
     def _gmkpack_info(self):
-        from ial_build.algos import guess_packname  # TODO: to replace by GmkpackTool.guess_pack_name
-        pack = guess_packname(os.environ.get('IA4H_GITREF', os.environ.get('IAL_GIT_REF')),
-                              os.environ.get('GMKPACK_COMPILER_LABEL'),
-                              os.environ.get('GMKPACK_PACKTYPE'),
-                              os.environ.get('GMKPACK_COMPILER_FLAG'))
+        from ial_build.pygmkpack import GmkpackTool
+        pack = GmkpackTool.guess_pack_name(os.environ.get('IA4H_GITREF', os.environ.get('IAL_GIT_REF')),
+                                           os.environ.get('GMKPACK_COMPILER_LABEL'),
+                                           os.environ.get('GMKPACK_COMPILER_FLAG'),
+                                           os.environ.get('GMKPACK_PACKTYPE'),
+                                           IAL_repo_path=os.environ.get('IA4H_REPOSITORY',
+                                                                        os.environ.get('IAL_REPOSITORY')))
         return {'gmkpack_packname':pack,
                 'homepack':os.environ.get('HOMEPACK'),
                 'rootpack':os.environ.get('ROOTPACK'),
