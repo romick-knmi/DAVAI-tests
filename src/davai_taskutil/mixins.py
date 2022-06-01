@@ -191,6 +191,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
                                            self.conf.gmkpack_compiler_label,
                                            self.conf.gmkpack_compiler_flag,
                                            self.conf.gmkpack_packtype,
+                                           IAL_repo_path=self.conf.IAL_repository,
                                            abspath=abspath,
                                            homepack=homepack,
                                            to_bin=to_bin)
