@@ -17,8 +17,10 @@ Should be installed by the `davai-init` command of the [DAVAI-env](https://githu
 Correspondance of tests version with IAL code to be tested
 ----------------------------------------------------------
 
+To be used in `davai-prep_xp -v <davai_tests_version> ...`
+
 | _What to test_ | Basis of the dev | Nominal tests version | Reference XPID |
 |:-----------------|:-----------------|:----------------------|:---------------|
-| Merge branch CY49 | `tag: CY48T3` | ??? | ??? |
-| 48T3 dev branch | `branch: mary_CY48T2_to_T3` | `branch: dev` | `dv-0120@mary` |
-| Development on top of 48T2 | `tag: CY48T2` | `tag: DV48T2` | `dv-0120@mary` |
+| Merge branch CY49 | `CY48T3` (tag) | ??? | ??? |
+| 48T3 dev branch | `mary_CY48T2_to_T3` (branch) | `dev` (branch) | `dv-0120@mary` |
+| Development on top of 48T2 | `CY48T2` (tag) | `DV48T2` (tag) | `dv-0120@mary` |
