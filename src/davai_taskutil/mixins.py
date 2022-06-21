@@ -14,17 +14,6 @@ from davai.algo.mixins import context_info_for_task_summary  # a function in vor
 class IncludesTaskMixin(object):
     """Provide a method to input usual tools, known as 'Task Includes' in Olive."""
 
-    def guess_pack(self, abspath=True, to_bin=True):
-        """Guess and return pack according to self.conf.pack"""
-        path_split = self.conf.pack.split(self.sh.path.sep)
-        if abspath:
-            guess = path_split
-        else:
-            guess = path_split[-1:]
-        if to_bin:
-            guess += 'bin'
-        return self.sh.path.join(guess)
-
     def _load_usual_tools(self):
         if 'early-fetch' in self.steps:
             self.sh.title('Toolbox usual-tools tb_ut01')
@@ -184,7 +173,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             self.conf.rundate = self.conf.obstype_rundate_map[obstype]
             toolbox.defaults(date=self.conf.rundate)
 
-    def guess_pack(self, abspath=True, homepack=None, to_bin=True):
+    def guess_pack_from_IAL_git_ref(self, abspath=True, homepack=None, to_bin=True):
         """Guess and return pack according to self.conf"""
         from ial_build.pygmkpack import GmkpackTool
         return GmkpackTool.guess_pack_name(self.conf.IAL_git_ref,
@@ -196,16 +185,42 @@ class DavaiTaskMixin(WrappedToolboxMixin):
                                            homepack=homepack,
                                            to_bin=to_bin)
 
-    def bundle_guess_pack(self, abspath=True, homepack=None, to_bin=True):
+    def guess_pack_from_bundle(self, abspath=True, homepack=None, to_bin=True):
         """Guess and return pack according to self.conf"""
         from ial_build.bundle import IALBundle
-        b = IALBundle(bundle_file)
+        b = IALBundle(self.conf.bundle_file)
         return b.gmkpack_guess_pack_name(self.conf.gmkpack_packtype,
                                          self.conf.gmkpack_compiler_label,
                                          self.conf.gmkpack_compiler_flag,
                                          abspath=abspath,
                                          homepack=homepack,
                                          to_bin=to_bin)
+
+    def guess_pack(self, abspath=True, homepack=None, to_bin=True):
+        if self.pack_population == 'IAL_git_ref':
+            return self.guess_pack_from_IAL_git_ref(abspath=abspath, homepack=homepack, to_bin=to_bin)
+        elif self.pack_population == 'bundle_file':
+            return self.guess_pack_from_bundle(abspath=abspath, homepack=homepack, to_bin=to_bin)
+        else:
+            raise KeyError("Unknown pack_population: ''".format(self.pack_population))
+
+    def _gmkpack_executables_block(self):
+        return '-'.join(['gmkpack', self.conf.gmkpack_compiler_label, self.conf.gmkpack_compiler_flag])
+
+    def executables_block(self):
+        if self.conf.compiling_system == 'gmkpack':
+            return self._gmkpack_executables_block()
+        else:
+            raise NotImplementedError("conf.compiling_system == {}".format(self.conf.compiling_system))
+
+    @property
+    def pack_population(self):
+        if 'bundle_file' in self.conf and 'IAL_git_ref' not in self.conf:
+            return 'bundle_file'
+        elif 'IAL_git_ref' in self.conf and 'bundle_file' not in self.conf:
+            return 'IAL_git_ref'
+        else:
+            raise KeyError("One and only one of ('bundle_file', 'IAL_git_ref') has to be provided in config file")
 
     def run_expertise(self):
         if 'compute' in self.steps:

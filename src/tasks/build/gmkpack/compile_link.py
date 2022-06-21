@@ -27,6 +27,9 @@ class PackCompileLink(Task, DavaiTaskMixin):
     experts = [FPDict({'kind':'gmkpack_build'}),]
     _taskinfo_kind = 'statictaskinfo'
 
+    def output_block(self):
+        return self._gmkpack_executables_block()
+
     def process(self):
         self._wrapped_init()
 
@@ -95,6 +98,8 @@ class PackCompileLink(Task, DavaiTaskMixin):
                 #binmap         = 'gmap',
                 kind           = '[glob:b]::lower',
                 local          = '{glob:b}.x',
+                block          = self.output_block(),
+                experiment     = self.conf.xpid,
                 #remote         = self.guess_pack(),
                 #setcontent     = 'binaries',
             )
