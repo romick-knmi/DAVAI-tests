@@ -52,9 +52,10 @@ class Bundle2Pack(Task, DavaiTaskMixin):
                 bundle_provider['genv'] = self.conf.commonenv
             self._wrapped_input(
                 role           = 'Bundle',
-                format         = 'yml',
+                nativefmt      = 'yml',
                 kind           = 'bundle',
-                shouldfly      = True
+                #shouldfly      = True,
+                local          = 'bundle.yml',
                 **bundle_provider,
             )
             #-------------------------------------------------------------------------------
