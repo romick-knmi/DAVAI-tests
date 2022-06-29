@@ -6,7 +6,7 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver, Family
 
-from davai_taskutil.mixins import DavaiTaskMixin, BuildMixin
+from davai_taskutil.mixins import DavaiTaskMixin, GmkpackMixin
 
 
 def setup(t, **kw):
@@ -16,7 +16,7 @@ def setup(t, **kw):
     )
 
 
-class GitRef2Pack(Task, DavaiTaskMixin, BuildMixin):
+class GitRef2Pack(Task, DavaiTaskMixin, GmkpackMixin):
 
     _taskinfo_kind = 'statictaskinfo'
 

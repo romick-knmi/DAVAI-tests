@@ -6,7 +6,7 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver, Family
 
-from davai_taskutil.mixins import DavaiTaskMixin
+from davai_taskutil.mixins import DavaiTaskMixin, GmkpackMixin
 
 
 def setup(t, **kw):
@@ -16,12 +16,9 @@ def setup(t, **kw):
     )
 
 
-class Bundle2Pack(Task, DavaiTaskMixin):
+class Bundle2Pack(Task, DavaiTaskMixin, GmkpackMixin):
 
     _taskinfo_kind = 'statictaskinfo'
-
-    def output_block(self):
-        return self.tag
 
     def process(self):
         self._wrapped_init()

@@ -178,6 +178,8 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
     def executables_block_gmkpack(self, compilation_flavour=None):
         """
+        Return the block in which to find the binaries, wrt self.compilation_flavour or a provided such argument.
+
         TOUCH WITH CARE: this method is now defined to mimic what the loop on compilation flavours does.
         """
         if compilation_flavour is None:
@@ -185,18 +187,22 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         return '{}.{}'.format(gmkpack_executables_block_tag, self.conf.compilation_flavour.lower())
 
     def executables_block(self, **kw):
+        """
+        Return the block in which to find the binaries, wrt self.compilation_flavour or a provided such argument.
+        """
         if self.conf.compiling_system == 'gmkpack':
             return self.executables_block_gmkpack(**kw)
         else:
             raise NotImplementedError("conf.compiling_system == {}".format(self.conf.compiling_system))
 
     def flow_executable(self, **kw):
+        """Shortcut for getting executable from dataflow. Default attributes can be overpassed by argument."""
         description = dict(
             role           = 'Binary',
             block          = self.executables_block(),
             experiment     = self.conf.xpid,
             kind           = 'ifsmodel',
-            local          = '{}.X'.format(self.conf.model.upper()),
+            local          = '{}.X'.format(self.conf.model.upper()),  # legacy nomenclature
             model          = 'ifs',  # as genericly named in cache out of compilation
             nativefmt      = self.conf.executables_fmt,
             )
@@ -218,7 +224,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     def output_block(self):
         """
         Output block method: should map more or less Family tree.
-        TO BE OVERWRITTEN in real tasks
+        TO BE OVERWRITTEN in (most) real tasks
         """
         return '-'.join([self.tag])
 
@@ -324,16 +330,6 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         if 'compute' in self.steps:
             self._notify_start_step('compute')
 
-    def _notify_2bewaited4(self):
-        if 'compute' in self.steps:
-            notification_file = '2bewaited4'
-            with io.open(notification_file, 'w'):
-                pass
-            description = self._output_expertise()
-            description['task'] = 'self.wait4build.txt'
-            description['local'] = notification_file
-            description['namespace'] = 'vortex.cache.fr'
-
     def _output_expertise(self):
         return dict(
             role           = 'TaskSummary',
@@ -368,7 +364,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
 
 class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
-    """Provide useful usual outputs for Davai IAL tests."""
+    """Provide useful usual outputs for IAL tests."""
 
     def _promised_listing(self):  # Promised to be able to export its cache/archive path to ciboulai
         return dict(
@@ -431,36 +427,36 @@ class BuildMixin(object):
 
     @property
     def tasks2wait4_file(self):
+        """Filepath of witness file listing the build tasks to be waited for."""
         return self.sh.path.join(self.env['HOME'], '.davairc', '.{}.{}'.format(self.conf.xpid, 'buildtasks'))
 
     def tasks2wait4_rmfile(self):
+        """Remove the witness file listing the build tasks to be waited for."""
         if self.sh.path.exists(self.tasks2wait4_file):
             self.sh.rm(self.tasks2wait4_file)
 
     def tasks2wait4_init(self):
+        """(Re-)Initialize the witness file listing the build tasks to be waited for."""
         self.tasks2wait4_rmfile()
         with io.open(self.tasks2wait4_file, 'w'):
             pass
 
     def tasks2wait4_add(self):
+        """Add the current task to the witness file listing the build tasks to be waited for."""
         if self.steps == ('early-fetch',):
             with io.open(self.tasks2wait4_file, 'a') as f:
                 f.write(self.output_block() + '\n')
                 f.flush()
 
     def tasks2wait4_readlist(self):
+        """Read and return the list of build tasks to be waited for."""
         with io.open(self.tasks2wait4_file, 'r') as f:
             tasks = [l.strip() for l in f.readlines()]
         return tasks
 
-    def sources_gathering_block(self):
-        if self.conf.compiling_system == 'gmkpack':
-            if self.conf.sources_origin == 'bundle':
-                return 'bundle2pack'
-            else:
-                return 'gitref2pack'
-        else:
-            raise NotImplementedError("conf.compiling_system == {}".format(self.conf.compiling_system))
+
+class GmkpackMixin(BuildMixin):
+    """A mixin for tasks that deal with building of executables with gmkpack."""
 
     @property
     def gmkpack_compiler_label(self):
@@ -509,4 +505,3 @@ class BuildMixin(object):
             return 'IAL_git_ref'
         else:
             raise KeyError("One and only one of ('bundle_file', 'IAL_git_ref') has to be provided in config file")
-

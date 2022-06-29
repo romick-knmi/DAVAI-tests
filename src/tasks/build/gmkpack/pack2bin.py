@@ -9,7 +9,7 @@ from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
 from davai.algo.build import binaries_syntax_in_workdir
 
-from davai_taskutil.mixins import DavaiTaskMixin, BuildMixin
+from davai_taskutil.mixins import DavaiTaskMixin, GmkpackMixin
 
 
 def setup(t, **kw):
@@ -19,7 +19,7 @@ def setup(t, **kw):
     )
 
 
-class Pack2Bin(Task, DavaiTaskMixin, BuildMixin):
+class Pack2Bin(Task, DavaiTaskMixin, GmkpackMixin):
 
     experts = [FPDict({'kind':'gmkpack_build'}),]
     _taskinfo_kind = 'statictaskinfo'

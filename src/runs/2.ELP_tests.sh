@@ -1,6 +1,11 @@
 #!/usr/bin/bash
 # RUN THE ELP-SET OF TESTS
 
+# NRV
+# ===
+# ELP include NRV
+./2.NRV_tests.sh
+
 # ASSIM
 # =====
 # BSM = Bator+Screening+Minim
@@ -13,11 +18,6 @@ python3 vortex/bin/mkjob.py -j task=assim.BS_4D_arpege__obstype name=BS_4D_arpeg
 python3 vortex/bin/mkjob.py -j task=assim.BS_3D_arome__obstype name=BS_3D_arome__obstype
 
 # ... (to be completed)
-
-# NRV
-# ===
-# ELP include NRV
-./NRV_tests.sh
 
 # ---------------------------------------------------------------------------------------------------------
 vapp=$(basename $(dirname $PWD))

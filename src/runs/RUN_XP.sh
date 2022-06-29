@@ -10,7 +10,7 @@ if [ "$ok" != "0" ];then
 else
   echo "Let's go for the build !"
   # 1. Build
-  ./1.packbuild.sh
+  ./1.build.sh
   if [ "$?" == "1" ];then
     echo "Build failed: cannot run tests. Exit."
     exit 1
