@@ -176,25 +176,12 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            tbio = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                format         = 'bullx',
+            tbio = self.flow_executable(
                 kind           = 'odbioassign',
                 local          = 'ioassign',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
-            tbx = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                format         = 'bullx',
-                kind           = 'mfmodel',
-                local          = 'AROME.EX',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
-            )
+            tbx = self.flow_executable()  # default kind is masterodb, locally named '{MODEL}.X'
             #-------------------------------------------------------------------------------
 
         # 1.2/ Initial Flow Resources: theoretically flow-resources, but statically stored in input_shelf

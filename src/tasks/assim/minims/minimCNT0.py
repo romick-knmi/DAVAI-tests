@@ -203,15 +203,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            tbx = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                format         = 'bullx',
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.EX',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
-            )
+            tbx = self.flow_executable()  # default kind is masterodb, locally named '{MODEL}.X'
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf

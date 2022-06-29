@@ -193,14 +193,7 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
-            tbx = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.X',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
-            )
+            tbx = self.flow_executable()
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf

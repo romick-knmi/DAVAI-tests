@@ -10,10 +10,8 @@ from davai_taskutil.mixins import DavaiTaskMixin
 
 
 def setup(t, **kw):
-    return Driver(tag='packbuild', ticket=t, options=kw, nodes=[
-        Family(tag='packbuild', ticket=t, nodes=[
-            Bundle2Pack(tag='bundle2pack', ticket=t, **kw)
-            ], **kw),
+    return Driver(tag='build', ticket=t, options=kw, nodes=[
+        Bundle2Pack(tag='bundle2pack', ticket=t, **kw)
         ],
     )
 
@@ -86,7 +84,7 @@ class Bundle2Pack(Task, DavaiTaskMixin):
                 crash_witness  = True,
                 homepack       = self.conf.get('homepack', None),
                 kind           = 'bundle2pack',
-                pack_type      = self.conf.gmkpack_packtype,
+                pack_type      = self.conf.packtype,
                 preexisting_pack = self.conf.preexisting_pack,
                 rootpack       = self.conf.get('rootpack', None)
             )

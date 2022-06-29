@@ -4,12 +4,15 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import footprints.util
 import time
+from collections import OrderedDict
 
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
 
 import common
+
+from davai_taskutil.mixins import BuildMixin
 
 
 def setup(t, **kw):
@@ -23,7 +26,7 @@ def setup(t, **kw):
     )
 
 
-class Wait4Build(Task):
+class Wait4Build(Task, BuildMixin):
 
     _taskinfo_kind = 'statictaskinfo'
 
@@ -84,9 +87,8 @@ class Wait4Build(Task):
                 print("Could not get expertise after supposed maximum Elapsed time: check manually. Exit")
                 exit(-1)
             print("Time to expiration: {:5d} (s)".format(walltime_in_seconds))
-            wait = 10
-            time.sleep(wait)
-            walltime_in_seconds -= wait
+            time.sleep(int(self.conf.refresh_frequency))
+            walltime_in_seconds -= int(self.conf.refresh_frequency)
         else:
             # expertise available: continue
             print("Expertise available !")
@@ -95,10 +97,36 @@ class Wait4Build(Task):
             print(t.prompt, 'expertise =', expertise)
         return expertise[0]
 
+    def task2wait4(self):
+        tasks = self.tasks2wait4_readlist()
+        # make them unique and ordered
+        tasks = list(OrderedDict.fromkeys(tasks))
+        for t in self._tasks_done:
+            if t in tasks:
+                tasks.remove(t)
+        if len(tasks) >0:
+            return tasks[0]
+        else:
+            return None
+
     def process(self):
-        for block in self.conf.wait4steps:
+        self._tasks_done = []
+        #for block in self.conf.wait4steps:
+        while len(self._tasks_done) == 0 or self.task2wait4() is not None:
+            # beginning: no task registered yet and done == 0
+            while self.task2wait4() is None and len(self._tasks_done) == 0:
+                print("Build tasks have not started yet, wait {}s for them...".format(self.conf.refresh_frequency))
+                time.sleep(int(self.conf.refresh_frequency))
+            print("...OK")
+            # here's the next task to wait for
+            task = self.task2wait4()
             # get compilation expertise
-            expertise = self._get_expertise(block=block, **self._expertise_description)
+            expertise = self._get_expertise(block=task, **self._expertise_description)
+            # then remember this task has been done
+            self._tasks_done.append(task)
             # check that all builds are successful
             self._check_build(expertise)
+            # and loop if there are still tasks to wait
+        # finally, remove list-of-tasks file
+        self.tasks2wait4_rmfile()
 

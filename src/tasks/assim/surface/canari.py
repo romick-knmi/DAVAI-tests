@@ -146,11 +146,15 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             tbx = self._wrapped_executable(
                 role           = 'Binary',
-                binmap         = 'gmap',
+                #binmap         = 'gmap',
+                block          = self.executables_block(),
+                experiment     = self.conf.xpid,
                 kind           = 'mfmodel',
-                local          = 'ARPEGE.EX',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
+                local          = 'ARPEGE.X',
+                model          = 'ifs',  # as genericly named in cache out of compilation
+                nativefmt      = self.conf.executables_fmt,
+                #remote         = self.guess_pack(),
+                #setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
 

@@ -9,11 +9,13 @@ if [ "$1" == "preexisting_pack=True" ] || [ "$1" == "preexisting_pack=False" ];t
 elif [ "$1" != "" ];then
     echo "Commandline argument '$1' ignored."
 fi
+# prepare wait4build manager
+python3 vortex/bin/mkjob.py -j profile=rd name=wait4build_init task=build.wait4build_init
 # build
 export DAVAI_START_BUILD=`python -c "import time; print(time.time())"`
-python3 vortex/bin/mkjob.py -j name=packbuild task=build.gmkpack.G2P_CL $arg
+python3 vortex/bin/mkjob.py -j name=build task=build.gmkpack.build_from_gitref $arg
 # bundle build
-#python3 vortex/bin/mkjob.py -j name=packbuild task=build.gmkpack.B2P_CL $arg
+#python3 vortex/bin/mkjob.py -j name=build task=build.gmkpack.build_from_bundle $arg
 
 # wait & check for build
 export MTOOLDIR=/scratch/mtool/$LOGNAME  # needed to find cached expertise output of build

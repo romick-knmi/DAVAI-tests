@@ -7,30 +7,29 @@ from footprints import FPDict
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
+from davai.algo.build import binaries_syntax_in_workdir
 
-from davai_taskutil.mixins import DavaiTaskMixin
+from davai_taskutil.mixins import DavaiTaskMixin, BuildMixin
 
 
 def setup(t, **kw):
-    return Driver(
-        tag     = 'packbuild',
-        ticket  = t,
-        nodes   = [
-            PackCompileLink(tag='pack_compile_link', ticket=t, **kw)
+    return Driver(tag='build', ticket=t, options=kw, nodes=[
+        Pack2Bin(tag='pack2bin', ticket=t, **kw)
         ],
-        options=kw
     )
 
 
-class PackCompileLink(Task, DavaiTaskMixin):
+class Pack2Bin(Task, DavaiTaskMixin, BuildMixin):
 
     experts = [FPDict({'kind':'gmkpack_build'}),]
     _taskinfo_kind = 'statictaskinfo'
 
-    def output_block(self):
-        return self._gmkpack_executables_block()
+    #def output_block(self):
+    #    return self.executables_block()  # this method is now defined to mimic {tag}.{compilation_flavour.lower()} as
+    #                                     # the loop on compilation flavours does, so this shouldn't be useful
 
     def process(self):
+        self.tasks2wait4_add()  # warn wait4build manager to wait for this task
         self._wrapped_init()
 
         # 0./ Promises
@@ -93,15 +92,25 @@ class PackCompileLink(Task, DavaiTaskMixin):
 
         # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
+            bin_glob = '{glob:b:\w+}'
             self._wrapped_output(
                 role           = 'Binary',
-                #binmap         = 'gmap',
-                kind           = '[glob:b]::lower',
-                local          = '{glob:b}.x',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
-                #remote         = self.guess_pack(),
-                #setcontent     = 'binaries',
+                kind           = '[glob:b]',
+                local          = binaries_syntax_in_workdir.replace('{}', bin_glob),
+                nativefmt      = self.conf.executables_fmt,
+            )
+            #-------------------------------------------------------------------------------
+            bin_run_glob = '{glob:b:\w+}-{glob:r:\w+}'  # OOPS : copied locally as binary-run
+            self._wrapped_output(
+                role           = 'Binary',
+                block          = self.output_block(),
+                experiment     = self.conf.xpid,
+                kind           = '[glob:b]',
+                local          = binaries_syntax_in_workdir.replace('{}', bin_run_glob),
+                nativefmt      = self.conf.executables_fmt,
+                run            = '[glob:r]',
             )
             #-------------------------------------------------------------------------------
 

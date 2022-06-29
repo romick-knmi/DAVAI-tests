@@ -6,26 +6,22 @@ import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task, Driver, Family
 
-from davai_taskutil.mixins import DavaiTaskMixin
+from davai_taskutil.mixins import DavaiTaskMixin, BuildMixin
 
 
 def setup(t, **kw):
-    return Driver(tag='packbuild', ticket=t, options=kw, nodes=[
-        Family(tag='packbuild', ticket=t, nodes=[
-            GitRef2Pack(tag='gitref2pack', ticket=t, **kw)
-            ], **kw),
+    return Driver(tag='build', ticket=t, options=kw, nodes=[
+        GitRef2Pack(tag='gitref2pack', ticket=t, **kw)
         ],
     )
 
 
-class GitRef2Pack(Task, DavaiTaskMixin):
+class GitRef2Pack(Task, DavaiTaskMixin, BuildMixin):
 
     _taskinfo_kind = 'statictaskinfo'
 
-    def output_block(self):
-        return self.tag
-
     def process(self):
+        self.tasks2wait4_add()
         self._wrapped_init()
 
         # 0./ Promises
@@ -69,14 +65,14 @@ class GitRef2Pack(Task, DavaiTaskMixin):
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
                 cleanpack      = self.conf.cleanpack,
-                compiler_flag  = self.conf.gmkpack_compiler_flag,
-                compiler_label = self.conf.gmkpack_compiler_label,
+                compiler_flag  = self.gmkpack_compiler_flag,
+                compiler_label = self.gmkpack_compiler_label,
                 crash_witness  = True,
                 engine         = 'algo',
                 git_ref        = self.conf.IAL_git_ref,
                 homepack       = self.conf.get('homepack', None),
                 kind           = 'ialgitref2pack',
-                pack_type      = self.conf.gmkpack_packtype,
+                pack_type      = self.conf.packtype,
                 preexisting_pack = self.conf.preexisting_pack,
                 repository     = self.conf.IAL_repository,
                 rootpack       = self.conf.get('rootpack', None)

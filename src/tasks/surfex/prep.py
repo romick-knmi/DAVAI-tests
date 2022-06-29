@@ -107,14 +107,9 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
-            tbx = self._wrapped_executable(
-                role           = 'Binary',
-                binmap         = 'gmap',
-                format         = 'bullx',
+            tbx = self.flow_executable(
                 kind           = 'prep',
                 local          = 'PREP.X',
-                remote         = self.guess_pack(),
-                setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
 

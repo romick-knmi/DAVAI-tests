@@ -111,28 +111,14 @@ class BatorODB(Task, DavaiTaskMixin):
 
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            tbio = self._wrapped_executable(
-                role           = 'Binary',
-                #binmap         = 'gmap',
-                #format         = 'bullx',
+            tbio = self.flow_executable(
                 kind           = 'odbioassign',
                 local          = 'ioassign',
-                block          = self.executables_block(),
-                experiment     = self.conf.xpid,
-                #remote         = self.guess_pack(),
-                #setcontent     = 'binaries',
             )
             #-------------------------------------------------------------------------------
-            tbx = self._wrapped_executable(
-                role           = 'Binary',
-                #binmap         = 'gmap',
-                #format         = 'bullx',
+            tbx = self.flow_executable(
                 kind           = 'batodb',
-                local          = 'BATODB.EX',
-                block          = self.executables_block(),
-                experiment     = self.conf.xpid,
-                #remote         = self.guess_pack(),
-                #setcontent     = 'binaries',
+                local          = 'BATODB.X',
             )
             #-------------------------------------------------------------------------------
 

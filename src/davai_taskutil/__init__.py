@@ -9,3 +9,6 @@ Davai utilities for tasks:
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 __version__ = '0.0.1'
+
+gmkpack_executables_block_tag = 'pack2bin'
+
