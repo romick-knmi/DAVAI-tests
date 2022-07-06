@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import vortex
 from vortex import toolbox
-from vortex.layout.nodes import Driver, LoopFamily
+from vortex.layout.nodes import Driver, LoopFamily, Family
 
 from .gitref2pack import GitRef2Pack
 from .pack2bin import Pack2Bin
@@ -17,13 +17,21 @@ def setup(t, **kw):
         tag     = 'build',
         ticket  = t,
         nodes   = [
-            LoopFamily(tag='gmkpack', ticket=t,
-                loopconf='compilation_flavours',
-                loopsuffix='.{}',
-                nodes=[
-                    GitRef2Pack(tag='gitref2pack', ticket=t, **kw),
-                    Pack2Bin(tag=gmkpack_executables_block_tag, ticket=t, **kw)
-                ], **kw),
+            Family(tag='gmkpack', ticket=t, nodes=[
+                # Two loops rather than one with both tasks in, so that packs are created anyway if compilation fails
+                LoopFamily(tag='loop_g2p', ticket=t,
+                    loopconf='compilation_flavours',
+                    loopsuffix='.{}',
+                    nodes=[
+                        GitRef2Pack(tag='gitref2pack', ticket=t, **kw),
+                    ], **kw),
+                LoopFamily(tag='loop_p2b', ticket=t,
+                    loopconf='compilation_flavours',
+                    loopsuffix='.{}',
+                    nodes=[
+                        Pack2Bin(tag=gmkpack_executables_block_tag, ticket=t, **kw)
+                    ], **kw),
+            ], **kw),
         ],
         options=kw
     )
