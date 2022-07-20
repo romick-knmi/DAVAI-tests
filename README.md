@@ -25,4 +25,4 @@ To be used in `davai-prep_xp -v <davai_tests_version> ...`
 | 48T3 dev branch | `mary_CY48T2_to_T3` (branch) | `dev` (branch) | `dv-0016-belenos@moureauxm` |
 | Development on top of `48T2` | `CY48T2` (tag) | `DV48T2` (tag) | `dv-0016-belenos@moureauxm` |
 | Dble branch `gco_CY48T1_op1` | `gco_CY48T1_op1` (branch) | `dev_DV48T1_op1` (branch) | ...tbd... |
-| Development on top of `48T1_op0.04` | `CY48T1_op0.04` (tag) | `DV48T1_op0.04` (tag) | ...tbd... |
+| Development on top of `48T1_op0.04` | `CY48T1_op0.04` (tag) | `DV48T1_op0.04` (tag) | `dv-0016-belenos@moureauxm` |
