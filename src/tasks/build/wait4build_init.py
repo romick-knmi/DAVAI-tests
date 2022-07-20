@@ -14,7 +14,7 @@ def setup(t, **kw):
         tag     = 'setup',
         ticket  = t,
         nodes   = [
-            Wait4BuildInit(tag='build', ticket=t, **kw),
+            Wait4BuildInit(tag='wait4build_init', ticket=t, **kw),
         ],
         options=kw
     )
