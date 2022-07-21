@@ -7,7 +7,6 @@ from footprints import FPDict
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task
-from common.util import usepygram
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
@@ -195,7 +194,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
                 experiment     = self.conf.input_shelf,
                 format         = 'fa',
-                hook_ts        = (usepygram.overwritefield,
+                hook_ts        = ('common.util.usepygram.overwritefield',
                                   tbana[0], ('SURFTEMPERATURE',), None, dict(KNBPDG=24)),
                 intent         = 'inout',
                 kind           = 'historic',
