@@ -5,6 +5,8 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import vortex
 from vortex.layout.jobs import JobAssistantPlugin
+from bronx.fancies import loggers
+logger = loggers.getLogger(__name__)
 
 
 class DavaiJobAssistantPlugin(JobAssistantPlugin):
@@ -43,3 +45,25 @@ class DavaiDevJobAssistantPlugin(DavaiJobAssistantPlugin):
 
     def plugable_toolbox_setup(self, t, **kw):
         vortex.toolbox.active_promise = False  # deactivate the cleaning of promises in cache
+
+
+class GitJobAssistantPlugin(JobAssistantPlugin):
+    """JobAssistant plugin for Git."""
+    _footprint = dict(
+        info = 'Git JobAssistant Plugin',
+        attr = dict(
+            kind = dict(
+                values = ['git', ]
+            ),
+        ),
+    )
+
+    def plugable_env_setup(self, t, **kw):  # @UnusedVariable
+        target = t.sh.target()
+        git_installdir = target.config.get('git', 'git_installdir')
+        logger.info("Loading git from:", git_installdir)
+        if git_installdir not in ('', None):
+            t.env.setbinpath(t.sh.path.join(git_installdir, 'bin'), 0)
+            t.env['GIT_EXEC_PATH'] = t.sh.path.join(git_installdir,
+                                                    'libexec',
+                                                    'git-core')
