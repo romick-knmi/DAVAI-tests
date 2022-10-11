@@ -10,8 +10,10 @@ from vortex.layout.nodes import Task
 from common.util.hooks import update_namelist
 import davai
 
+from common.util.hooks import arpifs_obs_error_correl_legacy2oops
+
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_temporary_OOPS_3DVar_fix, hook_OOPS_2_CNT0
+from davai_taskutil.hooks import hook_fix_model, hook_gnam
 
 
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -49,28 +51,45 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'GetIREmisAtlasInHDF',
+                role           = 'SunFile',
+                format         = 'unknown',
+                local          = 'sun_pos.dta',
+                unknown        = 'True',
+                remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Sun_2015_2118.dta',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'MoonFile',
+                format         = 'unknown',
+                local          = 'moon_pos.dta',
+                unknown        = 'True',                
+                remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Moon_2015_2118.dta',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'IREmisAtlas',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
-                instrument     = '[targetname]',
+                genv           = self.conf.appenv,
                 kind           = 'atlas_emissivity',
                 local          = 'uw_ir_emis_atlas_hdf5.tar',
-                targetname     = 'iasi',
+                source         = 'uwir',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'RCorrelations(MF)',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
-                kind           = 'correl',
-                local          = '[scope]_correlation.dat',
-                scope          = 'iasi,cris',
+                genv           = self.conf.appenv,
+                kind           = 'correlations',
+                local          = 'rmtberr_[instrument].dat',
+                intent         = 'inout',
+                instrument     = 'iasi,cris',
+                hook_convert   = (arpifs_obs_error_correl_legacy2oops,),
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'AtlasEmissivity',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'ATLAS_[targetname:upper].BIN',
@@ -81,7 +100,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvError',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'amv_error',
                 local          = 'amv_p_and_tracking_error',
             )
@@ -89,7 +108,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvBias',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'amv_bias',
                 local          = 'amv_bias_info',
             )
@@ -97,7 +116,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -105,7 +124,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Coefmodel',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'coefmodel',
                 local          = 'COEF_MODEL.BIN',
             )
@@ -113,7 +132,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ScatCmod5',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'cmod5',
                 local          = 'fort.36',
             )
@@ -121,7 +140,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )
@@ -152,44 +171,44 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             tbnam_objects = self._wrapped_input(
                 role           = 'OOPSObjectsNamelists',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = ['observations_tlad','standard_geometry','bmatrix'],
-                source         = 'OOPS/naml_[object]',
+                object         = ['geometry', 'bmatrix'],
+                source         = 'objects/naml_[object]',
             )
             #-------------------------------------------------------------------------------
             tbnam_modelobjects = self._wrapped_input(
                 role           = 'OOPSModelObjectsNamelists',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_OOPS3DVar = (hook_temporary_OOPS_3DVar_fix,
-                                  self.NDVar),
+                hook_model     = (hook_fix_model,self.NDVar,True),
+                hook_jo        = (hook_gnam, {'NAMCOSJO':{'LVARQCG':False}}),
+                hook_nofullpos = (hook_gnam, {'NAMFPC':{'NFPCLI':0},'NAMPHYDS':{'NPPVCLIX':0}}),                
                 intent         = 'inout',
                 kind           = 'namelist',
-                local          = 'naml_[object]',
-                object         = 'traj_model',
-                source         = 'OOPS/naml_[object]',
+                local          = '[object].nam',
+                object         = ['nonlinear_model_upd2', 'observations_ccma'],
+                source         = 'objects/[object].nam',
             )
             #-------------------------------------------------------------------------------
             tbnam_leftovers = self._wrapped_input(
                 role           = 'NamelistLeftovers',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_oops2cnt0 = (hook_OOPS_2_CNT0,),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'namelist_oops',
-                source         = 'OOPS/namelist_oops_leftovers',
+                source         = 'davai/leftovers_cnt0.nam',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
-                binary         = 'arpege',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_merge_nam = (update_namelist,
@@ -197,7 +216,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'namelistmin1312_assim',
+                source         = 'davai/leftovers_davai.nam',                
             )
             #-------------------------------------------------------------------------------
 

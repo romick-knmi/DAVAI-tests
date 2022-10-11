@@ -6,16 +6,28 @@ Hooks on resources for Davai tasks.
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 
-def hook_temporary_OOPS_3DVar_fix(t, rh, NDVar):
+def hook_fix_model(t, rh, NDVar, isCNT0):
     """
-    Temporary hook for model namelist, until OOPS better handles time in 3DVar case
-    (and to avoid to duplicate model namelists in for 3D/4DVar versions)
+    Hook for model namelist
     """
     if NDVar == '3DVar':
         # 3DVar case
         if 'NAMRIP' in rh.contents:
             print("Set ['NAMRIP']['CSTOP'] = 'h0'")
             rh.contents['NAMRIP']['CSTOP'] = 'h0'
+    
+    if 'NAMRIP' in rh.contents:
+        print("Set ['NAMRIP']['TSTEP'] = 1800.")
+        rh.contents['NAMRIP']['TSTEP'] = 1800
+            
+    if isCNT0:
+        if 'NAMOOPS' in rh.contents:
+            rh.contents['NAMOOPS'].delvar('LMODEL_WITH_SPECRT')
+        if 'NAMSIMPHL' in rh.contents:
+            print("Set ['NAMSIMPHL']['LTRAJPST'] = .FALSE.")
+            rh.contents['NAMSIMPHL']['LTRAJPST'] = False
+            print("Set ['NAMSIMPHL']['LTRAJPS'] = .FALSE.")
+            rh.contents['NAMSIMPHL']['LTRAJPS'] = True            
     rh.save()
 
 
@@ -57,11 +69,4 @@ def hook_gnam(t, rh, gnam_as_dict):
             gnam[blockname][key] = value
     rh.contents.merge(gnam)
     rh.save()
-
-
-def hook_OOPS_2_CNT0(t, rh):
-    """Hook to turn OOPS namelist into CNT0 namelist."""
-    gnam = {'NAMARG': {'CNMEXP':'MINI'},
-            'NAMCT0': {'L_OOPS':False}}
-    hook_gnam(t, rh, gnam)
 

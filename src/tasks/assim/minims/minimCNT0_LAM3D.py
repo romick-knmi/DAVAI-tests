@@ -11,7 +11,6 @@ from common.util.hooks import update_namelist
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_OOPS_2_CNT0
 
 
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -179,7 +178,6 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_oops2cnt0 = (hook_OOPS_2_CNT0,),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'namelist_oops',

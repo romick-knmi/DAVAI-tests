@@ -40,16 +40,16 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'AvgMasks',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'avgmask',
                 local          = 'mask.[sensor]',
-                sensor         = 'atms,ssmis',
+                sensor         = 'atms,ssmis,mwts2',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'BatodbConfigurationFile',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'batodbconf',
                 local          = 'param.cfg',
             )
@@ -57,7 +57,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'CreateIoassignScript',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'ioassign_script',
                 language       = 'ksh',
                 local          = '[purpose]_ioassign',
@@ -77,7 +77,7 @@ class BatorODB(Task, DavaiTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             tbnamreduc = self._wrapped_input(
                 role           = 'BatodbReductionDelta',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
@@ -100,7 +100,7 @@ class BatorODB(Task, DavaiTaskMixin):
             if self.conf.LAM:
                 self._wrapped_input(
                     role           = 'NamelistLamflag',
-                    binary         = 'arpifs',
+                    binary         = self.conf.model,
                     format         = 'ascii',
                     genv           = self.conf.appenv,
                     kind           = 'namelist',
