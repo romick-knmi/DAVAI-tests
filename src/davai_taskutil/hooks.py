@@ -70,3 +70,10 @@ def hook_gnam(t, rh, gnam_as_dict):
     rh.contents.merge(gnam)
     rh.save()
 
+
+def hook_OOPS_2_CNT0(t, rh):
+    """Hook to turn OOPS namelist into CNT0 namelist."""
+    gnam = {'NAMARG': {'CNMEXP':'MINI'},
+            'NAMCT0': {'L_OOPS':False}}
+    hook_gnam(t, rh, gnam)
+

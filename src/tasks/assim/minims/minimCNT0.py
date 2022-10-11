@@ -202,8 +202,8 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 intent         = 'inout',
                 kind           = 'namelist',
-                local          = 'namelist_oops',
-                source         = 'davai/leftovers_cnt0.nam',
+                local          = 'namelist_cnt0',
+                source         = 'davai/namelist_cnt0',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
