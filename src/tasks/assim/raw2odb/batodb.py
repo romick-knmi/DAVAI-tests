@@ -77,12 +77,12 @@ class BatorODB(Task, DavaiTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             tbnamreduc = self._wrapped_input(
                 role           = 'BatodbReductionDelta',
-                binary         = self.conf.model,
+                binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'delta-bator_reduction.[model].davai.nam',
-                source         = 'davai/[local]',
+                source         = '[local]',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(

@@ -13,7 +13,8 @@ import davai
 from common.util.hooks import arpifs_obs_error_correl_legacy2oops
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_fix_model, hook_gnam
+from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos, hook_disable_flowdependentb
+
 
 
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -174,7 +175,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'config',
                 local          = 'oops.[format]',
                 nativefmt      = '[format]',
-                objects        = 'dv_{}_1minim'.format((self.NDVar).lower()),
+                objects        = '{}_1minim'.format((self.NDVar).lower()),
                 scope          = 'oops',
             )
             #-------------------------------------------------------------------------------
@@ -207,9 +208,9 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = ['geometry','bmatrix','write_filtered_ana'],
+                object         = ['geometry','write_filtered_ana'],
                 source         = 'objects/naml_[object]',
-            )
+            )            
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'OOPSGomNamelists',
@@ -222,13 +223,15 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source         = 'objects/namelist_[object]',
             )
             #-------------------------------------------------------------------------------
+            # Fix TSTEP,CSTOP in Model objects
+            # Disable FullPos use everywhere
             self._wrapped_input(
                 role           = 'OOPSModelObjectsNamelists',
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_model     = (hook_fix_model,self.NDVar,False),
-                hook_nofullpos = (hook_gnam, {'NAMFPC':{'NFPCLI':0},'NAMPHYDS':{'NPPVCLIX':0}}),                                
+                hook_nofullpos = (hook_disable_fullpos,),                                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = '[object].nam',
@@ -236,15 +239,33 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source         = 'objects/[object].nam',
             )
             #-------------------------------------------------------------------------------
+            # BMatrix without flow-dependent sigma_b and correlations
+            self._wrapped_input(
+                role           = 'OOPSBmatrixNamelist',
+                binary         = self.conf.model,
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                hook_simpleb   = (hook_disable_flowdependentb,),                                
+                intent         = 'inout', 
+                kind           = 'namelist',
+                local          = '[object].nam',
+                object         = ['bmatrix'],
+                source         = 'objects/[object].nam',
+            )            
+            #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'NamelistLeftovers',
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                hook_nofullpos = (hook_disable_fullpos,),
+                hook_simpleb   = (hook_disable_flowdependentb,),                
+                hook_nstrin    = (hook_gnam, {'NAMPAR1':{'NSTRIN':'NBPROC'}}),
+                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'LVARBC':False, 'LTOVSCV':False}}),                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'davai/leftovers_davai.nam',
+                source         = 'objects/leftovers_assim.nam',
             )
             #-------------------------------------------------------------------------------
 

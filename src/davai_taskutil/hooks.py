@@ -5,7 +5,33 @@ Hooks on resources for Davai tasks.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
-
+def hook_disable_fullpos(t, rh):
+    """
+    Hook
+    """
+    if 'NAMFPC' in rh.contents:
+        print("Set ['NAMFPC']['NFPCLI'] = 0")
+        rh.contents['NAMFPC']['NFPCLI'] = 0
+    if 'NAMPHYDS' in rh.contents:
+        print("Set ['NAMPHYDS']['NPPVCLIX'] = 0")
+        rh.contents['NAMPHYDS']['NPPVCLIX'] = 0
+    rh.save()        
+        
+def hook_disable_flowdependentb(t, rh):
+    """
+    Hook for model namelist
+    """
+    if 'NAMJG' in rh.contents:
+        print("Set ['NAMJG']['CONFIG%LSPFCE'] = True")
+        rh.contents['NAMJG']['CONFIG%LSPFCE'] = True
+    if 'NAMWAVELETJB' in rh.contents:
+        print("Set ['NAMWAVELETJB']['WJBCONF%LJBWAVELET'] = False")
+        rh.contents['NAMWAVELETJB']['WJBCONF%LJBWAVELET'] = False 
+    if 'NAMVAR' in rh.contents:
+        print("Set ['NAMVAR']['LUSEWAVRENORM'] = False")
+        rh.contents['NAMVAR']['LUSEWAVRENORM'] = False 
+    rh.save()        
+        
 def hook_fix_model(t, rh, NDVar, isCNT0):
     """
     Hook for model namelist

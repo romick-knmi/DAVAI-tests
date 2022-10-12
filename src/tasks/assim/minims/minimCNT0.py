@@ -13,7 +13,7 @@ import davai
 from common.util.hooks import arpifs_obs_error_correl_legacy2oops
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_fix_model, hook_gnam
+from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos, hook_disable_flowdependentb
 
 
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -176,18 +176,32 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = ['geometry', 'bmatrix'],
+                object         = ['geometry'],
                 source         = 'objects/naml_[object]',
             )
             #-------------------------------------------------------------------------------
+            # BMatrix without flow-dependent sigma_b and correlations
+            tbnam_bmatrix = self._wrapped_input(
+                role           = 'OOPSBmatrixNamelist',
+                binary         = self.conf.model,
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                hook_simpleb   = (hook_disable_flowdependentb,),                                
+                intent         = 'inout', 
+                kind           = 'namelist',
+                local          = '[object].nam',
+                object         = ['bmatrix'],
+                source         = 'objects/[object].nam',
+            )                        
+            #-------------------------------------------------------------------------------
             tbnam_modelobjects = self._wrapped_input(
-                role           = 'OOPSModelObjectsNamelists',
+                role           = 'OOPSModelObsObjectsNamelists',
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_model     = (hook_fix_model,self.NDVar,True),
                 hook_jo        = (hook_gnam, {'NAMCOSJO':{'LVARQCG':False}}),
-                hook_nofullpos = (hook_gnam, {'NAMFPC':{'NFPCLI':0},'NAMPHYDS':{'NPPVCLIX':0}}),                
+                hook_nofullpos = (hook_disable_fullpos,),                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = '[object].nam',
@@ -200,23 +214,38 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                hook_nofullpos = (hook_disable_fullpos,),
+                hook_simpleb   = (hook_disable_flowdependentb,),
+                hook_nstrin    = (hook_gnam, {'NAMPAR1':{'NSTRIN':'NBPROC'}}),
+                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'LVARBC':False, 'LTOVSCV':False}}),                                
+                intent         = 'inout',
+                kind           = 'namelist',
+                local          = 'namelist_oops',
+                source         = 'objects/leftovers_assim.nam',
+            )
+            #-------------------------------------------------------------------------------
+            tbnam_cnt0 = self._wrapped_input(
+                role           = 'NamelistCNT0',
+                binary         = 'arpifs',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'namelist_cnt0',
-                source         = 'davai/namelist_cnt0',
-            )
+                source         = 'namelist_cnt0',
+            )            
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
-                binary         = self.conf.model,
+                binary         = 'arpifs',
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_merge_nam = (update_namelist,
-                                  tbnam_leftovers, tbnam_modelobjects, tbnam_objects),
+                hook_merge_nam = (update_namelist, tbnam_leftovers, tbnam_cnt0, 
+                                  tbnam_bmatrix, tbnam_modelobjects, tbnam_objects),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'davai/leftovers_davai.nam',                
+                source         = 'namelist_empty',                
             )
             #-------------------------------------------------------------------------------
 
