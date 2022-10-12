@@ -103,3 +103,17 @@ def hook_OOPS_2_CNT0(t, rh):
             'NAMCT0': {'L_OOPS':False}}
     hook_gnam(t, rh, gnam)
 
+def hook_ensemble_build(t, rh, nbmembers):
+    """Hook to build namelist files"""
+    naml_fmt = "naml_write_dx_m{:03}"
+    for mb in range(1, int(nbmembers)+1):
+        fnaml = naml_fmt.format(mb)
+        naml = open(fnaml, 'w')
+        naml.write('&NAMOOPSWRITE\n')
+        naml.write('  LWRSPEC=.TRUE.,\n')
+        naml.write('  LWRSPECA_GP=.TRUE.,\n')
+        naml.write('  LWRSPECA_GP_UV=.TRUE.,\n')
+        naml.write('  LINC=.FALSE.,\n')
+        naml.write('  CDMEXP="M{:03}",\n'.format(mb))
+        naml.write('/\n')
+        naml.close()

@@ -256,6 +256,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            # TODO: Fix error_covariance_3d_mod.F90, then remove this unused resource            
             self._wrapped_input(
                 role           = 'BackgroundStdError',
                 block          = 'sigmab',
