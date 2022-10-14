@@ -5,6 +5,24 @@ Hooks on resources for Davai tasks.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+def hook_fix_varbc(t, rh, withvarbc):
+    """
+    Hook 
+    """
+    if 'NAMVAR' in rh.contents:    
+        if withvarbc:
+            print("Set ['NAMVAR']['LVARBC'] = True")
+            rh.contents['NAMVAR']['LVARBC'] = True
+            print("Set ['NAMVAR']['LTOVSCV'] = True")
+            rh.contents['NAMVAR']['LTOVSCV'] = True          
+        else:
+            print("Set ['NAMVAR']['LVARBC'] = False")
+            rh.contents['NAMVAR']['LVARBC'] = False
+            print("Set ['NAMVAR']['LTOVSCV'] = False")
+            rh.contents['NAMVAR']['LTOVSCV'] = False  
+        
+    rh.save()
+    
 def hook_disable_fullpos(t, rh):
     """
     Hook

@@ -9,7 +9,7 @@ import vortex
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from .raw2odb.batodb import BatorODB
-from .screenings.screening import Screening
+from .screenings.screeningCNT0 import Screening
 
 
 def setup(t, **kw):

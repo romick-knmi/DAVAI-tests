@@ -7,7 +7,7 @@ from vortex import toolbox
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from .raw2odb.batodb import BatorODB
-from .screenings.screening import Screening
+from .screenings.screeningCNT0 import Screening as screeningCNT0
 from .minims.minimCNT0 import Minim as MinimCNT0
 from .minims.minimOOPS import Minim as MinimOOPS
 
@@ -18,7 +18,7 @@ def setup(t, **kw):
             Family(tag='4dvar6h', ticket=t, nodes=[
                 Family(tag='default_compilation_flavour', ticket=t, nodes=[
                     BatorODB(tag='batodb', ticket=t, **kw),
-                    Screening(tag='screening', ticket=t, **kw),
+                    ScreeningCNT0(tag='screening', ticket=t, **kw),
                     # delayed_fail to let the minimOOPS run before raising error
                     MinimCNT0(tag='minimCNT0', ticket=t, on_error='delayed_fail', **kw),
                     MinimOOPS(tag='minimOOPS', ticket=t, **kw),

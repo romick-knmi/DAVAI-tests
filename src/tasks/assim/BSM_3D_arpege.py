@@ -7,7 +7,7 @@ from vortex import toolbox
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
 from .raw2odb.batodb import BatorODB
-from .screenings.screening import Screening
+from .screenings.screeningCNT0 import Screening as screeningCNT0
 from .minims.minimCNT0 import Minim as MinimCNT0
 from .minims.minimOOPS import Minim as MinimOOPS
 

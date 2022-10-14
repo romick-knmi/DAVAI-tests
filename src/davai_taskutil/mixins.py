@@ -154,6 +154,10 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     @property
     def NDVar(self):
         return '4DVar' if int(self.conf.timeslots) > 1 else '3DVar'
+    
+    @property
+    def ND(self):
+        return '4D' if int(self.conf.timeslots) > 1 else '3D'    
 
     def guess_term(self, force_window_start=False):
         term = Period(self.conf.cyclestep)
