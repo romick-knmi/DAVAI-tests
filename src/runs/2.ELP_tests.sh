@@ -18,6 +18,7 @@ python3 vortex/bin/mkjob.py -j task=assim.BS_4D_arpege__obstype name=BS_4D_arpeg
 python3 vortex/bin/mkjob.py -j task=objects.Bmat_arpege name=Bmat_arpege
 python3 vortex/bin/mkjob.py -j task=objects.OpObs4D_arpege name=OpObs4D_arpege
 python3 vortex/bin/mkjob.py -j task=objects.OpObs3D_arpege name=OpObs3D_arpege
+
 # Arome
 python3 vortex/bin/mkjob.py -j task=assim.BS_3D_arome__obstype name=BS_3D_arome__obstype
 

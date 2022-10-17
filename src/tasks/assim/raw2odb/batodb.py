@@ -82,7 +82,7 @@ class BatorODB(Task, DavaiTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'delta-bator_reduction.[model].davai.nam',
-                source         = '[local]',
+                source         = 'OOPS/[local]',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
