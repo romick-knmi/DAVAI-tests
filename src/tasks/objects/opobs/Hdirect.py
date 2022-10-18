@@ -325,7 +325,7 @@ class Hdirect(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 ioassign        = tbio[0].container.localpath(),                
                 iomethod        = '4',
                 kind            = 'ootest2ccma',
-                test_type       = 'op_obs_model/test_hop',
+                test_type       = self.conf.test_family + '/test_hop',
                 virtualdb       = 'ecma',
                 npool           = self.conf.obs_npools,
                 slots           = self.obs_tslots,

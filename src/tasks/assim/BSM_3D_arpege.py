@@ -17,10 +17,10 @@ def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
         Family(tag='arpege', ticket=t, nodes=[
             Family(tag='3dvar6h', ticket=t, nodes=[
-                Family(tag='default_compilation_flavour', ticket=t, nodes=[                
+                Family(tag='default_compilation_flavour', ticket=t, nodes=[
                     BatorODB(tag='batodb', ticket=t, **kw),
                     ScreeningCNT0(tag='screeningCNT0', ticket=t, **kw),
-                    ScreeningOOPS(tag='screeningOOPS', ticket=t, **kw),                                        
+                    ScreeningOOPS(tag='screeningOOPS', ticket=t, **kw),
                     # delayed_fail to let the minimOOPS run before raising error
                     MinimCNT0(tag='minimCNT0', on_error='delayed_fail', ticket=t, **kw),
                     MinimOOPS(tag='minimOOPS', ticket=t, **kw),

@@ -33,7 +33,7 @@ class H(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         self._wrapped_init()
         self._notify_start_inputs()
                 
-        self._testid = 'op_obs_model/'+ self.tag.split(".")[0].split("+")[0]
+        self._testid = self.conf.test_family + '/'+ self.tag.split(".")[0].split("+")[0]
         self._withvarbc = False
         self._suffix_vbc = ''
         if len(self.tag.split("+")) > 1:
@@ -220,15 +220,26 @@ class H(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )            
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'OOPSGomNamelists',
+                role           = 'OOPSGomNamelist',
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'namelist_[object]',
-                object         = ['gom_setup', 'gom_setup_hres'],
+                object         = ['gom_setup'],
                 source         = 'objects/namelist_[object]',
             )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'OOPSGomNamelistsHR',
+                binary         = self.conf.model,
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namelist',
+                local          = 'namelist_[object]',
+                object         = ['gom_setup_hres'],
+                source         = 'objects/namelist_gom_setup',
+            )            
             #-------------------------------------------------------------------------------
             # Fix TSTEP,CSTOP in Model objects
             # Disable FullPos use everywhere
@@ -269,7 +280,7 @@ class H(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 hook_simpleb   = (hook_disable_flowdependentb,),
                 hook_varbc     = (hook_fix_varbc, self._withvarbc, ),                
                 hook_nstrin    = (hook_gnam, {'NAMPAR1':{'NSTRIN':'NBPROC'}}),
-                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'NUPTRA':-1}, 'NAMARG':{'NCONF':2}}),                
+                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'NUPTRA':0}, 'NAMARG':{'NCONF':2}}),                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
