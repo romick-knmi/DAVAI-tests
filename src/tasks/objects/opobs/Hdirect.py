@@ -7,7 +7,6 @@ from footprints import FPDict
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task
-from common.util.hooks import update_namelist
 import davai
 
 from common.util.hooks import arpifs_obs_error_correl_legacy2oops
@@ -16,19 +15,20 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos, hook_disable_flowdependentb
 
 
-class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
-    experts = [FPDict({'kind':'joTables'})] + davai.util.default_experts()
+class Hdirect(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+
+    experts = davai.util.default_experts()
 
     def output_block(self):
         return '-'.join([self.conf.model,
-                         self.NDVar,
+                         self.ND,
                          self.tag])
 
     def obs_input_block(self):
         return '-'.join([self.conf.model,
                          self.NDVar,
-                         'screening' + self._tag_suffix()])
+                         'batodb' + self._tag_suffix()])
 
     def process(self):
         self._wrapped_init()
@@ -122,6 +122,15 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
+                role           = 'RsBiasTables',
+                format         = 'odb',
+                genv           = self.conf.appenv,
+                kind           = 'odbraw',
+                layout         = 'RSTBIAS,COUNTRYRSTRHBIAS,SONDETYPERSTRHBIAS',
+                local          = '[layout:upper]',
+            )            
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'Coefmodel',
                 format         = 'unknown',
                 genv           = self.conf.appenv,
@@ -146,18 +155,30 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'Stabal',
-                format         = 'unknown',
+                role           = 'IoassignScripts',
+                format         = 'ascii',
                 genv           = self.conf.appenv,
-                kind           = 'stabal',
-                level          = '96',
-                local          = 'stabal[level].[stat]',
-                stat           = 'bal,cv',
-            )
+                kind           = 'ioassign_script',
+                language       = 'ksh',
+                local          = '[purpose]_ioassign',
+                purpose        = 'create,merge',
+            )            
             #-------------------------------------------------------------------------------
 
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            self._wrapped_input(
+                role           = 'Config',
+                format         = 'json',
+                genv           = self.conf.appenv,
+                intent         = 'inout',
+                kind           = 'config',
+                local          = 'oops.[format]',
+                nativefmt      = '[format]',
+                objects        = 'ecma_{}'.format(self.ND),
+                scope          = 'oops',
+            )
+            #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'ChannelsNamelist',
                 binary         = self.conf.model,
@@ -169,7 +190,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 source         = 'namelist[channel]',
             )
             #-------------------------------------------------------------------------------
-            tbnam_objects = self._wrapped_input(
+            self._wrapped_input(
                 role           = 'OOPSObjectsNamelists',
                 binary         = self.conf.model,
                 format         = 'ascii',
@@ -178,99 +199,66 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'naml_[object]',
                 object         = ['geometry'],
                 source         = 'objects/naml_[object]',
+            )            
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'OOPSGomNamelists',
+                binary         = self.conf.model,
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                kind           = 'namelist',
+                local          = 'namelist_[object]',
+                object         = ['gom_setup', 'gom_setup_hres'],
+                source         = 'objects/namelist_[object]',
             )
             #-------------------------------------------------------------------------------
-            # BMatrix without flow-dependent sigma_b and correlations
-            tbnam_bmatrix = self._wrapped_input(
-                role           = 'OOPSBmatrixNamelist',
+            # Fix TSTEP,CSTOP in Model objects
+            # Disable FullPos use everywhere
+            self._wrapped_input(
+                role           = 'OOPSModelObjectsNamelists',
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_simpleb   = (hook_disable_flowdependentb,),                                
-                intent         = 'inout', 
-                kind           = 'namelist',
-                local          = '[object].nam',
-                object         = ['bmatrix'],
-                source         = 'objects/[object].nam',
-            )                        
-            #-------------------------------------------------------------------------------
-            tbnam_modelobjects = self._wrapped_input(
-                role           = 'OOPSModelObsObjectsNamelists',
-                binary         = self.conf.model,
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                hook_model     = (hook_fix_model,self.NDVar,True),
-                hook_jo        = (hook_gnam, {'NAMCOSJO':{'LVARQCG':False}}),
-                hook_nofullpos = (hook_disable_fullpos,),                
+                hook_model     = (hook_fix_model,self.NDVar,False),
+                hook_nofullpos = (hook_disable_fullpos,),                                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = '[object].nam',
-                object         = ['nonlinear_model_upd2', 'observations_ccma'],
+                object         = ['observations', 'nonlinear_model_upd2'],
                 source         = 'objects/[object].nam',
-            )
+            )            
             #-------------------------------------------------------------------------------
-            tbnam_leftovers = self._wrapped_input(
+            self._wrapped_input(
                 role           = 'NamelistLeftovers',
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_nofullpos = (hook_disable_fullpos,),
-                hook_simpleb   = (hook_disable_flowdependentb,),
+                hook_simpleb   = (hook_disable_flowdependentb,),                
                 hook_nstrin    = (hook_gnam, {'NAMPAR1':{'NSTRIN':'NBPROC'}}),
-                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'LVARBC':False, 'LTOVSCV':False}}),                                
-                intent         = 'inout',
-                kind           = 'namelist',
-                local          = 'namelist_oops',
-                source         = 'objects/leftovers_assim.nam',
-            )
-            #-------------------------------------------------------------------------------
-            tbnam_cnt0 = self._wrapped_input(
-                role           = 'NamelistCNT0',
-                binary         = 'arpifs',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                intent         = 'inout',
-                kind           = 'namelist',
-                local          = 'namelist_cnt0',
-                source         = 'OOPS/namelist_cnt0',
-            )            
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Namelist',
-                binary         = 'arpifs',
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                hook_merge_nam = (update_namelist, tbnam_leftovers, tbnam_cnt0, 
-                                  tbnam_bmatrix, tbnam_modelobjects, tbnam_objects),
+                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'LVARBC':False,'LTOVSCV':False,'NUPTRA':-1}, 'NAMARG':{'NCONF':2}, 'NAMCT0':{'LSCREEN':True}}),                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'OOPS/namelist_empty',                
+                source         = 'objects/leftovers_assim.nam',
             )
             #-------------------------------------------------------------------------------
 
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            tbx = self.flow_executable()  # default kind is masterodb, locally named '{MODEL}.X'
+            tbx = self.flow_executable(
+                kind='oopsbinary',
+                run='ootestcomponent',
+                local='OOTESTVAR.X',
+            )
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
-        if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            # TODO: Fix error_covariance_3d_mod.F90, then remove this unused resource            
-            self._wrapped_input(
-                role           = 'BackgroundStdError',
-                block          = 'sigmab',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_shelf,
-                format         = 'grib',
-                kind           = 'bgstderr',
-                local          = 'errgrib.[variable]',
-                stage          = 'vor',
-                term           = '3',  # FIXME: self.guess_term(force_window_start=True),
-                variable       = ['vo','ucdv','lnsp','t','q'],
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:      
+            tbio = self.flow_executable(
+                kind           = 'odbioassign',
+                local          = 'ioassign.x',
+            )                                          
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Guess',
@@ -279,33 +267,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 experiment     = self.conf.input_shelf,
                 format         = 'fa',
                 kind           = 'historic',
-                local          = 'ICMSHMINIINIT',
-                term           = self.guess_term(),
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'InitialCondition',
-                block          = 'forecast',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_shelf,
-                format         = 'fa',
-                kind           = 'historic',
-                local          = 'ICMSHMINIIMIN',
-                term           = self.guess_term(),
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'Background',
-                block          = 'forecast',
-                date           = '{}/-{}'.format(self.conf.rundate.ymdh, self.conf.cyclestep),
-                experiment     = self.conf.input_shelf,
-                format         = 'fa',
-                kind           = 'historic',
-                local          = 'ICMRFMINI0000',
+                local          = 'ICMSHOOPSINIT',
                 term           = self.guess_term(),
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
@@ -328,17 +290,27 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 2.1/ Flow Resources: produced by another task of the same job
         if 'fetch' in self.steps:
+            tbmap = self._wrapped_input(
+                role           = 'Obsmap',
+                block          = self.obs_input_block(),
+                experiment     = self.conf.xpid,
+                format         = 'ascii',
+                kind           = 'obsmap',
+                local          = 'bator_map',
+                stage          = 'build',
+            )
+            #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Observations',
                 block          = self.obs_input_block(),
                 experiment     = self.conf.xpid,
                 format         = 'odb',
                 intent         = 'inout',
+                helper         = tbmap[0].contents,
                 kind           = 'observations',
-                layout         = 'ccma',
-                local          = 'CCMA',
-                part           = 'mix',
-                stage          = 'screening',
+                local          = 'ECMA.[part]',
+                part           = tbmap[0].contents.odbset(),
+                stage          = 'build',
             )
             #-------------------------------------------------------------------------------
 
@@ -347,14 +319,19 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
-                crash_witness  = True,
-                drhookprof     = self.conf.drhook_profiling,
-                engine         = 'parallel',
-                iomethod       = '4',
-                kind           = 'minim',
-                npool          = self.conf.obs_npools,
-                slots          = self.obs_tslots,
+                crash_witness   = True,
+                drhookprof      = self.conf.drhook_profiling,
+                engine          = 'parallel',
+                ioassign        = tbio[0].container.localpath(),                
+                iomethod        = '4',
+                kind            = 'ootest2ccma',
+                test_type       = self.conf.test_family + '/test_hop',
+                virtualdb       = 'ecma',
+                npool           = self.conf.obs_npools,
+                slots           = self.obs_tslots,
             )
+            tbalgo._OOPSODB_CCMA_DIRECT = True
+            
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
             self.component_runner(tbalgo, tbx)
@@ -365,26 +342,16 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 2.3/ Flow Resources: produced by this task and possibly used by a subsequent flow-dependant task
         if 'backup' in self.steps:
             self._wrapped_output(
-                role           = 'Observations',
+                role           = 'Observations # ALL',
                 block          = self.output_block(),
                 experiment     = self.conf.xpid,
                 format         = 'odb',
                 kind           = 'observations',
-                layout         = 'ccma',
-                local          = '[layout:upper]',
+                local          = 'CCMA'+  self._tag_suffix(),
+                layout         = 'ccma',                
                 part           = 'mix',
-                stage          = 'minim',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_output(
-                role           = 'Analysis',
-                block          = self.output_block(),
-                experiment     = self.conf.xpid,
-                format         = 'fa',
-                kind           = 'analysis',
-                local          = 'MXMINI999+0000',
-                namespace      = self.REF_OUTPUT,
-            )
+                stage          = 'screening',
+            )           
 
         # 3.0.1/ Davai expertise:
         if 'late-backup' in self.steps or 'backup' in self.steps:

@@ -10,8 +10,11 @@ from vortex.layout.nodes import Task
 from common.util.hooks import update_namelist
 import davai
 
+from common.util.hooks import arpifs_obs_error_correl_legacy2oops
+
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_temporary_OOPS_3DVar_fix
+from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos, hook_disable_flowdependentb
+
 
 
 class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -49,37 +52,45 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'GetIREmisAtlasInHDF',
+                role           = 'SunFile',
+                format         = 'unknown',
+                local          = 'sun_pos.dta',
+                unknown        = 'True',
+                remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Sun_2015_2118.dta',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'MoonFile',
+                format         = 'unknown',
+                local          = 'moon_pos.dta',
+                unknown        = 'True',                
+                remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Moon_2015_2118.dta',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'IREmisAtlas',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
-                instrument     = '[targetname]',
+                genv           = self.conf.appenv,
                 kind           = 'atlas_emissivity',
                 local          = 'uw_ir_emis_atlas_hdf5.tar',
-                targetname     = 'iasi',
+                source         = 'uwir',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'RCorrelations(MF)',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
-                kind           = 'correl',
-                local          = '[scope]_correlation.dat',
-                scope          = 'iasi,cris',
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'RCorrelations(ECMWF & OOPS version - contains sigmaO)',
-                format         = 'unknown',
-                genv           = self.conf.commonenv,
-                kind           = 'correl',
-                local          = 'rmtb[scope].dat',
-                scope          = 'err_iasi,err_cris',
+                genv           = self.conf.appenv,
+                kind           = 'correlations',
+                local          = 'rmtberr_[instrument].dat',
+                intent         = 'inout',
+                instrument     = 'iasi,cris',
+                hook_convert   = (arpifs_obs_error_correl_legacy2oops,),
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'AtlasEmissivity',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'ATLAS_[targetname:upper].BIN',
@@ -90,7 +101,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvError',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'amv_error',
                 local          = 'amv_p_and_tracking_error',
             )
@@ -98,7 +109,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvBias',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'amv_bias',
                 local          = 'amv_bias_info',
             )
@@ -106,7 +117,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -114,7 +125,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Coefmodel',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'coefmodel',
                 local          = 'COEF_MODEL.BIN',
             )
@@ -122,7 +133,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ScatCmod5',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'cmod5',
                 local          = 'fort.36',
             )
@@ -130,7 +141,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )
@@ -149,8 +160,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'ClimPGD',
                 format         = 'fa',
                 genv           = self.conf.appenv,
-                gvar           = 'pgd_fa_[geometry::tag]',
-                kind           = 'pgdfa',
+                kind           = 'pgd',
                 local          = 'Const.Clim.sfx',
             )
             #-------------------------------------------------------------------------------
@@ -165,7 +175,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'config',
                 local          = 'oops.[format]',
                 nativefmt      = '[format]',
-                objects        = 't{}'.format((self.NDVar).lower()),
+                objects        = '{}_1minim'.format((self.NDVar).lower()),
                 scope          = 'oops',
             )
             #-------------------------------------------------------------------------------
@@ -193,50 +203,69 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'OOPSObjectsNamelists',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = ['observations_tlad','standard_geometry','bmatrix',
-                                  'write_analysis', 'oops_write_spec'],
-                source         = 'OOPS/naml_[object]',
-            )
+                object         = ['geometry','write_filtered_ana'],
+                source         = 'objects/naml_[object]',
+            )            
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'OOPSGomNamelists',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'namelist_[object]',
                 object         = ['gom_setup', 'gom_setup_hres'],
-                source         = 'OOPS/namelist_[object]',
+                source         = 'objects/namelist_[object]',
             )
             #-------------------------------------------------------------------------------
+            # Fix TSTEP,CSTOP in Model objects
+            # Disable FullPos use everywhere
             self._wrapped_input(
                 role           = 'OOPSModelObjectsNamelists',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
-                hook_OOPS3DVar = (hook_temporary_OOPS_3DVar_fix,
-                                  self.NDVar),
+                hook_model     = (hook_fix_model,self.NDVar,False),
+                hook_nofullpos = (hook_disable_fullpos,),                                
                 intent         = 'inout',
                 kind           = 'namelist',
-                local          = 'naml_[object]',
-                object         = ['nonlinear_model', 'linear_model', 'traj_model'],
-                source         = 'OOPS/naml_[object]',
+                local          = '[object].nam',
+                object         = ['observations', 'nonlinear_model_upd2', 'linear_model_upd2', 'traj_model_upd2'],
+                source         = 'objects/[object].nam',
             )
+            #-------------------------------------------------------------------------------
+            # BMatrix without flow-dependent sigma_b and correlations
+            self._wrapped_input(
+                role           = 'OOPSBmatrixNamelist',
+                binary         = self.conf.model,
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                hook_simpleb   = (hook_disable_flowdependentb,),                                
+                intent         = 'inout', 
+                kind           = 'namelist',
+                local          = '[object].nam',
+                object         = ['bmatrix'],
+                source         = 'objects/[object].nam',
+            )            
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'NamelistLeftovers',
-                binary         = 'arpifs',
+                binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                hook_nofullpos = (hook_disable_fullpos,),
+                hook_simpleb   = (hook_disable_flowdependentb,),                
+                hook_nstrin    = (hook_gnam, {'NAMPAR1':{'NSTRIN':'NBPROC'}}),
+                hook_cvaraux   = (hook_gnam, {'NAMVAR':{'LVARBC':False, 'LTOVSCV':False}}),                
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'OOPS/namelist_oops_leftovers',
+                source         = 'objects/leftovers_assim.nam',
             )
             #-------------------------------------------------------------------------------
 
@@ -251,6 +280,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
+            # TODO: Fix error_covariance_3d_mod.F90, then remove this unused resource
             self._wrapped_input(
                 role           = 'BackgroundStdError',
                 block          = 'sigmab',
@@ -364,7 +394,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 experiment     = self.conf.xpid,
                 format         = 'fa',
                 kind           = 'analysis',
-                local          = 'ICMSHANAS+0000',
+                local          = 'ICMSHANFT+0000',
                 namespace      = self.REF_OUTPUT,
             )
 
