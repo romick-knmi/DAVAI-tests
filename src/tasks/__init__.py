@@ -3,6 +3,8 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+import io
+
 import vortex
 from vortex.layout.jobs import JobAssistantPlugin
 from bronx.fancies import loggers
@@ -21,8 +23,23 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
     )
 
     def plugable_env_setup(self, t, **kw):  # @UnusedVariable
-        t.env.DAVAI_SERVER = self.masterja.conf.DAVAI_SERVER
-        t.env.EC_MEMINFO = '0'  # FIXME: without, some exec crash at EC_MEMINFO setup...
+        t.env.DAVAI_SERVER = self.masterja.conf.davai_server
+        t.env.EC_MEMINFO = '0'  # FIXME: without, some exec crash at EC_MEMINFO setup... -> fixed in CY49 !
+        ciboulai_token = None
+        if 'CIBOULAI_TOKEN' not in t.env:
+            if 'ciboulai_token_file' in self.masterja.conf:
+                logger.info("Ciboulai token not in env; read in file, as set in config")
+                try:
+                    with io.open(self.masterja.conf.ciboulai_token_file, 'r') as tf:
+                        ciboulai_token = tf.readline().strip()
+                except FileNotFoundError:
+                    pass
+            if ciboulai_token is None:
+                logger.warning("Ciboulai token not found in env var CIBOULAI_TOKEN " +
+                               "nor in file provided in config's 'ciboulai_token_file' attribute. " +
+                               "Ignored: token is not necessary for internal Ciboulai servers.")
+            else:
+                t.env.CIBOULAI_TOKEN = ciboulai_token
 
     def plugable_system_setup(self, t, **kw):
         if self.masterja.conf.promote_coredump:
