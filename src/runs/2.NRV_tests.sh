@@ -16,7 +16,9 @@ python3 vortex/bin/mkjob.py -j task=forecasts.canonical_forecasts name=canonical
 
 # MIXS
 # ====
-# PPF = PGD-Prep-Forecast
+# PF = Prep-Forecast (using older PGD)
+# PPF = PGD-Prep-Forecast (using new PGD)
+python3 vortex/bin/mkjob.py -j task=mixs.PF name=PF
 python3 vortex/bin/mkjob.py -j task=mixs.PPF name=PPF
 
 
