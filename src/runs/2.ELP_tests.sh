@@ -1,11 +1,6 @@
 #!/usr/bin/bash
 # RUN THE ELP-SET OF TESTS
 
-# NRV
-# ===
-# ELP include NRV
-./2.NRV_tests.sh
-
 # ASSIM
 # =====
 # BSM = Bator+Screening+Minim
