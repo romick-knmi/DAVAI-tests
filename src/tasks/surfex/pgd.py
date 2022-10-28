@@ -53,7 +53,7 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_clim,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -99,11 +99,11 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             if 'bathymetry_source' in self.conf:
                 self._wrapped_input(
                     role           = 'Bathymetry DB',
-                    format         = 'netcdf',
+                    format         = 'dir/hdr',
                     genv           = self.conf.appenv_clim,
                     geometry       = self.conf.bathymetry_geometry,
                     kind           = 'bathymetry',
-                    local          = 'bathymetry_DB.nc',
+                    local          = 'etopo.tgz',
                     source         = self.conf.bathymetry_source,
                 )
             #-------------------------------------------------------------------------------
@@ -128,14 +128,13 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
-                binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_clim,
                 hook_geo       = (update_namelist, tbgeo),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'OPTIONS.nam',
-                source         = self.conf.sourcenam,
+                source         = '{}/namel_buildpgd'.format(self.conf.model),
             )
             #-------------------------------------------------------------------------------
 

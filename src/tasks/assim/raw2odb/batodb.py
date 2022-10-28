@@ -40,7 +40,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'AvgMasks',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'avgmask',
                 local          = 'mask.[sensor]',
                 sensor         = 'atms,ssmis,mwts2',
@@ -49,7 +49,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'BatodbConfigurationFile',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'batodbconf',
                 local          = 'param.cfg',
             )
@@ -57,7 +57,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'CreateIoassignScript',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'ioassign_script',
                 language       = 'ksh',
                 local          = '[purpose]_ioassign',
@@ -67,7 +67,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'GPSList',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'gpslist',
                 local          = 'list_gpssol',
             )
@@ -79,10 +79,10 @@ class BatorODB(Task, DavaiTaskMixin):
                 role           = 'BatodbReductionDelta',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'namelist',
                 local          = 'delta-bator_reduction.[model].davai.nam',
-                source         = 'OOPS/[local]',
+                source         = 'davai/[local]',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -102,7 +102,7 @@ class BatorODB(Task, DavaiTaskMixin):
                     role           = 'NamelistLamflag',
                     binary         = self.conf.model,
                     format         = 'ascii',
-                    genv           = self.conf.appenv,
+                    genv           = self.conf.davaienv,
                     kind           = 'namelist',
                     local          = 'NAM_lamflag',
                     source         = 'OOPS_ARO/namel_lamflag_odb',

@@ -296,14 +296,14 @@ class H(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local='OOTESTVAR.X',
             )
             #-------------------------------------------------------------------------------
-
-        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
-        if 'early-fetch' in self.steps or 'fetch' in self.steps:      
             tbio = self.flow_executable(
                 kind           = 'odbioassign',
                 local          = 'ioassign.x',
             )
-            #-------------------------------------------------------------------------------                                                                  
+            #-------------------------------------------------------------------------------
+
+        # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:      
             # TODO: Fix error_covariance_3d_mod.F90, then remove this unused resource
             self._wrapped_input(
                 role           = 'BackgroundStdError',

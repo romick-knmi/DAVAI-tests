@@ -18,12 +18,12 @@ def setup(t, **kw):
             loopconf='compilation_flavours',
             loopsuffix='.{}',
             nodes=[
-            Family(tag='arpege', ticket=t, on_error='delayed_fail', nodes=[
-                ArpegeLBCbyFullpos(tag='fp_lbc-arpege', ticket=t, **kw),
-                ], **kw),
-            Family(tag='ifs', ticket=t, on_error='delayed_fail', nodes=[
-                IFS_LBCbyFullpos(tag='fp_lbc-ifs', ticket=t, **kw),
-                ], **kw),
+                Family(tag='arpege', ticket=t, on_error='delayed_fail', nodes=[
+                    ArpegeLBCbyFullpos(tag='fp_lbc-arpege', ticket=t, **kw),
+                    ], **kw),
+                Family(tag='ifs', ticket=t, on_error='delayed_fail', nodes=[
+                    IFS_LBCbyFullpos(tag='fp_lbc-ifs', ticket=t, **kw),
+                    ], **kw),
             #Family(tag='arome', ticket=t, nodes=[
             #    LBCbyFullpos(tag='fp_lbc.from-arome', ticket=t, **kw),
             #    ], **kw),a

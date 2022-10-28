@@ -61,7 +61,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -70,7 +70,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Initial Clim',  # PGD
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 geometry       = self.conf.prep_initial_geometry,
                 kind           = 'pgdfa',
                 local          = 'PGD1.[format]',
@@ -82,7 +82,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 self._wrapped_input(
                     role           = 'Target Clim',  # PGD
                     format         = 'fa',
-                    genv           = self.conf.appenv,
+                    genv           = self.conf.davaienv,
                     geometry       = self.conf.geometry,
                     kind           = 'pgdfa',
                     local          = 'PGD.[format]',
@@ -96,7 +96,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Namelist',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'OPTIONS.nam',

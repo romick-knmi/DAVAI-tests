@@ -21,7 +21,7 @@ def setup(t, **kw):
                         loopconf='obstypes',
                         loopsuffix='.{}',
                         nodes=[
-                        Family('BSM', ticket=t, on_error='delayed_fail', nodes=[
+                        Family('BS', ticket=t, on_error='delayed_fail', nodes=[
                             BatorODB(tag='batodb', ticket=t, **kw),
                             Screening(tag='screening', ticket=t, **kw),
                             ], **kw),

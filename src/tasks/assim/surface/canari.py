@@ -54,7 +54,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -63,7 +63,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Isba Parameters',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'isbaan',
                 local          = 'fort.61',
             )
@@ -71,7 +71,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvError',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'amv_error',
                 local          = 'amv_p_and_tracking_error',
             )
@@ -79,7 +79,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvBias',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'amv_bias',
                 local          = 'amv_bias_info',
             )
@@ -87,7 +87,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ClimPGD',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 gvar           = 'pgd_fa_[geometry::tag]',
                 kind           = 'pgdfa',
                 local          = 'Const.Clim.sfx',
@@ -96,7 +96,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Current Global Clim',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 gvar           = 'clim_[model]_[geometry::tag]',
                 kind           = 'clim_model',
                 local          = 'ICMSHCANSCLIM',
@@ -106,7 +106,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Closest Global Clim',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 gvar           = 'clim_[model]_[geometry::tag]',
                 kind           = 'clim_model',
                 local          = 'ICMSHCANSCLI2',

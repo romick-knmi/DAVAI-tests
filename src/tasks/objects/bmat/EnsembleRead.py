@@ -23,7 +23,7 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def input_block(self):
         return '-'.join([self.conf.model,
                          'BmatSp'.lower()])
-        
+
     def process(self):
         self._wrapped_init()
         self._notify_start_inputs()
@@ -56,7 +56,7 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'MoonFile',
                 format         = 'unknown',
                 local          = 'moon_pos.dta',
-                unknown        = 'True',                
+                unknown        = 'True',
                 remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Moon_2015_2118.dta',
             )
             #-------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
-            )            
+            )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role='Coefmodel',
@@ -171,17 +171,6 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
-            self._wrapped_input(
-                role='ModelState',
-                block=self.input_block(),
-                experiment=self.conf.xpid,
-                format='fa',
-                kind='historic',
-                local= 'ICMSHM[member]_term[term:fmth]',
-                member= [1,2,3,4,5,6,7,8],
-                term='-3',
-                vconf=self.conf.usecase.lower(),                
-            )
             #-------------------------------------------------------------------------------
             # TODO: Fix error_covariance_3d_mod.F90, then remove this unused resource
             self._wrapped_input(
@@ -211,6 +200,20 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 vconf=self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
+
+        # 2.1/ Flow Resources: produced by another task of the same job
+        if 'fetch' in self.steps:
+            self._wrapped_input(
+                role='ModelState',
+                block=self.input_block(),
+                experiment=self.conf.xpid,
+                format='fa',
+                kind='historic',
+                local= 'ICMSHM[member]_term[term:fmth]',
+                member= [1,2,3,4,5,6,7,8],
+                term='-3',
+                vconf=self.conf.usecase.lower(),
+            )
 
         # 2.2/ Compute step
         if 'compute' in self.steps:

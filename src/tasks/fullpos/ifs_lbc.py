@@ -61,7 +61,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Target Clim',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_fullpos_partners,
                 geometry       = self.conf.target_geometries,
                 kind           = 'clim_model',
                 local          = 'const.clim.[geometry::area::upper].m[month]',
@@ -74,10 +74,10 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'ObjectNamelist',  # target geometries definitions
-                binary         = 'aladin',
+                binary         = 'arpege',  # FIXME: in this appenv geometry object namelists are in NAMELIST_ARPEGE
                 format         = 'ascii',
                 fp_terms       = {'geotag':{g.tag:FPList(self.conf.terms) for g in self.conf.target_geometries}},
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_fullpos_partners,
                 geotag         = [g.tag for g in self.conf.target_geometries],
                 intent         = 'inout',
                 kind           = 'namelist_fpobject',
@@ -89,7 +89,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'PortabilityNamelist',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'in',
                 kind           = 'namelist',
                 local          = 'portability.nam',
@@ -100,7 +100,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Namelist',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 hook_port      = (update_namelist, tbport),
                 intent         = 'inout',
                 kind           = 'namelist',

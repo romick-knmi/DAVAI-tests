@@ -186,7 +186,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ClimPGD',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'pgd',
                 local          = 'Const.Clim.sfx',
             )
@@ -203,7 +203,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ClimAtmLR',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'clim_model',
                 geometry       = 'global63',
                 local          = 'const.t[geometry:truncation].000',
@@ -273,7 +273,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'OOPSLowResolution',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
                 object         = ['t63'],
@@ -284,7 +284,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'OOPSFullposNamelists',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 object         = ['149','63'],  
                 kind           = 'namelist',
                 local          = 'fp_change_resol_[object].nam',

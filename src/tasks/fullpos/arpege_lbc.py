@@ -60,7 +60,7 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Initial Clim',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'clim_model',
                 local          = 'Const.Clim.m[month]',
                 month          = [self.conf.rundate.month, self.conf.rundate.month + 1],
@@ -69,7 +69,7 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Target Clim',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_fullpos_partners,
                 geometry       = self.conf.target_geometries,
                 kind           = 'clim_model',
                 local          = 'const.clim.[geometry::area::upper].m[month]',
@@ -82,10 +82,10 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'ObjectNamelist',
-                binary         = 'aladin',
+                #binary         = 'aladin',
                 format         = 'ascii',
                 fp_terms       = {'geotag':{g.tag:FPList(self.conf.terms) for g in self.conf.target_geometries}},
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_fullpos_partners,
                 geotag         = [g.tag for g in self.conf.target_geometries],
                 intent         = 'inout',
                 kind           = 'namelist_fpobject',
@@ -95,9 +95,9 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
-                binary         = 'aladin',
+                #binary         = 'aladin',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.appenv_fullpos_partners,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',

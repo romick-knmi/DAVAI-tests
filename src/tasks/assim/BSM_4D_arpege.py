@@ -20,12 +20,16 @@ def setup(t, **kw):
             Family(tag='4dvar6h', ticket=t, nodes=[
                 Family(tag='default_compilation_flavour', ticket=t, nodes=[
                     BatorODB(tag='batodb', ticket=t, **kw),
-                    ScreeningCNT0(tag='screeningCNT0', ticket=t, **kw),
-                    ScreeningOOPS(tag='screeningOOPS', ticket=t, **kw),                    
-                    # delayed_fail to let the minimOOPS run before raising error
-                    MinimCNT0(tag='minimCNT0', ticket=t, on_error='delayed_fail', **kw),
-                    MinimOOPS(tag='minimOOPS', ticket=t, on_error='delayed_fail', **kw),
-                    Analyse4dvar(tag='Analyse4dvar', ticket=t, on_error='delayed_fail', **kw),                    
+                    # delayed_fail to let the OOPS family run before raising error
+                    Family(tag='cnt0', ticket=t, on_error='delayed_fail', nodes=[
+                        ScreeningCNT0(tag='screeningCNT0', ticket=t, **kw),
+                        MinimCNT0(tag='minimCNT0', ticket=t, **kw),
+                        ], **kw),
+                    Family(tag='oops', ticket=t, nodes=[
+                        ScreeningOOPS(tag='screeningOOPS', ticket=t, **kw),
+                        MinimOOPS(tag='minimOOPS', ticket=t, **kw),
+                        Analyse4dvar(tag='Analyse4dvar', ticket=t, **kw),
+                        ], **kw),
                     ], **kw),
                 ], **kw),
             ], **kw),

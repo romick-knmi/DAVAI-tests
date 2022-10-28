@@ -48,7 +48,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
+            self._wrapped_input(  #TODO: in genv/uenv
                 role           = 'SunFile',
                 format         = 'unknown',
                 local          = 'sun_pos.dta',
@@ -60,9 +60,9 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'MoonFile',
                 format         = 'unknown',
                 local          = 'moon_pos.dta',
-                unknown        = 'True',                
+                unknown        = 'True',
                 remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Moon_2015_2118.dta',
-            )            
+            )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'IREmisAtlas',
@@ -174,7 +174,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ClimPGD',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'pgd',
                 local          = 'Const.Clim.sfx',
             )

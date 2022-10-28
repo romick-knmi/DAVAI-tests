@@ -8,6 +8,7 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import vortex
 from vortex.layout.nodes import Driver, Family, LoopFamily
 
+from tasks.assim.raw2odb.batodb import BatorODB
 from .opobs.Hdirect import Hdirect
 from .opobs.H import H
 
@@ -22,17 +23,18 @@ def setup(t, **kw):
                         loopsuffix='.{}',
                         nodes=[
                         Family('H', ticket=t, on_error='delayed_fail', nodes=[
-                            Hdirect(tag='hdirect', ticket=t, **kw),                            
+                            BatorODB(tag='batodb', ticket=t, **kw),
+                            Hdirect(tag='hdirect', ticket=t, **kw),
                             H(tag='test_hop_with_jo', ticket=t, on_error='delayed_fail', **kw),
                             H(tag='test_adjoint', ticket=t, on_error='delayed_fail', **kw),
-                            
+
                             #TODO: Tests with VARBC not implemented yet in CY48
                             # H(tag='test_hop_with_jo+varbc', ticket=t, on_error='delayed_fail', **kw),
                             # H(tag='test_adjoint+varbc', ticket=t, on_error='delayed_fail', **kw),
                             ], **kw),
                         ], **kw),
                     ], **kw),
-                ], **kw),                
+                ], **kw),
             ], **kw),
         ],
     )

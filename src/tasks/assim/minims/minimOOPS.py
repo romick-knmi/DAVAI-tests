@@ -29,7 +29,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def obs_input_block(self):
         return '-'.join([self.conf.model,
                          self.NDVar,
-                         'screening' + self._tag_suffix()])
+                         'screeningoops' + self._tag_suffix()])
 
     def process(self):
         self._wrapped_init()
@@ -159,7 +159,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ClimPGD',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'pgd',
                 local          = 'Const.Clim.sfx',
             )

@@ -91,7 +91,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -99,7 +99,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )
@@ -107,7 +107,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -141,7 +141,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'NamelistSurfex',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'EXSEG1.nam',
@@ -154,7 +154,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = 'arpifs',
                 component      = 'noFPinline.nam,noDDH.nam,spnorms.nam',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'in',
                 kind           = 'namelist',
                 local          = '[component]',
@@ -165,7 +165,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'Namelist',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 hook_options   = (update_namelist, tboptions),
                 intent         = 'inout',
                 kind           = 'namelist',

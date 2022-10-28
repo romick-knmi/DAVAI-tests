@@ -44,7 +44,7 @@ class Bundle2Pack(Task, DavaiTaskMixin, GmkpackMixin):
             if self.conf.bundle_file:
                 bundle_provider['remote'] = self.conf.bundle_file
             else:
-                bundle_provider['genv'] = self.conf.commonenv
+                bundle_provider['genv'] = self.conf.appenv
             self._wrapped_input(
                 role           = 'Bundle',
                 nativefmt      = 'yml',

@@ -28,7 +28,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def obs_input_block(self):
         return '-'.join([self.conf.model,
                          self.NDVar,
-                         'screening' + self._tag_suffix()])
+                         'screeningcnt0' + self._tag_suffix()])
 
     def process(self):
         self._wrapped_init()
@@ -228,18 +228,18 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'NamelistCNT0',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'namelist_cnt0',
                 source         = 'OOPS/namelist_cnt0',
-            )            
+            )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 hook_merge_nam = (update_namelist, tbnam_leftovers, tbnam_cnt0, 
                                   tbnam_bmatrix, tbnam_modelobjects, tbnam_objects),
                 intent         = 'inout',

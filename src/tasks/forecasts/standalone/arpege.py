@@ -90,7 +90,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -98,7 +98,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )
@@ -106,7 +106,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -116,7 +116,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 self._wrapped_input(
                     role           = 'ClimPGD',
                     format         = 'fa',
-                    genv           = self.conf.appenv,
+                    genv           = self.conf.davaienv,
                     gvar           = 'pgd_fa_[geometry::tag]',
                     kind           = 'pgdfa',
                     local          = 'Const.Clim.sfx',
@@ -126,7 +126,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Global Clim',
                 format         = 'fa',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'clim_model',
                 local          = 'Const.Clim',
                 month          = self.conf.rundate,
@@ -153,7 +153,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = 'arpifs',
                 component      = 'noFPinline.nam,noDDH.nam,spnorms.nam',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'in',
                 kind           = 'namelist',
                 local          = '[component]',

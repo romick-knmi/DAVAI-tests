@@ -51,7 +51,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'GetIREmisAtlasInHDF',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'uw_ir_emis_atlas_hdf5.tar',
@@ -61,7 +61,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RCorrelations(MF)',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'correl',
                 local          = '[scope]_correlation.dat',
                 scope          = 'iasi,cris',
@@ -70,7 +70,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RCorrelations(ECMWF & OOPS version - contains sigmaO)',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'correl',
                 local          = 'rmtb[scope].dat',
                 scope          = 'err_iasi,err_cris',
@@ -79,7 +79,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AtlasEmissivity',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'ATLAS_[targetname:upper].BIN',
@@ -90,7 +90,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvError',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'amv_error',
                 local          = 'amv_p_and_tracking_error',
             )
@@ -98,7 +98,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvBias',
                 format         = 'ascii',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'amv_bias',
                 local          = 'amv_bias_info',
             )
@@ -106,7 +106,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -114,7 +114,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Coefmodel',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'coefmodel',
                 local          = 'COEF_MODEL.BIN',
             )
@@ -122,7 +122,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ScatCmod5',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'cmod5',
                 local          = 'fort.36',
             )
@@ -130,7 +130,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.commonenv,
+                genv           = self.conf.appenv_global,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )
@@ -175,7 +175,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'OOPSObjectsNamelists',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'namelist',
                 local          = 'naml_[object]',
                 object         = ['observations_tlad','standard_geometry','bmatrix',
@@ -187,7 +187,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'OOPSGomNamelists',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 kind           = 'namelist',
                 local          = 'namelist_[object]',
                 object         = ['gom_setup', 'gom_setup_hres'],
@@ -198,7 +198,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'OOPSModelObjectsNamelists',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'naml_[object]',
@@ -210,7 +210,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'NamelistLeftovers',
                 binary         = 'arpifs',
                 format         = 'ascii',
-                genv           = self.conf.appenv,
+                genv           = self.conf.davaienv,
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',

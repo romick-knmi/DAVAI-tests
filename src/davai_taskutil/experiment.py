@@ -109,7 +109,7 @@ def gather_mkjob_xp_conf(xpid, conf):
     Gather info from mjob conf file + additional, and write it to file ('xpinfo.json')
     to be sent to Ciboulai to initialize XP.
     """
-    env_catalog_variables = ('appenv_global', 'appenv_lam', 'appenv_clim', 'commonenv')
+    env_catalog_variables = ('davaienv', 'appenv_global', 'appenv_lam', 'appenv_clim', 'appenv_fullpos_partners', 'commonenv')
     # set dynamically additional info
     if conf['ref_xpid'] == xpid:
         conf['ref_xpid'] = None
