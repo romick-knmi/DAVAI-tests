@@ -40,6 +40,10 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
                                "Ignored: token is not necessary for internal Ciboulai servers.")
             else:
                 t.env.CIBOULAI_TOKEN = ciboulai_token
+        # genv cycles need to be "registered" using '*_cycle' config variables
+        self.masterja.conf['davai_cycle'] = self.masterja.conf['davaienv']
+        for appenv in [k for k in self.masterja.conf if k.startswith("appenv_")]:
+            self.masterja.conf['{}_cycle'.format(appenv[7:])] = self.masterja.conf[appenv]
 
     def plugable_system_setup(self, t, **kw):
         if self.masterja.conf.promote_coredump:
