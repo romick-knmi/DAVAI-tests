@@ -49,29 +49,35 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
+            # FIXME: not anymore in Arpege cycle / commonenv
             self._wrapped_input(
                 role           = 'GetIREmisAtlasInHDF',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                #genv           = self.conf.commonenv,
+                genv           = self.conf.davaienv,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'uw_ir_emis_atlas_hdf5.tar',
                 targetname     = 'iasi',
             )
             #-------------------------------------------------------------------------------
+            # FIXME: not anymore in Arpege cycle / commonenv
             self._wrapped_input(
                 role           = 'RCorrelations(MF)',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                #genv           = self.conf.commonenv,
+                genv           = self.conf.davaienv,
                 kind           = 'correl',
                 local          = '[scope]_correlation.dat',
                 scope          = 'iasi,cris',
             )
             #-------------------------------------------------------------------------------
+            # FIXME: not anymore in Arpege cycle / commonenv
             self._wrapped_input(
                 role           = 'AtlasEmissivity',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                #genv           = self.conf.commonenv,
+                genv           = self.conf.davaienv,
                 instrument     = '[targetname]',
                 kind           = 'atlas_emissivity',
                 local          = 'ATLAS_[targetname:upper].BIN',
@@ -82,7 +88,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvError',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'amv_error',
                 local          = 'amv_p_and_tracking_error',
             )
@@ -90,7 +96,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvBias',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'amv_bias',
                 local          = 'amv_bias_info',
             )
@@ -98,7 +104,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -106,7 +112,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Coefmodel',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'coefmodel',
                 local          = 'COEF_MODEL.BIN',
             )
@@ -114,7 +120,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'ScatCmod5',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'cmod5',
                 local          = 'fort.36',
             )
@@ -122,7 +128,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )

@@ -54,7 +54,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -63,7 +63,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'Isba Parameters',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'isbaan',
                 local          = 'fort.61',
             )
@@ -71,7 +71,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvError',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'amv_error',
                 local          = 'amv_p_and_tracking_error',
             )
@@ -79,7 +79,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'AmvBias',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'amv_bias',
                 local          = 'amv_bias_info',
             )
@@ -143,18 +143,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
-            tbx = self._wrapped_executable(
-                role           = 'Binary',
-                #binmap         = 'gmap',
-                block          = self.executables_block(),
-                experiment     = self.conf.xpid,
-                kind           = 'mfmodel',
-                local          = 'ARPEGE.X',
-                model          = 'ifs',  # as genericly named in cache out of compilation
-                nativefmt      = self.conf.executables_fmt,
-                #remote         = self.guess_pack(),
-                #setcontent     = 'binaries',
-            )
+            tbx = self.flow_executable()
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf

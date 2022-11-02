@@ -106,7 +106,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.appenv,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -176,15 +176,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         # 1.1.3/ Static Resources (executables):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
-            tbx = self.flow_executable()
-            #tbx = self._wrapped_executable(
-            #    role           = 'Binary',
-            #    binmap         = 'gmap',
-            #    kind           = 'mfmodel',
-            #    local          = 'ARPEGE.X',
-            #    remote         = self.guess_pack(),
-            #    setcontent     = 'binaries',
-            #)
+            tbx = self.flow_executable(kind='mfmodel')
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf

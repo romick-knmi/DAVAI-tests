@@ -61,7 +61,7 @@ class Prep(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',

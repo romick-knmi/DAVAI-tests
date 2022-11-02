@@ -77,7 +77,7 @@ class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.appenv,
+                genv           = self.conf.commonenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -114,15 +114,6 @@ class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
             tbx = self.flow_executable()
-            #tbx = self._wrapped_executable(
-            #    role           = 'Binary',
-            #    binmap         = 'gmap',
-            #    kind           = 'ifsmodel',
-            #    local          = 'IFS.X',
-            #    nativefmt      = self.conf.executables_fmt,
-            #    remote         = self.guess_pack(),
-            #    setcontent     = 'binaries',
-            #)
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf

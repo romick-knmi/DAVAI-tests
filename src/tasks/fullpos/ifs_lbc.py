@@ -74,7 +74,7 @@ class IFS_LBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'ObjectNamelist',  # target geometries definitions
-                binary         = 'arpege',  # FIXME: in this appenv geometry object namelists are in NAMELIST_ARPEGE
+                binary         = 'arpege',  # Despite this is IFS, in this genv, geometry namelists are in NAMELIST_ARPEGE
                 format         = 'ascii',
                 fp_terms       = {'geotag':{g.tag:FPList(self.conf.terms) for g in self.conf.target_geometries}},
                 genv           = self.conf.appenv_fullpos_partners,

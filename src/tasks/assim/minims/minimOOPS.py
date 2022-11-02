@@ -63,7 +63,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'MoonFile',
                 format         = 'unknown',
                 local          = 'moon_pos.dta',
-                unknown        = 'True',                
+                unknown        = 'True',
                 remote         = '/home/gmap/mrpm/piriou/eclipse_soleil_permanente/data_imcce/Moon_2015_2118.dta',
             )
             #-------------------------------------------------------------------------------

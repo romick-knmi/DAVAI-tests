@@ -151,7 +151,7 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv=self.conf.appenv,
                 hook_nofullpos=(hook_disable_fullpos,),
                 hook_simpleb=(hook_disable_flowdependentb,),
-                hook_nstrin=(hook_gnam, {'NAMPAR1':{'NSTRIN':int(self._tag_suffix())}}),
+                hook_nstrin=(hook_gnam, {'NAMPAR1':{'NSTRIN':int(self.conf.mpiread)}}),
                 hook_cvaraux=(hook_gnam, {'NAMVAR':{'LVARBC':False, 'LTOVSCV':False}}),
                 intent='inout',
                 kind='namelist',
@@ -212,7 +212,7 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local= 'ICMSHM[member]_term[term:fmth]',
                 member= [1,2,3,4,5,6,7,8],
                 term='-3',
-                vconf=self.conf.usecase.lower(),
+                #vconf=self.conf.usecase.lower(),
             )
 
         # 2.2/ Compute step

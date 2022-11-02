@@ -91,7 +91,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'rrtm',
                 local          = 'rrtm.const.tgz',
             )
@@ -99,7 +99,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'RtCoef',
                 format         = 'unknown',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'rtcoef',
                 local          = 'var.sat.misc_rtcoef.01.tgz',
             )
@@ -107,7 +107,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(
                 role           = 'CoverParams',
                 format         = 'foo',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'coverparams',
                 local          = 'ecoclimap_covers_param.tgz',
                 source         = 'ecoclimap',
@@ -178,14 +178,6 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             #-------------------------------------------------------------------------------
             tbx = self.flow_executable()
-            #tbx = self._wrapped_executable(
-            #    role           = 'Binary',
-            #    binmap         = 'gmap',
-            #    kind           = 'mfmodel',
-            #    local          = 'AROME.X',
-            #    remote         = self.guess_pack(),
-            #    setcontent     = 'binaries',
-            #)
             #-------------------------------------------------------------------------------
 
         # 1.2/ Flow Resources (initial): theoretically flow-resources, but statically stored in input_shelf

@@ -40,7 +40,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'AvgMasks',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'avgmask',
                 local          = 'mask.[sensor]',
                 sensor         = 'atms,ssmis,mwts2',
@@ -49,7 +49,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'BatodbConfigurationFile',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'batodbconf',
                 local          = 'param.cfg',
             )
@@ -57,7 +57,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'CreateIoassignScript',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.commonenv,
                 kind           = 'ioassign_script',
                 language       = 'ksh',
                 local          = '[purpose]_ioassign',
@@ -67,7 +67,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._wrapped_input(
                 role           = 'GPSList',
                 format         = 'ascii',
-                genv           = self.conf.appenv_global,
+                genv           = self.conf.appenv,
                 kind           = 'gpslist',
                 local          = 'list_gpssol',
             )
@@ -100,12 +100,14 @@ class BatorODB(Task, DavaiTaskMixin):
             if self.conf.LAM:
                 self._wrapped_input(
                     role           = 'NamelistLamflag',
-                    binary         = self.conf.model,
+                    #binary         = self.conf.model,
+                    binary         = 'arpifs',
                     format         = 'ascii',
                     genv           = self.conf.davaienv,
                     kind           = 'namelist',
                     local          = 'NAM_lamflag',
-                    source         = 'OOPS_ARO/namel_lamflag_odb',
+                    #source         = 'namel_lamflag_odb',
+                    source         = 'geometries/france10km.lamflag_odb.nam',
                 )
             #-------------------------------------------------------------------------------
 

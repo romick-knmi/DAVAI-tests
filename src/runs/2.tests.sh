@@ -3,7 +3,7 @@
 
 vapp=$(basename $(dirname $PWD))
 vconf=$(basename $PWD)
-USECASE=$(grep -P "usecase\s+=" conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}' | awk '{print $0}')
+USECASE=$(grep -P "usecase\s+=" conf/${vapp}_${vconf}.ini | awk -F "=" '{print $2}' | xargs)
 
 if [ "$USECASE" == "NRV" ];then
   ./2.NRV_tests.sh
