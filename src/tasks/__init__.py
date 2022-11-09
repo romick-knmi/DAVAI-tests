@@ -23,7 +23,6 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
     )
 
     def plugable_env_setup(self, t, **kw):  # @UnusedVariable
-        print('am:env')
         t.env.DAVAI_SERVER = self.masterja.conf.davai_server
         t.env.EC_MEMINFO = '0'  # FIXME: without, some exec crash at EC_MEMINFO setup... -> fixed in CY49 !
         # set token from file if not in env
@@ -45,14 +44,15 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
 
     def plugable_extra_session_setup(self, t, **kw):  # @UnusedVariable
         """genv cycles need to be "registered" using '*_cycle' config variables"""
-        print('am:session')
         self.masterja.conf['davai_cycle'] = self.masterja.conf['davaienv']
         for appenv in [k for k in self.masterja.conf if k.startswith("appenv_")]:
             self.masterja.conf['{}_cycle'.format(appenv[7:])] = self.masterja.conf[appenv]
+        self.plugable_toolbox_setup(t, **kw)  # FIXME: should not be called from here but automatically from
+                                              # _toolbox_setup, but that doesn't work for some reason
 
-    # doesn't work for some reason ! def plugable_toolbox_setup(self, t, **kw):  # @UnusedVariable
+    # FIXME: not called automatically from _toolbox_setup, for some reason ?
+    def plugable_toolbox_setup(self, t, **kw):  # @UnusedVariable
         """Set 'vortex_set_aside' toolbox variable in order to export input resources to bucket"""
-        print('am:toolbox')
         if self.masterja.conf.shelves2bucket:
             vortex_set_aside = dict(defaults=dict(namespace='vortex.archive.fr',
                                                   storage='shelves.bucket.localhost'),
