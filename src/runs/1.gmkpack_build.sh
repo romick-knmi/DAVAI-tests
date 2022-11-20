@@ -13,7 +13,7 @@ fi
 # prepare wait4build manager
 python3 vortex/bin/mkjob.py -j profile=rd name=build_init task=build.wait4build_init
 # build
-export DAVAI_START_BUILD=`python -c "import time; print(time.time())"`
+export DAVAI_START_BUILD=`python3 -c "import time; print(time.time())"`
 python3 vortex/bin/mkjob.py -j name=build task=build.gmkpack.build_from_gitref $arg
 # wait & check for build
 export MTOOLDIR=/scratch/mtool/$LOGNAME  # needed to find cached expertise output of build
