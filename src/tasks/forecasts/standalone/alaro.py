@@ -52,7 +52,7 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
 
         # 1.1.0/ Reference resources, to be compared to:
-        if False and  ( 'early-fetch' in self.steps or 'fetch' in self.steps ):
+        if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
@@ -69,7 +69,8 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 vconf          = self.conf.ref_vconf,
             )
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
+            if False:
+              self._wrapped_input(
                 role           = 'Reference',  # SurfState
                 block          = self.output_block(),
                 experiment     = self.conf.ref_xpid,
@@ -81,7 +82,7 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 nativefmt      = 'fa',
                 term           = self.conf.expertise_term,
                 vconf          = self.conf.ref_vconf,
-            )
+              )
             #-------------------------------------------------------------------------------
 
         # 1.1.1/ Static Resources:
@@ -159,7 +160,8 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'model/[model]/fcst.alaro.nam',
+                alaro_version  = self.conf.alaro_version,
+                source         = 'model/[model]/fcst.alaro[alaro_version].nam',
             )
             #-------------------------------------------------------------------------------
 
