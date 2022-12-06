@@ -12,7 +12,7 @@ import davai
 from common.util.hooks import arpifs_obs_error_correl_legacy2oops
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_adjust_DFI
+from davai_taskutil.hooks import hook_adjust_DFI, hook_gnam
 
 class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
@@ -198,6 +198,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                hook_sic       = (hook_gnam, {'NAM_SEAICEn':{'LSIC_CST':True}}),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'EXSEG1.nam',

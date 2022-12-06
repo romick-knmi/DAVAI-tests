@@ -241,6 +241,7 @@ class Screening(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                hook_sic       = (hook_gnam, {'NAM_SEAICEn':{'LSIC_CST':True}}),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'EXSEG1.nam',
