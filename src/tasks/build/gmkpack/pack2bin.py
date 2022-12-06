@@ -28,6 +28,13 @@ class Pack2Bin(Task, DavaiTaskMixin, GmkpackMixin):
     #    return self.executables_block()  # this method is now defined to mimic {tag}.{compilation_flavour.lower()} as
     #                                     # the loop on compilation flavours does, so this shouldn't be useful
 
+    @property
+    def programs(self):
+        programs = self.conf.programs_by_flavour.get(self.conf.compilation_flavour, '__usual__')
+        if isinstance(programs, list):
+            programs = ','.join(programs)
+        return programs
+
     def process(self):
         self.tasks2wait4_add()  # warn wait4build manager to wait for this task
         self._wrapped_init()
@@ -78,7 +85,7 @@ class Pack2Bin(Task, DavaiTaskMixin, GmkpackMixin):
                 homepack       = self.conf.get('homepack', None),
                 kind           = 'pack_build_executables',
                 packname       = self.guess_pack(abspath=False, to_bin=False),
-                programs       = self.conf.programs,
+                programs       = self.programs,
                 other_options  = FPDict({'GMK_THREADS':self.conf.threads, 'Ofrt':self.conf.Ofrt}),
                 regenerate_ics = self.conf.regenerate_ics,
                 fatal_build_failure = self.conf.fatal_build_failure,
