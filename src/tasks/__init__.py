@@ -23,6 +23,7 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
     )
 
     def plugable_env_setup(self, t, **kw):  # @UnusedVariable
+        t.env.MPIAUTOCONFIG = self.masterja.conf.mpiautoconfig
         t.env.DAVAI_SERVER = self.masterja.conf.davai_server
         t.env.EC_MEMINFO = '0'  # FIXME: without, some exec crash at EC_MEMINFO setup... -> fixed in CY49 !
         # set token from file if not in env
@@ -47,10 +48,7 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
         self.masterja.conf['davai_cycle'] = self.masterja.conf['davaienv']
         for appenv in [k for k in self.masterja.conf if k.startswith("appenv_")]:
             self.masterja.conf['{}_cycle'.format(appenv[7:])] = self.masterja.conf[appenv]
-        self.plugable_toolbox_setup(t, **kw)  # FIXME: should not be called from here but automatically from
-                                              # _toolbox_setup, but that doesn't work for some reason
 
-    # FIXME: not called automatically from _toolbox_setup, for some reason ?
     def plugable_toolbox_setup(self, t, **kw):  # @UnusedVariable
         """Set 'vortex_set_aside' toolbox variable in order to export input resources to bucket"""
         if self.masterja.conf.shelves2bucket:
@@ -81,6 +79,7 @@ class DavaiDevJobAssistantPlugin(DavaiJobAssistantPlugin):
     )
 
     def plugable_toolbox_setup(self, t, **kw):
+        super(DavaiDevJobAssistantPlugin, self).plugable_toolbox_setup(t, **kw)
         vortex.toolbox.active_promise = False  # deactivate the cleaning of promises in cache
 
 
