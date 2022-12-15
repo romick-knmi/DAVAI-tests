@@ -24,15 +24,17 @@ class Pack2Bin(Task, DavaiTaskMixin, GmkpackMixin):
     experts = [FPDict({'kind':'gmkpack_build'}),]
     _taskinfo_kind = 'statictaskinfo'
 
-    #def output_block(self):
-    #    return self.executables_block()  # this method is now defined to mimic {tag}.{compilation_flavour.lower()} as
-    #                                     # the loop on compilation flavours does, so this shouldn't be useful
+    def output_block(self):
+        return self.executables_block()  # this method is now defined to mimic {tag}.{compilation_flavour.lower()} as
+                                         # the loop on compilation flavours does, so this shouldn't be useful, but kept
+                                         # to ensure consistency
 
     @property
     def programs(self):
-        programs = self.conf.programs_by_flavour.get(self.conf.compilation_flavour, '__usual__')
+        """List of programs to be compiled (may depend on flavour)."""
+        programs = self.conf.programs_by_flavour.get(self.conf.compilation_flavour, self.conf.default_programs)
         if isinstance(programs, list):
-            programs = ','.join(programs)
+            programs = ','.join(programs)  # because Algo's footprint attribute expect a str
         return programs
 
     def process(self):

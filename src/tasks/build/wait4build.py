@@ -26,7 +26,15 @@ def setup(t, **kw):
     )
 
 
+class Wait4BuildInit(Task, BuildMixin):
+    """(Re-)Initialize list of tasks to be waited for. This list is completed by step 01 of actual build tasks."""
+
+    def process(self):
+        self.tasks2wait4_init()
+
+
 class Wait4Build(Task, BuildMixin):
+    """Wait for build tasks to finish."""
 
     _taskinfo_kind = 'statictaskinfo'
 
@@ -71,7 +79,6 @@ class Wait4Build(Task, BuildMixin):
         sh = self.sh
         # timings
         start_of_run = float(self.sh.environ.get('DAVAI_START_BUILD', time.time()))
-        #print('DAVAI_START_BUILD', self.sh.environ.get('DAVAI_START_BUILD', None), start_of_run)
         walltime = self.conf.time
         # get compilation task time (e.g. 02:00:00) in seconds
         walltime_in_seconds = sum([60**(2-i) * int(v)
@@ -99,12 +106,12 @@ class Wait4Build(Task, BuildMixin):
 
     def task2wait4(self):
         tasks = self.tasks2wait4_readlist()
-        # make them unique and ordered
+        # make them unique but keeping order
         tasks = list(OrderedDict.fromkeys(tasks))
         for t in self._tasks_done:
             if t in tasks:
                 tasks.remove(t)
-        if len(tasks) >0:
+        if len(tasks) > 0:
             return tasks[0]
         else:
             return None
@@ -127,6 +134,9 @@ class Wait4Build(Task, BuildMixin):
             # check that all builds are successful
             self._check_build(expertise)
             # and loop if there are still tasks to wait
+        print("All build tasks have finished:")
+        for t in self._tasks_done:
+            print("- {}".format(t))
         # finally, remove list-of-tasks file
         self.tasks2wait4_rmfile()
 

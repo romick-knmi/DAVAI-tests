@@ -8,6 +8,7 @@ from vortex.layout.nodes import Driver, LoopFamily, Family
 
 from .gitref2pack import GitRef2Pack
 from .pack2bin import Pack2Bin
+from tasks.build.wait4build import Wait4BuildInit
 
 from davai_taskutil import gmkpack_executables_block_tag
 
@@ -17,6 +18,7 @@ def setup(t, **kw):
         tag     = 'build',
         ticket  = t,
         nodes   = [
+            Wait4BuildInit(tag='wait4build_init', ticket=t, **kw),  # (re-)initialize list of tasks to be waited for
             Family(tag='gmkpack', ticket=t, nodes=[
                 # Two loops rather than one with both tasks in, so that packs are created anyway if compilation fails
                 LoopFamily(tag='loop_g2p', ticket=t,
