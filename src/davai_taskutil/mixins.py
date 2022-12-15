@@ -80,6 +80,7 @@ class WrappedToolboxMixin(object):
     DEFAULT_OUTPUT_NAMESPACE = 'vortex.cache.fr'
 
     def output_namespace(self, namespace):
+        """Return appropriate 'namespace' according to config options."""
         if namespace == self.REF_OUTPUT and self.conf.archive_as_ref:
             return 'vortex.multi.fr'
         elif namespace in ('vortex.multi.fr', 'vortex.cache.fr', 'vortex.archive.fr'):
@@ -88,12 +89,14 @@ class WrappedToolboxMixin(object):
             return self.DEFAULT_OUTPUT_NAMESPACE
 
     def _wrapped_init(self):
+        """Initializations for _wrapped_*() methods."""
         self._tb_input = []
         self._tb_promise = []
         self._tb_exec = []
         self._tb_output = []
 
     def _wrapped_input(self, **description):
+        """Wrapping of input resource."""
         input_number = len(self._tb_input) + 1
         self.sh.title('Toolbox input {:02}'.format(input_number))
         r = toolbox.input(**description)
@@ -103,6 +106,7 @@ class WrappedToolboxMixin(object):
         return r
 
     def _wrapped_promise(self, **description):
+        """Wrapping of promised resource."""
         promise_number = len(self._tb_promise) + 1
         self.sh.title('Toolbox promise {:02}'.format(promise_number))
         description['namespace'] = self.output_namespace(description.get('namespace'))
@@ -113,6 +117,7 @@ class WrappedToolboxMixin(object):
         return r
 
     def _wrapped_executable(self, **description):
+        """Wrapping of executable input."""
         exec_number = len(self._tb_exec) + 1
         self.sh.title('Toolbox executable {:02}'.format(exec_number))
         r = toolbox.executable(**description)
@@ -122,6 +127,7 @@ class WrappedToolboxMixin(object):
         return r
 
     def _wrapped_output(self, **description):
+        """Wrapping of output resource."""
         output_number = len(self._tb_output) + 1
         self.sh.title('Toolbox output {:02}'.format(output_number))
         description['namespace'] = self.output_namespace(description.get('namespace'))
@@ -139,7 +145,10 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
     @property
     def lead_expert(self):
-        """Default, can still be overwritten in class definition."""
+        """
+        Lead expert is the expert displayed in Ciboulai XP table.
+        Default, can still be overwritten in class definition.
+        """
         if len(self.experts) > 0:
             return self.experts[0]
         else:
@@ -154,25 +163,21 @@ class DavaiTaskMixin(WrappedToolboxMixin):
     @property
     def NDVar(self):
         return '4DVar' if int(self.conf.timeslots) > 1 else '3DVar'
-    
+
     @property
     def ND(self):
-        return '4D' if int(self.conf.timeslots) > 1 else '3D'    
+        return '4D' if int(self.conf.timeslots) > 1 else '3D'
 
     def guess_term(self, force_window_start=False):
+        """Guess term from 'cyclestep' and NDVar or 'force_window_start'."""
         term = Period(self.conf.cyclestep)
         if self.NDVar == '4DVar' or force_window_start:
             # withdraw to window start
             term = term + Period(self.conf.window_start)
         return term.isoformat()
 
-    def _split_rundate_obstype_couple(self):
-        if 'rundate_obstype' in self.conf:
-            self.conf.rundate, self.conf.obstype = self.conf.rundate_obstype.split('.')
-            toolbox.defaults(date=self.conf.rundate)
-
     def _obstype_rundate_association(self):
-        """Set rundate as associated with obstype in config."""
+        """Set 'rundate' as associated with 'obstype' in config (and toolbox defaults)."""
         if 'obstype' in self.conf and 'obstype_rundate_map' in self.conf:
             obstype = self.conf.obstype
             assert obstype in self.conf.obstype_rundate_map, \
@@ -184,7 +189,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         """
         Return the block in which to find the binaries, wrt self.compilation_flavour or a provided such argument.
 
-        TOUCH WITH CARE: this method is now defined to mimic what the loop on compilation flavours does.
+        CAREFUL IN MODIFYING THIS: this method is defined to mimic what the loop on compilation flavours does.
         """
         if compilation_flavour is None:
             compilation_flavour = self.conf.compilation_flavour
@@ -214,6 +219,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         return self._wrapped_executable(**description)
 
     def run_expertise(self):
+        """Run expertise."""
         if 'compute' in self.steps:
             self.sh.title('Toolbox algo = tbexpertise')
             tbexpertise = toolbox.algo(**self._algo_expertise())
@@ -227,7 +233,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 
     def output_block(self):
         """
-        Output block method: should map more or less Family tree.
+        Output block method: should map more or less Family tree, separated by "-".
         TO BE OVERWRITTEN in (most) real tasks
         """
         return '-'.join([self.tag])
@@ -236,23 +242,8 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         """Get the suffix part of the tag, in case of a LoopFamily-ed task."""
         return self.tag[len(self._configtag):]
 
-    def _reference_continuity_listing(self):
-        return dict(
-            role           = 'Reference',
-            binary         = '[model]',
-            block          = self.output_block(),
-            experiment     = self.conf.ref_xpid,
-            fatal          = False,
-            format         = 'ascii',
-            kind           = 'plisting',
-            local          = 'ref_listing.[format]',
-            namespace      = self.conf.ref_namespace,
-            seta           = '1',
-            setb           = '1',
-            task           = self._configtag,
-            vconf          = self.conf.ref_vconf)
-
     def _promised_expertise(self):
+        """Standard description of the promised expertise file."""
         return dict(
             role           = 'TaskSummary',
             block          = self.output_block(),
@@ -269,6 +260,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             task           = 'expertise')
 
     def _reference_continuity_expertise(self):
+        """Standard description of the expertise of the "continuity" reference."""
         return dict(
             role           = 'Reference',
             namespace      = self.conf.ref_namespace,
@@ -284,6 +276,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             vconf          = self.conf.ref_vconf)
 
     def _reference_consistency_expertise(self):
+        """Standard description of the expertise of the "continuity" reference."""
         return dict(
             role           = 'Reference',
             experiment     = self.conf.xpid,
@@ -297,6 +290,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             task           = 'expertise')
 
     def _algo_expertise(self):
+        """Standard description of the Expertise AlgoComponent."""
         return dict(
             block          = self.output_block(),
             engine         = 'algo',
@@ -327,14 +321,17 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         self.ticket.sh.remove(notification_file)
 
     def _notify_start_inputs(self):
+        """Notify Ciboulai that the inputs step has started."""
         if 'early-fetch' in self.steps:
             self._notify_start_step('inputs')
 
     def _notify_start_compute(self):
+        """Notify Ciboulai that the compute step has started."""
         if 'compute' in self.steps:
             self._notify_start_step('compute')
 
     def _output_expertise(self):
+        """Standard description of the output expertise file."""
         return dict(
             role           = 'TaskSummary',
             kind           = self._taskinfo_kind,
@@ -352,6 +349,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             task           = 'expertise')
 
     def _output_comparison_expertise(self):
+        """Standard description of the output comparison expertise file."""
         return dict(
             role           = 'TaskAgainstRef',
             kind           = self._taskinfo_kind,
@@ -370,7 +368,28 @@ class DavaiTaskMixin(WrappedToolboxMixin):
 class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
     """Provide useful usual outputs for IAL tests."""
 
-    def _promised_listing(self):  # Promised to be able to export its cache/archive path to ciboulai
+    def _reference_continuity_listing(self):
+        """Standard description of the listing of the "continuity" reference."""
+        return dict(
+            role           = 'Reference',
+            binary         = '[model]',
+            block          = self.output_block(),
+            experiment     = self.conf.ref_xpid,
+            fatal          = False,
+            format         = 'ascii',
+            kind           = 'plisting',
+            local          = 'ref_listing.[format]',
+            namespace      = self.conf.ref_namespace,
+            seta           = '1',
+            setb           = '1',
+            task           = self._configtag,
+            vconf          = self.conf.ref_vconf)
+
+    def _promised_listing(self):
+        """
+        Standard description of the promised listing.
+        Promising it enables to export its cache/archive path to ciboulai.
+        """
         return dict(
             role           = 'Listing',
             binary         = '[model]',
@@ -386,6 +405,7 @@ class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
             task           = self._configtag)
 
     def _output_listing(self):
+        """Standard description of the output listing."""
         return dict(
             role           = 'Listing',
             binary         = '[model]',
@@ -401,6 +421,7 @@ class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
             task           = self._configtag)
 
     def _output_stdeo(self):
+        """Standard description of the stdeo.* output files."""
         return dict(
             role           = 'StdOut',
             binary         = '[model]',
@@ -413,6 +434,7 @@ class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
             task           = self._configtag)
 
     def _output_drhook_profiles(self):
+        """Standard description of the drHook output files."""
         return dict(
             role           = 'DrHookProfiles',
             binary         = '[model]',
@@ -441,9 +463,10 @@ class BuildMixin(object):
 
     def tasks2wait4_init(self):
         """(Re-)Initialize the witness file listing the build tasks to be waited for."""
-        self.tasks2wait4_rmfile()
-        with io.open(self.tasks2wait4_file, 'w'):
-            pass
+        if self.steps == ('early-fetch',):
+            self.tasks2wait4_rmfile()
+            with io.open(self.tasks2wait4_file, 'w'):
+                pass
 
     def tasks2wait4_add(self):
         """Add the current task to the witness file listing the build tasks to be waited for."""
@@ -464,13 +487,15 @@ class GmkpackMixin(BuildMixin):
 
     @property
     def gmkpack_compiler_label(self):
+        """Return gmkpack's 'compiler_label' from config's compilation_flavour."""
         return self.conf.compilation_flavour.split('.')[0]
 
     @property
     def gmkpack_compiler_flag(self):
+        """Return gmkpack's 'compiler_flag' from config's compilation_flavour."""
         return self.conf.compilation_flavour.split('.')[1]
 
-    def guess_pack_from_IAL_git_ref(self, abspath=True, homepack=None, to_bin=True):
+    def _guess_pack_from_IAL_git_ref(self, abspath=True, homepack=None, to_bin=True):
         """Guess and return pack according to self.conf"""
         from ial_build.pygmkpack import GmkpackTool
         return GmkpackTool.guess_pack_name(self.conf.IAL_git_ref,
@@ -482,7 +507,7 @@ class GmkpackMixin(BuildMixin):
                                            homepack=homepack,
                                            to_bin=to_bin)
 
-    def guess_pack_from_bundle(self, abspath=True, homepack=None, to_bin=True):
+    def _guess_pack_from_bundle(self, abspath=True, homepack=None, to_bin=True):
         """Guess and return pack according to self.conf"""
         from ial_build.bundle import IALBundle
         b = IALBundle(self.conf.bundle_file)
@@ -494,15 +519,17 @@ class GmkpackMixin(BuildMixin):
                                          to_bin=to_bin)
 
     def guess_pack(self, abspath=True, homepack=None, to_bin=True):
+        """Guess and return pack according to self.conf"""
         if self.pack_population == 'IAL_git_ref':
-            return self.guess_pack_from_IAL_git_ref(abspath=abspath, homepack=homepack, to_bin=to_bin)
+            return self._guess_pack_from_IAL_git_ref(abspath=abspath, homepack=homepack, to_bin=to_bin)
         elif self.pack_population == 'bundle_file':
-            return self.guess_pack_from_bundle(abspath=abspath, homepack=homepack, to_bin=to_bin)
+            return self._guess_pack_from_bundle(abspath=abspath, homepack=homepack, to_bin=to_bin)
         else:
             raise KeyError("Unknown pack_population: ''".format(self.pack_population))
 
     @property
     def pack_population(self):
+        """Guess what the pack has been populated from, according to config."""
         if 'bundle_file' in self.conf and 'IAL_git_ref' not in self.conf:
             return 'bundle_file'
         elif 'IAL_git_ref' in self.conf and 'bundle_file' not in self.conf:

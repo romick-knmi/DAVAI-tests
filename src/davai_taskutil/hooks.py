@@ -5,51 +5,48 @@ Hooks on resources for Davai tasks.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+
 def hook_fix_varbc(t, rh, withvarbc):
-    """
-    Hook 
-    """
-    if 'NAMVAR' in rh.contents:    
+    """Hook to (de-)activate VarBC on-the-fly in namelist."""
+    if 'NAMVAR' in rh.contents:
         if withvarbc:
             print("Set ['NAMVAR']['LVARBC'] = True")
             rh.contents['NAMVAR']['LVARBC'] = True
             print("Set ['NAMVAR']['LTOVSCV'] = True")
-            rh.contents['NAMVAR']['LTOVSCV'] = True          
+            rh.contents['NAMVAR']['LTOVSCV'] = True
         else:
             print("Set ['NAMVAR']['LVARBC'] = False")
             rh.contents['NAMVAR']['LVARBC'] = False
             print("Set ['NAMVAR']['LTOVSCV'] = False")
-            rh.contents['NAMVAR']['LTOVSCV'] = False  
-        
+            rh.contents['NAMVAR']['LTOVSCV'] = False
     rh.save()
-    
+
+
 def hook_disable_fullpos(t, rh):
-    """
-    Hook
-    """
+    """Hook to disable FullPos (incomplete???)."""
     if 'NAMFPC' in rh.contents:
         print("Set ['NAMFPC']['NFPCLI'] = 0")
         rh.contents['NAMFPC']['NFPCLI'] = 0
     if 'NAMPHYDS' in rh.contents:
         print("Set ['NAMPHYDS']['NPPVCLIX'] = 0")
         rh.contents['NAMPHYDS']['NPPVCLIX'] = 0
-    rh.save()        
-        
+    rh.save()
+
+
 def hook_disable_flowdependentb(t, rh):
-    """
-    Hook for model namelist
-    """
+    """Hook to disable flow-dependent B (model namelist)."""
     if 'NAMJG' in rh.contents:
         print("Set ['NAMJG']['CONFIG%LSPFCE'] = True")
         rh.contents['NAMJG']['CONFIG%LSPFCE'] = True
     if 'NAMWAVELETJB' in rh.contents:
         print("Set ['NAMWAVELETJB']['WJBCONF%LJBWAVELET'] = False")
-        rh.contents['NAMWAVELETJB']['WJBCONF%LJBWAVELET'] = False 
+        rh.contents['NAMWAVELETJB']['WJBCONF%LJBWAVELET'] = False
     if 'NAMVAR' in rh.contents:
         print("Set ['NAMVAR']['LUSEWAVRENORM'] = False")
-        rh.contents['NAMVAR']['LUSEWAVRENORM'] = False 
-    rh.save()        
-        
+        rh.contents['NAMVAR']['LUSEWAVRENORM'] = False
+    rh.save()
+
+
 def hook_fix_model(t, rh, NDVar, isCNT0):
     """
     Hook for model namelist
@@ -59,11 +56,9 @@ def hook_fix_model(t, rh, NDVar, isCNT0):
         if 'NAMRIP' in rh.contents:
             print("Set ['NAMRIP']['CSTOP'] = 'h0'")
             rh.contents['NAMRIP']['CSTOP'] = 'h0'
-    
     if 'NAMRIP' in rh.contents:
         print("Set ['NAMRIP']['TSTEP'] = 1800.")
         rh.contents['NAMRIP']['TSTEP'] = 1800
-            
     if isCNT0:
         if 'NAMOOPS' in rh.contents:
             rh.contents['NAMOOPS'].delvar('LMODEL_WITH_SPECRT')
@@ -71,7 +66,7 @@ def hook_fix_model(t, rh, NDVar, isCNT0):
             print("Set ['NAMSIMPHL']['LTRAJPST'] = .FALSE.")
             rh.contents['NAMSIMPHL']['LTRAJPST'] = False
             print("Set ['NAMSIMPHL']['LTRAJPS'] = .FALSE.")
-            rh.contents['NAMSIMPHL']['LTRAJPS'] = True            
+            rh.contents['NAMSIMPHL']['LTRAJPS'] = True
     rh.save()
 
 
@@ -102,7 +97,7 @@ def hook_adjust_DFI(t, rh, NDVar):
 
 
 def hook_gnam(t, rh, gnam_as_dict):
-    """Gnam a namelist based on a dict(BLOCK={KEY:VALUE, ...}, ...)"""
+    """Modify a namelist based on a dict(BLOCK={KEY:VALUE, ...}, ...)"""
     from bronx.datagrip.namelist import NamelistSet
     gnam = NamelistSet()
     for blockname, block in gnam_as_dict.items():
@@ -121,8 +116,9 @@ def hook_OOPS_2_CNT0(t, rh):
             'NAMCT0': {'L_OOPS':False}}
     hook_gnam(t, rh, gnam)
 
+
 def hook_ensemble_build(t, rh, nbmembers):
-    """Hook to build namelist files"""
+    """Hook to build namelist files for members of an ensemble."""
     naml_fmt = "naml_write_dx_m{:03}"
     for mb in range(1, int(nbmembers)+1):
         fnaml = naml_fmt.format(mb)
