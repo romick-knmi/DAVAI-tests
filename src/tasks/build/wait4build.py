@@ -122,7 +122,7 @@ class Wait4Build(Task, BuildMixin):
         while len(self._tasks_done) == 0 or self.task2wait4() is not None:
             # beginning: no task registered yet and done == 0
             while self.task2wait4() is None and len(self._tasks_done) == 0:
-                print("Build tasks have not started yet, wait {}s for them...".format(self.conf.refresh_frequency))
+                print("Build tasks have not started yet, wait another {}s for them...".format(self.conf.refresh_frequency))
                 time.sleep(int(self.conf.refresh_frequency))
             print("...OK")
             # here's the next task to wait for

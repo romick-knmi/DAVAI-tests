@@ -477,9 +477,12 @@ class BuildMixin(object):
 
     def tasks2wait4_readlist(self):
         """Read and return the list of build tasks to be waited for."""
-        with io.open(self.tasks2wait4_file, 'r') as f:
-            tasks = [l.strip() for l in f.readlines()]
-        return tasks
+        if not self.sh.path.exists(self.tasks2wait4_file):
+            # has not been created yet
+            return []
+        else:
+            with io.open(self.tasks2wait4_file, 'r') as f:
+                return [l.strip() for l in f.readlines()]
 
 
 class GmkpackMixin(BuildMixin):

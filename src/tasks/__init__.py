@@ -7,6 +7,7 @@ import io
 
 import vortex
 from vortex.layout.jobs import JobAssistantPlugin
+from davai.util import set_env4git
 from bronx.fancies import loggers
 logger = loggers.getLogger(__name__)
 
@@ -38,8 +39,8 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
                     pass
             if ciboulai_token is None:
                 logger.warning("Ciboulai token not found in env var CIBOULAI_TOKEN " +
-                               "nor in file provided in config's 'ciboulai_token_file' attribute. " +
-                               "Ignored: token is not necessary for internal Ciboulai servers.")
+                               "nor in file provided in config's 'ciboulai_token_file' attribute: " +
+                               "sending results to Ciboulai may fail.")
             else:
                 t.env.CIBOULAI_TOKEN = ciboulai_token
 
@@ -95,11 +96,4 @@ class GitJobAssistantPlugin(JobAssistantPlugin):
     )
 
     def plugable_env_setup(self, t, **kw):  # @UnusedVariable
-        target = t.sh.target()
-        git_installdir = target.config.get('git', 'git_installdir')
-        logger.info("Loading git from:", git_installdir)
-        if git_installdir not in ('', None):
-            t.env.setbinpath(t.sh.path.join(git_installdir, 'bin'), 0)
-            t.env['GIT_EXEC_PATH'] = t.sh.path.join(git_installdir,
-                                                    'libexec',
-                                                    'git-core')
+        set_env4git()
