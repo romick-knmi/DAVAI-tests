@@ -512,9 +512,9 @@ class Analyse4dvar(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 experiment     = self.conf.xpid,
                 format         = 'fa',
                 kind           = 'analysis',
-                local          = 'ICMSHANFT+0000',
+                local          = 'ICMSHANFT+0003',
                 namespace      = self.REF_OUTPUT,
-            )            
+            )
             #-------------------------------------------------------------------------------
 
         # 3.0.1/ Davai expertise:
