@@ -219,7 +219,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'namelist_[object]',
-                object         = ['gom_setup', 'gom_setup_hres'],
+                object         = ['gom_setup_0', 'gom_setup_hres'],
                 source         = 'objects/namelist_[object]',
             )
             #-------------------------------------------------------------------------------

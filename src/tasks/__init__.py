@@ -59,6 +59,7 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
                                               self.masterja.conf.input_shelf_lam])
             self.masterja.conf.vortex_set_aside = vortex_set_aside
             vortex.toolbox.defaults(vortex_set_aside=vortex_set_aside)
+        vortex.toolbox.defaults(mkjob_jobname=self.masterja.conf.jobname)
 
     def plugable_system_setup(self, t, **kw):
         if self.masterja.conf.promote_coredump:

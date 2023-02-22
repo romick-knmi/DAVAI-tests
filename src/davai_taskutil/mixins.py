@@ -310,7 +310,7 @@ class DavaiTaskMixin(WrappedToolboxMixin):
         elif step == 'compute':
             task_summary['Status'] = task_status['C...']
         notification_file = '.{}_started.json'.format(step)
-        task_summary['Context'] = context_info_for_task_summary(self.ticket.context)
+        task_summary['Context'] = context_info_for_task_summary(self.ticket.context, jobname=self.conf.jobname)
         task_summary['Updated'] = utcnow().isoformat().split('.')[0]
         task_summary.dump(notification_file)
         description = self._output_expertise()
