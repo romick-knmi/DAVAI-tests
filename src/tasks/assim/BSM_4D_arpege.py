@@ -26,9 +26,13 @@ def setup(t, **kw):
                         MinimCNT0(tag='minimCNT0', ticket=t, **kw),
                         ], **kw),
                     Family(tag='oops', ticket=t, nodes=[
-                        ScreeningOOPS(tag='screeningOOPS', ticket=t, **kw),
-                        MinimOOPS(tag='minimOOPS', ticket=t, **kw),
-                        Analyse4dvar(tag='Analyse4dvar', ticket=t, **kw),
+                        Family(tag='seq', ticket=t, on_error='delayed_fail', nodes=[
+                            ScreeningOOPS(tag='screeningOOPS', ticket=t, **kw),
+                            MinimOOPS(tag='minimOOPS', ticket=t, **kw),
+                            ], **kw),
+                        Family(tag='allinone', ticket=t, nodes=[
+                            Analyse4dvar(tag='Analyse4dvar', ticket=t, **kw),
+                            ], **kw),
                         ], **kw),
                     ], **kw),
                 ], **kw),
