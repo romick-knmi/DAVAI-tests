@@ -51,7 +51,12 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
             self.masterja.conf['{}_cycle'.format(appenv[7:])] = self.masterja.conf[appenv]
 
     def plugable_toolbox_setup(self, t, **kw):  # @UnusedVariable
-        """Set 'vortex_set_aside' toolbox variable in order to export input resources to bucket"""
+        """
+        Davai toolbox setup:
+        
+            * Set 'vortex_set_aside' toolbox variable in order to export input resources to bucket
+            * Set jobname for Algos
+        """
         if self.masterja.conf.shelves2bucket:
             vortex_set_aside = dict(defaults=dict(namespace='vortex.archive.fr',
                                                   storage='shelves.bucket.localhost'),
@@ -59,6 +64,7 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
                                               self.masterja.conf.input_shelf_lam])
             self.masterja.conf.vortex_set_aside = vortex_set_aside
             vortex.toolbox.defaults(vortex_set_aside=vortex_set_aside)
+        # jobname for Algos, to broadcast this information to ciboulai
         vortex.toolbox.defaults(mkjob_jobname=self.masterja.conf.jobname)
 
     def plugable_system_setup(self, t, **kw):
