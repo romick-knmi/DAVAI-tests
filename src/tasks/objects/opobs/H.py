@@ -226,20 +226,9 @@ class H(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.appenv,
                 kind           = 'namelist',
                 local          = 'namelist_[object]',
-                object         = ['gom_setup'],
+                object         = ['gom_setup_0', 'gom_setup', 'gom_setup_hres'],
                 source         = 'objects/namelist_[object]',
             )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'OOPSGomNamelistsHR',
-                binary         = self.conf.model,
-                format         = 'ascii',
-                genv           = self.conf.appenv,
-                kind           = 'namelist',
-                local          = 'namelist_[object]',
-                object         = ['gom_setup_hres'],
-                source         = 'objects/namelist_gom_setup',
-            )            
             #-------------------------------------------------------------------------------
             # Fix TSTEP,CSTOP in Model objects
             # Disable FullPos use everywhere
