@@ -128,6 +128,7 @@ class PGD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Namelist',
+                binary         = 'arpege',
                 format         = 'ascii',
                 genv           = self.conf.appenv_clim,
                 hook_geo       = (update_namelist, tbgeo),
