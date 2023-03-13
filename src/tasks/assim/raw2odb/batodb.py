@@ -192,6 +192,7 @@ class BatorODB(Task, DavaiTaskMixin):
             self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
+                drhookprof     = self.conf.drhook_profiling,
                 engine         = 'parallel',
                 ioassign       = tbio[0].container.localpath(),
                 iomethod       = '4',
