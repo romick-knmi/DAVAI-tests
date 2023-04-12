@@ -13,6 +13,7 @@ import davai
 from .standalone.ifs import StandaloneIFSForecast
 from .standalone.arpege import StandaloneArpegeForecast
 from .standalone.arome import StandaloneAromeForecast
+from .standalone.alaro import StandaloneAlaroForecast
 
 
 def setup(t, **kw):
@@ -36,7 +37,13 @@ def setup(t, **kw):
                         StandaloneAromeForecast(tag='forecast-arome-corsica2500', ticket=t, **kw),
                         ], **kw),
                     ], **kw),
-            ], **kw),
+               Family(tag='alaro', ticket=t, on_error='delayed_fail', nodes=[
+                    Family(tag='antwrp1300', ticket=t, nodes=[
+                        StandaloneAlaroForecast(tag='forecast-alaro0-antwrp1300', on_error='delayed_fail', ticket=t, **kw),
+                        StandaloneAlaroForecast(tag='forecast-alaro1-antwrp1300', ticket=t, **kw),
+                        ], **kw),
+                    ], **kw),
+                ], **kw),
         ],
     )
 
