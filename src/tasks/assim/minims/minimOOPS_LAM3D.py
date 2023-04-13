@@ -207,7 +207,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 genv           = self.conf.davaienv,
                 kind           = 'namelist',
                 local          = 'namelist_[object]',
-                object         = ['gom_setup', 'gom_setup_hres'],
+                object         = ['gom_setup_0', 'gom_setup_hres', 'jb_cov'],
                 source         = 'OOPS_ARO/namelist_[object]',
             )
             #-------------------------------------------------------------------------------
