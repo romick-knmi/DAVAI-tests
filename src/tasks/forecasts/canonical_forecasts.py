@@ -16,15 +16,15 @@ from .canonical.arpege import CanonicalArpegeForecast
 
 def setup(t, **kw):
     return Driver(tag='drv', ticket=t, options=kw, nodes=[
-        Family(tag='default_compilation_flavour', ticket=t, nodes=[
-            Family(tag='arpege', ticket=t, on_error='delayed_fail', nodes=[
-                Family(tag='global798c22', ticket=t, nodes=[
-                    CanonicalArpegeForecast(tag='forecast-arpege-global798c22', ticket=t, **kw),
+        LoopFamily(tag='gmkpack', ticket=t,
+            loopconf='compilation_flavours',
+            loopsuffix='.{}',
+            nodes=[
+                Family(tag='arpege', ticket=t, on_error='delayed_fail', nodes=[
+                    Family(tag='global798c22', ticket=t, nodes=[
+                        CanonicalArpegeForecast(tag='forecast-arpege-global798c22', ticket=t, **kw),
+                        ], **kw),
                     ], **kw),
-                ], **kw),
-            #Family(tag='arome', ticket=t, on_error='delayed_fail', nodes=[
-            #    Forecast(tag='arome_canonical_forecast', ticket=t, **kw),
-            #    ], **kw),
             ], **kw),
         ],
     )
