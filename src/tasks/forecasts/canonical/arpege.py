@@ -76,6 +76,14 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._load_usual_tools()  # LFI tools, ecCodes defs, ...
             #-------------------------------------------------------------------------------
             self._wrapped_input(
+                role           = 'SunMoonFiles',
+                format         = 'unknown',
+                genv           = self.conf.appenv,
+                kind           = 'sunmoonpositioncoeffs',
+                local          = 'sun_moon_position.tgz',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'RrtmConst',
                 format         = 'unknown',
                 genv           = self.conf.appenv,

@@ -43,7 +43,7 @@ class BatorODB(Task, DavaiTaskMixin):
                 genv           = self.conf.commonenv,
                 kind           = 'avgmask',
                 local          = 'mask.[sensor]',
-                sensor         = 'atms,ssmis,mwts2',
+                sensor         = 'atms,ssmis,mwts2,amsr,amsub,gmi,mwhsx',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
