@@ -312,6 +312,7 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 namespace      = self.REF_OUTPUT,
                 nativefmt      = 'fa',
                 term           = '[glob:term]',
+                fatal          = False
             )
             #-------------------------------------------------------------------------------
             if self.conf.alaro_version == '1B':  # Alaro with Surfex
@@ -326,6 +327,7 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                     namespace      = self.REF_OUTPUT,
                     nativefmt      = 'fa',
                     term           = '[glob:term]',
+                fatal          = False
                 )
                 #-------------------------------------------------------------------------------
 

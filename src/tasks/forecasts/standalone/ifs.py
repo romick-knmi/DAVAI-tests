@@ -201,6 +201,7 @@ class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 nativefmt      = 'grib',
                 subset         = 'gpatm',
                 term           = '[glob:term]',
+                fatal          = False
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
@@ -214,6 +215,7 @@ class StandaloneIFSForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 nativefmt      = 'grib',
                 subset         = 'specatm',
                 term           = '[glob:term]',
+                fatal          = False
             )
             #-------------------------------------------------------------------------------
 

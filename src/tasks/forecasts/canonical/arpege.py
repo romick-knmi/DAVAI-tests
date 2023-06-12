@@ -268,6 +268,7 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 namespace      = self.REF_OUTPUT,
                 nativefmt      = 'fa',
                 term           = '[glob:term]',
+                fatal          = False
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
@@ -281,6 +282,7 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 namespace      = self.REF_OUTPUT,
                 nativefmt      = 'fa',
                 term           = '[glob:term]',
+                fatal          = False
             )
             #-------------------------------------------------------------------------------
             self._wrapped_output(
