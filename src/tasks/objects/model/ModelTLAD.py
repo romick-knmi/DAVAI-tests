@@ -13,16 +13,12 @@ import davai
 from common.util.hooks import arpifs_obs_error_correl_legacy2oops
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos, hook_disable_flowdependentb, hook_ensemble_build
+from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos, hook_disable_flowdependentb
 
 
-class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+class TLAD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'oops:op_obs_file/test_adjoint'})] + davai.util.default_experts()
-
-    def input_block(self):
-        return '-'.join([self.conf.model,
-                         'BmatSp'.lower()])
         
     def process(self):
         self._wrapped_init()
@@ -85,12 +81,11 @@ class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role='Config',
                 format='json',
                 genv=self.conf.appenv,
-                hook_nam=(hook_ensemble_build, self.conf.members),
                 intent='inout',
                 kind='config',
                 local='oops.[format]',
                 nativefmt='[format]',
-                objects='test_envar',
+                objects='test_model',
                 scope='oops',
             )
 
@@ -117,9 +112,9 @@ class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 hook_nofullpos=(hook_disable_fullpos,),
                 intent='inout',
                 kind='namelist',
-                local='model.nam',
-                object=['nonlinear_model_upd2'],
-                source='objects/[object].nam',
+                object=['nonlinear','linear','traj'],
+                local='[object]_model.nam',                
+                source='objects/[object]_model_upd2.nam',
             )
             #-------------------------------------------------------------------------------
             # BMatrix without flow-dependent sigma_b and correlations
@@ -142,8 +137,8 @@ class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format='ascii',
                 genv=self.conf.appenv,
                 hook_nofullpos=(hook_disable_fullpos,),
+                hook_nstrin=(hook_gnam, {'NAMPAR1':{'NSTRIN':'NBPROC'}}),                
                 hook_simpleb=(hook_disable_flowdependentb,),
-                hook_nstrin=(hook_gnam, {'NAMPAR1':{'NSTRIN':4}}),
                 hook_cvaraux=(hook_gnam, {'NAMVAR':{'LVARBC':False, 'LTOVSCV':False}}),
                 intent='inout',
                 kind='namelist',
@@ -193,19 +188,6 @@ class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
 
-        # 2.1/ Flow Resources: produced by another task of the same job
-        if 'fetch' in self.steps:
-            self._wrapped_input(
-                role='ModelState',
-                block=self.input_block(),
-                experiment=self.conf.xpid,
-                format='fa',
-                kind='historic',
-                local= 'ICMSHM[member]_term[term:fmth]',
-                member= [1,2,3,4,5,6,7,8],
-                term='-3',
-            )
-
         # 2.2/ Compute step
         if 'compute' in self.steps:
             self._notify_start_compute()
@@ -217,8 +199,7 @@ class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 iomethod='4',
                 kind='ootest',
                 terms=[-3, ],
-                members=range(1, int(self.conf.members) + 1),
-                test_type='b/test_adjoint',
+                test_type='mix/test_adjoint',
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
