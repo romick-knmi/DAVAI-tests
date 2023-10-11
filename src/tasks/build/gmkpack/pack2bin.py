@@ -81,7 +81,7 @@ class Pack2Bin(Task, DavaiTaskMixin, GmkpackMixin):
             self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
-                cleanpack      = self.conf.cleanpack,
+                cleanpack      = self.conf.get('cleanpack', False),
                 crash_witness  = True,
                 engine         = 'algo',
                 homepack       = self.conf.get('homepack', None),
