@@ -88,7 +88,8 @@ class Pack2Bin(Task, DavaiTaskMixin, GmkpackMixin):
                 kind           = 'pack_build_executables',
                 packname       = self.guess_pack(abspath=False, to_bin=False),
                 programs       = self.programs,
-                other_options  = FPDict({'GMK_THREADS':self.conf.threads, 'Ofrt':self.conf.Ofrt}),
+                other_options  = FPDict({'GMK_THREADS':self.conf.threads, 'Ofrt':self.conf.Ofrt,
+                                         'optvcc':self.conf.get('optvcc', None)}),
                 regenerate_ics = self.conf.regenerate_ics,
                 fatal_build_failure = self.conf.fatal_build_failure,
             )
