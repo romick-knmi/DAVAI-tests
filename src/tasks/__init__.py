@@ -67,6 +67,9 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
             vortex.toolbox.defaults(vortex_set_aside=vortex_set_aside)
         # jobname for Algos, to broadcast this information to ciboulai
         vortex.toolbox.defaults(mkjob_jobname=self.masterja.conf.jobname)
+        # mpiname, to activate DDT
+        if 'mpiname' in self.masterja.conf:
+            vortex.toolbox.defaults(mpiname=self.masterja.conf.mpiname)
 
     def plugable_system_setup(self, t, **kw):
         if self.masterja.conf.promote_coredump:
