@@ -110,6 +110,13 @@ def hook_gnam(t, rh, gnam_as_dict):
     rh.save()
 
 
+def hook_nam_delvars(t, rh, d):
+    """Remove keys from namelist, from a dict(BLOCK=KEY, ...)"""
+    for b, v in d.items():
+        rh.contents[b].delvar(v)
+        rh.save()
+
+
 def hook_OOPS_2_CNT0(t, rh):
     """Hook to turn OOPS namelist into CNT0 namelist."""
     gnam = {'NAMARG': {'CNMEXP':'MINI'},
