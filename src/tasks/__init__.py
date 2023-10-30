@@ -45,6 +45,8 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
                                "sending results to Ciboulai may fail.")
             else:
                 t.env.CIBOULAI_TOKEN = ciboulai_token
+        if 'bufr_tables' in self.masterja.conf:
+            t.env.BUFR_TABLES = self.masterja.conf.bufr_tables
 
     def plugable_extra_session_setup(self, t, **kw):  # @UnusedVariable
         """genv cycles need to be "registered" using '*_cycle' config variables"""

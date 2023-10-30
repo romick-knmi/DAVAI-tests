@@ -10,6 +10,7 @@ from vortex.layout.nodes import Task
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_taskutil.hooks import hook_gnam
 
 
 class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -122,6 +123,7 @@ class Canari(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 binary         = self.conf.model,
                 format         = 'ascii',
                 genv           = self.conf.appenv,
+                hook_sic       = (hook_gnam, {'NAM_SEAICEn':{'LSIC_CST':True}}),  # FIXME: until update CI
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'EXSEG1.nam',
