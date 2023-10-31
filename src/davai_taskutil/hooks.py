@@ -138,3 +138,11 @@ def hook_ensemble_build(t, rh, nbmembers):
         naml.write('  CDMEXP="M{:03}",\n'.format(mb))
         naml.write('/\n')
         naml.close()
+
+
+def hook_delvars(t, rh, vars_to_del_as_dict):
+    """Delete variables from namelist, passed as dict: {'NAMCT0':'LFPOS', ...}"""
+    for block, variable in vars_to_del_as_dict.items():
+        rh.contents[block].delvar(variable)
+    rh.save()
+
