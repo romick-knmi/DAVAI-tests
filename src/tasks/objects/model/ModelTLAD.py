@@ -19,7 +19,12 @@ from davai_taskutil.hooks import hook_fix_model, hook_gnam, hook_disable_fullpos
 class TLAD(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'oops:op_obs_file/test_adjoint'})] + davai.util.default_experts()
-        
+
+    def output_block(self):
+        return '-'.join([self.conf.jobname,
+                         self.conf.model,
+                         self.tag])
+
     def process(self):
         self._wrapped_init()
         self._notify_start_inputs()

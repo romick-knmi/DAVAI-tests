@@ -20,10 +20,16 @@ class EnVarAdjoint(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'oops:op_obs_file/test_adjoint'})] + davai.util.default_experts()
 
+    def output_block(self):
+        return '-'.join([self.conf.jobname,
+                         self.conf.model,
+                         self.tag])
+
     def input_block(self):
-        return '-'.join([self.conf.model,
+        return '-'.join([self.conf.jobname,
+                         self.conf.model,
                          'BmatSp'.lower()])
-        
+
     def process(self):
         self._wrapped_init()
         self._notify_start_inputs()

@@ -21,7 +21,8 @@ class Bmat(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     experts = [FPDict({'kind':'fields_in_file'})] + davai.util.default_experts()
 
     def output_block(self):
-        return '-'.join([self.conf.model,
+        return '-'.join([self.conf.jobname,
+                         self.conf.model,
                          self.tag])
 
     def process(self):

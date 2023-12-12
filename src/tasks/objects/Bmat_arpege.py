@@ -18,7 +18,7 @@ def setup(t, **kw):
                 Family(tag='default_compilation_flavour', ticket=t, nodes=[
                     BmatSimple(tag='BmatSp', ticket=t, **kw),
                     BmatFlowDependent(tag='BmatWv', ticket=t, **kw),
-                    EnVarAdjoint(tag='EnVar', ticket=t, **kw),
+                    EnVarAdjoint(tag='EnVarAdjoint', ticket=t, **kw),
                     LoopFamily(tag='ensread', ticket=t,
                         loopconf='mpireads',
                         loopsuffix='-mpi{}',

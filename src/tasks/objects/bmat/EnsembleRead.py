@@ -20,8 +20,14 @@ class EnsembleRead(Task, DavaiIALTaskMixin, IncludesTaskMixin):
 
     experts = [FPDict({'kind':'oops:ensemble/read'})] + davai.util.default_experts()
 
+    def output_block(self):
+        return '-'.join([self.conf.jobname,
+                         self.conf.model,
+                         self.tag])
+
     def input_block(self):
-        return '-'.join([self.conf.model,
+        return '-'.join([self.conf.jobname,
+                         self.conf.model,
                          'BmatSp'.lower()])
 
     def process(self):
