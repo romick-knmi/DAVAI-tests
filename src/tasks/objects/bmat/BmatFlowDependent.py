@@ -40,6 +40,19 @@ class Bmat(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
             #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Reference',  # ModelState
+                block          = self.output_block(),
+                experiment     = self.conf.ref_xpid,
+                fatal          = False,
+                format         = '[nativefmt]',
+                kind           = 'historic',
+                local          = 'ref.ICMSHM[member]+0000',
+                member         = [1,2,3,4,5,6,7,8],
+                nativefmt      = 'fa',
+                term           = '-3',
+                vconf          = self.conf.ref_vconf,
+            )
 
         # 1.1.1/ Static Resources:
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
