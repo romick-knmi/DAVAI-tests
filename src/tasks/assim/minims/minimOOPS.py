@@ -152,6 +152,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 role           = 'ClimPGD',
                 format         = 'fa',
                 genv           = self.conf.davaienv,
+                gvar           = 'pgd_fa_[geometry::tag]',
                 kind           = 'pgd',
                 local          = 'Const.Clim.sfx',
             )
