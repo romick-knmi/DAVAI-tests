@@ -41,10 +41,13 @@ class Bundle2Pack(Task, DavaiTaskMixin, GmkpackMixin):
         # 1.1.2/ Static Resources (namelist(s) & config):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             bundle_provider = dict()
-            if self.conf.bundle_file:
-                bundle_provider['remote'] = self.conf.bundle_file
+            if self.conf.get('IAL_bundle_file', None):
+                bundle_provider['remote'] = self.conf.IAL_bundle_file
             else:
-                bundle_provider['genv'] = self.conf.appenv
+                # TODO: use git provider when available
+                IALbundles = TmpIALbundleRepo(self.conf.IAL_bundle_repository, verbose=True)
+                b = IALbundles.get_bundle(self.IAL_bundle_ref, to_file='__tmp__')
+                bundle_provider['remote'] = b.bundle_file
             self._wrapped_input(
                 role           = 'Bundle',
                 nativefmt      = 'yml',
