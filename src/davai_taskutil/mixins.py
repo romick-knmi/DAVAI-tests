@@ -7,6 +7,7 @@ Mixins for Tasks, containing useful functionalities.
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import io
+import os
 
 from vortex import toolbox
 from bronx.stdtypes.date import Period, utcnow
@@ -513,7 +514,7 @@ class GmkpackMixin(BuildMixin):
     def _guess_pack_from_bundle(self, abspath=True, homepack=None, to_bin=True):
         """Guess and return pack according to self.conf"""
         from ial_build.bundle import IALBundle
-        b = IALBundle(self.conf.bundle_file)
+        b = IALBundle(self.conf.IAL_bundle_file, src_dir=self.bundle_src_dir)
         return b.gmkpack_guess_pack_name(self.conf.packtype,
                                          self.gmkpack_compiler_label,
                                          self.gmkpack_compiler_flag,
@@ -525,7 +526,7 @@ class GmkpackMixin(BuildMixin):
         """Guess and return pack according to self.conf"""
         if self.pack_population == 'IAL_git_ref':
             return self._guess_pack_from_IAL_git_ref(abspath=abspath, homepack=homepack, to_bin=to_bin)
-        elif self.pack_population == 'bundle_file':
+        elif self.pack_population == 'IAL_bundle_file':
             return self._guess_pack_from_bundle(abspath=abspath, homepack=homepack, to_bin=to_bin)
         else:
             raise KeyError("Unknown pack_population: ''".format(self.pack_population))
@@ -533,9 +534,17 @@ class GmkpackMixin(BuildMixin):
     @property
     def pack_population(self):
         """Guess what the pack has been populated from, according to config."""
-        if 'bundle_file' in self.conf and 'IAL_git_ref' not in self.conf:
-            return 'bundle_file'
-        elif 'IAL_git_ref' in self.conf and 'bundle_file' not in self.conf:
+        if 'IAL_bundle_file' in self.conf and 'IAL_git_ref' not in self.conf:
+            return 'IAL_bundle_file'
+        elif 'IAL_git_ref' in self.conf and 'IAL_bundle_file' not in self.conf:
             return 'IAL_git_ref'
         else:
-            raise KeyError("One and only one of ('bundle_file', 'IAL_git_ref') has to be provided in config file")
+            raise KeyError("One and only one of ('IAL_bundle_file', 'IAL_git_ref') has to be provided in config file")
+
+    @property
+    def bundle_src_dir(self):
+        if 'bundle_src_dir' in self.conf:
+            return os.path.expanduser(os.path.expandvars(self.conf.bundle_src_dir))
+        else:
+            return None
+

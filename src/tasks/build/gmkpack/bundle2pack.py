@@ -21,6 +21,7 @@ class Bundle2Pack(Task, DavaiTaskMixin, GmkpackMixin):
     _taskinfo_kind = 'statictaskinfo'
 
     def process(self):
+        self.tasks2wait4_add()
         self._wrapped_init()
 
         # 0./ Promises
@@ -78,10 +79,12 @@ class Bundle2Pack(Task, DavaiTaskMixin, GmkpackMixin):
             self._notify_start_compute()
             self.sh.title('Toolbox algo = tbalgo')
             tbalgo = toolbox.algo(
-                cleanpack      = self.conf.cleanpack,
-                compiler_flag  = self.conf.gmkpack_compiler_flag,
-                compiler_label = self.conf.gmkpack_compiler_label,
+                bundle_src_dir = self.bundle_src_dir,
+                cleanpack      = self.conf.get('cleanpack', False),
+                compiler_flag  = self.gmkpack_compiler_flag,
+                compiler_label = self.gmkpack_compiler_label,
                 crash_witness  = True,
+                engine         = 'algo',
                 homepack       = self.conf.get('homepack', None),
                 kind           = 'bundle2pack',
                 pack_type      = self.conf.packtype,
