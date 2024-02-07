@@ -81,7 +81,7 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'atlas_emissivity',
                 local          = 'ATLAS_[targetname:upper].BIN',
                 month          = self.conf.rundate,
-                targetname     = 'ssmis,iasi,an1,an2,seviri',
+                targetname     = 'ssmis,iasi,seviri',
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
@@ -108,14 +108,14 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'rrtm.const.tgz',
             )
             #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'RsBiasTables',
-                format         = 'odb',
-                genv           = self.conf.commonenv,
-                kind           = 'odbraw',
-                layout         = 'RSTBIAS,COUNTRYRSTRHBIAS,SONDETYPERSTRHBIAS',
-                local          = '[layout:upper]',
-            )
+            #self._wrapped_input(
+            #    role           = 'RsBiasTables',
+            #    format         = 'odb',
+            #    genv           = self.conf.commonenv,
+            #    kind           = 'odbraw',
+            #    layout         = 'RSTBIAS,COUNTRYRSTRHBIAS,SONDETYPERSTRHBIAS',
+            #    local          = '[layout:upper]',
+            #)
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Coefmodel',
@@ -278,7 +278,20 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'historic',
                 local          = 'ICMSHOOPSINIT',
                 term           = self.guess_term(),
-                remote         = 'ec:/im8/historic.arome.france-10km00+0001__semicol__00.fa',
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'Surfex guess',
+                block          = 'cplguess',
+                date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
+                experiment     = self.conf.input_shelf,
+                format         = 'fa',
+                kind           = 'historic',
+                local          = 'ICMSHOOPSINIT.sfx',
+                model          = 'surfex',
+                term           = self.guess_term(),
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
@@ -293,33 +306,98 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'boundary',
                 local          = 'CPLIN+START',
                 nativefmt      = 'fa',
-                source_app     = 'arpege',
-                source_conf    = '4dvarfr',
+                source_app     = 'ifs',
+                source_conf    = 'determ',
                 term           = 0,
-                remote         = 'ec:/im8/historic.arome.france-10km00+0001__semicol__00.fa',
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'BoundaryConditions',
+                role           = 'BoundaryConditions',  # Initial
                 block          = 'coupling',
                 date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
                 intent         = 'inout',
                 kind           = 'boundary',
-                local          = 'CPLIN+[term::fmthm]',
+                local          = 'CPLIN+01',
                 nativefmt      = 'fa',
-                source_app     = 'arpege',
-                source_conf    = '4dvarfr',
-                #term           = rangex(self.conf.coupling_frequency, self.conf.fcst_term,
-                #                        self.conf.coupling_frequency),
+                source_app     = 'ifs',
+                source_conf    = 'determ',
                 term           = 1,
-                remote         = 'ec:/im8/historic.arome.france-10km00+0001__semicol__00.fa',
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'BoundaryConditions',  # Initial
+                block          = 'coupling',
+                date           = self.conf.rundate,
+                experiment     = self.conf.input_shelf,
+                format         = '[nativefmt]',
+                intent         = 'inout',
+                kind           = 'boundary',
+                local          = 'CPLIN+02',
+                nativefmt      = 'fa',
+                source_app     = 'ifs',
+                source_conf    = 'determ',
+                term           = 2,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'BoundaryConditions',  # Initial
+                block          = 'coupling',
+                date           = self.conf.rundate,
+                experiment     = self.conf.input_shelf,
+                format         = '[nativefmt]',
+                intent         = 'inout',
+                kind           = 'boundary',
+                local          = 'CPLIN+03',
+                nativefmt      = 'fa',
+                source_app     = 'ifs',
+                source_conf    = 'determ',
+                term           = 3,
+                vapp           = self.conf.shelves_vapp,
+                vconf          = self.conf.shelves_vconf,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'ClimAtmHR',
+                format         = 'fa',
+                genv           = self.conf.appenv_lam,
+                kind           = 'clim_model',
+                local          = 'Const.Clim',
+                month          = self.conf.rundate.ymdh,
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'ClimPGD',
+                format         = 'fa',
+                genv           = self.conf.appenv_lam,
+                kind           = 'pgd',
+                local          = 'Const.Clim.sfx',
+            )
+            #-------------------------------------------------------------------------------
+            #self._wrapped_input(
+            #    role           = 'BoundaryConditions',
+            #    block          = 'coupling',
+            #    date           = self.conf.rundate,
+            #    experiment     = self.conf.input_shelf,
+            #    format         = '[nativefmt]',
+            #    intent         = 'inout',
+            #    kind           = 'boundary',
+            #    local          = 'CPLIN+[term::fmthm]',
+            #    nativefmt      = 'fa',
+            #    source_app     = 'ifs',
+            #    source_conf    = 'determ',
+            #    term           = rangex(self.conf.coupling_frequency, self.conf.fcst_term,
+            #                            self.conf.coupling_frequency),
+            #    vapp           = self.conf.shelves_vapp,
+            #    vconf          = self.conf.shelves_vconf,
+            #)
             #-------------------------------------------------------------------------------
             # FIXME: not consistent with oper arome (merge_varbc)
             self._wrapped_input(
@@ -376,7 +454,9 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 npool          = self.conf.obs_npools,
                 slots          = self.obs_tslots,
                 mpiname        = self.conf.mpiname, 
-                withscreening  = True,                
+                withscreening  = True,         
+                #bindingmethod  = None,
+                bindingmethod  = 'vortex',
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
