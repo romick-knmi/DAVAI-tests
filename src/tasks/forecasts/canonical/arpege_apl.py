@@ -15,7 +15,7 @@ from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
 from davai_taskutil.hooks import hook_gnam
 
 
-class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
+class CanonicalArpegeAplForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     """An Arpege canonical forecast with inline Fullpos and DDH."""
 
     @property
@@ -28,6 +28,14 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
     def output_block(self):
         return '-'.join([self.conf.prefix,
                          self.tag])
+
+    @property
+    def consistency_ref_block(self):
+        return self.output_block().replace('arpege_apl', 'arpege')
+
+    @property
+    def consistency_ref_task(self):
+        return self._configtag.replace('arpege_apl', 'arpege')
 
     def process(self):
         self._wrapped_init()
@@ -43,6 +51,9 @@ class CanonicalArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(**self._reference_continuity_expertise())
             self._wrapped_input(**self._reference_continuity_listing())
+            # this task is to be compared to another task of the same experiment
+            self._wrapped_input(**self._reference_consistency_expertise())
+            self._wrapped_input(**self._reference_consistency_listing())
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'Reference',  # ModelState

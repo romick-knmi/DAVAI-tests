@@ -277,11 +277,11 @@ class DavaiTaskMixin(WrappedToolboxMixin):
             vconf          = self.conf.ref_vconf)
 
     def _reference_consistency_expertise(self):
-        """Standard description of the expertise of the "continuity" reference."""
+        """Standard description of the expertise of the "consistency" reference."""
         return dict(
-            role           = 'Reference',
+            role           = 'ConsistencyReference',
+            block          = self.consistency_ref_block,
             experiment     = self.conf.xpid,
-            block          = self.conf.consistency_ref_block,
             fatal          = False,
             format         = 'json',
             kind           = self._taskinfo_kind,
@@ -385,6 +385,22 @@ class DavaiIALTaskMixin(DavaiTaskMixin, IncludesTaskMixin):
             setb           = '1',
             task           = self._configtag,
             vconf          = self.conf.ref_vconf)
+
+    def _reference_consistency_listing(self):
+        """Standard description of the listing of the "consistency" reference."""
+        return dict(
+            role           = 'ConsistencyReference',
+            binary         = '[model]',
+            block          = self.consistency_ref_block,
+            experiment     = self.conf.xpid,
+            fatal          = False,
+            format         = 'ascii',
+            kind           = 'plisting',
+            local          = 'ref_listing.[format]',
+            namespace      = self.conf.ref_namespace,
+            seta           = '1',
+            setb           = '1',
+            task           = self.consistency_ref_task)
 
     def _promised_listing(self):
         """
