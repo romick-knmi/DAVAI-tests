@@ -3,6 +3,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from footprints import FPDict
+from footprints.util import rangex
 
 import vortex
 from vortex import toolbox
@@ -301,73 +302,18 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
-                role           = 'BoundaryConditions',  # Initial
+                role           = 'BoundaryConditions',  
                 block          = 'coupling',
                 date           = self.conf.rundate,
                 experiment     = self.conf.input_shelf,
                 format         = '[nativefmt]',
                 intent         = 'inout',
                 kind           = 'boundary',
-                local          = 'ELSCFOOPSALBC000',
-#                local          = 'CPLIN+START',
+                local          = 'ELSCFOOPSALBC[term::fmt3h]',
                 nativefmt      = 'fa',
                 source_app     = 'ifs',
                 source_conf    = 'determ',
-                term           = 0,
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'BoundaryConditions',  # Initial
-                block          = 'coupling',
-                date           = self.conf.rundate,
-                experiment     = self.conf.input_shelf,
-                format         = '[nativefmt]',
-                intent         = 'inout',
-                kind           = 'boundary',
-                local          = 'ELSCFOOPSALBC001',
-#                local          = 'CPLIN+01',
-                nativefmt      = 'fa',
-                source_app     = 'ifs',
-                source_conf    = 'determ',
-                term           = 1,
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'BoundaryConditions',  # Initial
-                block          = 'coupling',
-                date           = self.conf.rundate,
-                experiment     = self.conf.input_shelf,
-                format         = '[nativefmt]',
-                intent         = 'inout',
-                kind           = 'boundary',
-                local          = 'ELSCFOOPSALBC002',
- #               local          = 'CPLIN+02',
-                nativefmt      = 'fa',
-                source_app     = 'ifs',
-                source_conf    = 'determ',
-                term           = 2,
-                vapp           = self.conf.shelves_vapp,
-                vconf          = self.conf.shelves_vconf,
-            )
-            #-------------------------------------------------------------------------------
-            self._wrapped_input(
-                role           = 'BoundaryConditions',  # Initial
-                block          = 'coupling',
-                date           = self.conf.rundate,
-                experiment     = self.conf.input_shelf,
-                format         = '[nativefmt]',
-                intent         = 'inout',
-                kind           = 'boundary',
-                local          = 'ELSCFOOPSALBC003',
-#                local          = 'CPLIN+03',
-                nativefmt      = 'fa',
-                source_app     = 'ifs',
-                source_conf    = 'determ',
-                term           = 3,
+                term           = rangex(0, self.conf.fcst_term,self.conf.coupling_frequency),
                 vapp           = self.conf.shelves_vapp,
                 vconf          = self.conf.shelves_vconf,
             )
@@ -388,24 +334,6 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'pgd',
                 local          = 'Const.Clim.sfx',
             )
-            #-------------------------------------------------------------------------------
-            #self._wrapped_input(
-            #    role           = 'BoundaryConditions',
-            #    block          = 'coupling',
-            #    date           = self.conf.rundate,
-            #    experiment     = self.conf.input_shelf,
-            #    format         = '[nativefmt]',
-            #    intent         = 'inout',
-            #    kind           = 'boundary',
-            #    local          = 'CPLIN+[term::fmthm]',
-            #    nativefmt      = 'fa',
-            #    source_app     = 'ifs',
-            #    source_conf    = 'determ',
-            #    term           = rangex(self.conf.coupling_frequency, self.conf.fcst_term,
-            #                            self.conf.coupling_frequency),
-            #    vapp           = self.conf.shelves_vapp,
-            #    vconf          = self.conf.shelves_vconf,
-            #)
             #-------------------------------------------------------------------------------
             # FIXME: not consistent with oper arome (merge_varbc)
             self._wrapped_input(
