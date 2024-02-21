@@ -7,10 +7,11 @@ from footprints import FPDict
 import vortex
 from vortex import toolbox
 from vortex.layout.nodes import Task
+from common.util.hooks import update_namelist
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
-from davai_taskutil.hooks import hook_adjust_DFI, hook_gnam
+from davai_taskutil.hooks import hook_adjust_DFI, hook_gnam, hook_fix_model
 
 
 class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -220,6 +221,9 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'naml_[object]',
+                hook_model     = (hook_fix_model,self.NDVar,self.conf.timestep,False),
+#                hook_nstrin    = (hook_gnam, {'NAMRIP':{'FCSTOP':'NBPROC'}}),
+#                hook_update    = (update_namelist),
                 object         = ['nonlinear_model_4dv_aro', 'linear_model_aro', 'traj_model_4dv_aro'],
                 source         = 'objects/naml_[object]',
             )
@@ -304,7 +308,8 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = '[nativefmt]',
                 intent         = 'inout',
                 kind           = 'boundary',
-                local          = 'CPLIN+START',
+                local          = 'ELSCFOOPSALBC000',
+#                local          = 'CPLIN+START',
                 nativefmt      = 'fa',
                 source_app     = 'ifs',
                 source_conf    = 'determ',
@@ -321,7 +326,8 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = '[nativefmt]',
                 intent         = 'inout',
                 kind           = 'boundary',
-                local          = 'CPLIN+01',
+                local          = 'ELSCFOOPSALBC001',
+#                local          = 'CPLIN+01',
                 nativefmt      = 'fa',
                 source_app     = 'ifs',
                 source_conf    = 'determ',
@@ -338,7 +344,8 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = '[nativefmt]',
                 intent         = 'inout',
                 kind           = 'boundary',
-                local          = 'CPLIN+02',
+                local          = 'ELSCFOOPSALBC002',
+ #               local          = 'CPLIN+02',
                 nativefmt      = 'fa',
                 source_app     = 'ifs',
                 source_conf    = 'determ',
@@ -355,7 +362,8 @@ class AnalyseLAM4D(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = '[nativefmt]',
                 intent         = 'inout',
                 kind           = 'boundary',
-                local          = 'CPLIN+03',
+                local          = 'ELSCFOOPSALBC003',
+#                local          = 'CPLIN+03',
                 nativefmt      = 'fa',
                 source_app     = 'ifs',
                 source_conf    = 'determ',

@@ -47,7 +47,7 @@ def hook_disable_flowdependentb(t, rh):
     rh.save()
 
 
-def hook_fix_model(t, rh, NDVar, isCNT0):
+def hook_fix_model(t, rh, NDVar, tstep, isCNT0):
     """
     Hook for model namelist
     """
@@ -59,6 +59,13 @@ def hook_fix_model(t, rh, NDVar, isCNT0):
     if 'NAMRIP' in rh.contents:
         print("Set ['NAMRIP']['TSTEP'] = 1800.")
         rh.contents['NAMRIP']['TSTEP'] = 1800
+    if NDVar == '4DVar':
+        # 4DVar case
+        if 'NAMRIP' in rh.contents:
+            print("Set ['NAMRIP']['CSTOP'] = 'h3'")
+            rh.contents['NAMRIP']['CSTOP'] = 'h3'
+            print("Set ['NAMRIP']['TSTEP'] = ", tstep)
+            rh.contents['NAMRIP']['TSTEP'] = int(tstep)
     if isCNT0:
         if 'NAMOOPS' in rh.contents:
             rh.contents['NAMOOPS'].delvar('LMODEL_WITH_SPECRT')
