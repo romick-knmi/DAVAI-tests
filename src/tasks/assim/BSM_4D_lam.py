@@ -23,7 +23,7 @@ def setup(t, **kw):
                         loopsuffix='.{}',
                         nodes=[
                         Family('BSM', ticket=t, on_error='delayed_fail', nodes=[
-                            #BatorODB(tag='batodb', ticket=t, **kw),
+#                            BatorODB(tag='batodb', ticket=t, **kw),
                             #Screening(tag='screening', ticket=t, **kw),
                             # delayed_fail to let the minimOOPS run before raising error
                             #MinimCNT0(tag='minimCNT0', ticket=t, on_error='delayed_fail', **kw),
