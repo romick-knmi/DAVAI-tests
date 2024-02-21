@@ -107,7 +107,8 @@ class BatorODB(Task, DavaiTaskMixin):
                     kind           = 'namelist',
                     local          = 'NAM_lamflag',
                     #source         = 'namel_lamflag_odb',
-                    source         = 'geometries/france10km.lamflag_odb.nam',
+                    source         = 'geometries/nether10km.lamflag_odb.nam',
+#                    source         = 'geometries/france10km.lamflag_odb.nam',
                 )
             #-------------------------------------------------------------------------------
 
