@@ -30,6 +30,7 @@ def setup(t, **kw):
                 Family(tag='arpege', ticket=t, on_error='delayed_fail', nodes=[
                     Family(tag='globaltst149c24', ticket=t, nodes=[
                         StandaloneArpegeForecast(tag='forecast-arpege-globaltst149c24', ticket=t, **kw),
+                        StandaloneArpegeForecast(tag='forecast-arpege_nosfx-globaltst149c24', ticket=t, **kw),
                         ], **kw),
                     ], **kw),
                 Family(tag='arome', ticket=t, on_error='delayed_fail', nodes=[

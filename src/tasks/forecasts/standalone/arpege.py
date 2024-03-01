@@ -11,6 +11,7 @@ from common.util.hooks import update_namelist
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_taskutil.hooks import hook_gnam
 
 
 class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -151,7 +152,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             tboptions = self._wrapped_input(
                 role           = 'Namelist Deltas to add/remove options',
                 binary         = 'arpifs',
-                component      = 'noFPinline.nam,noDDH.nam,spnorms.nam',
+                component      = self.conf.namelist_components,
                 format         = 'ascii',
                 genv           = self.conf.davaienv,
                 intent         = 'in',
@@ -166,6 +167,7 @@ class StandaloneArpegeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'ascii',
                 genv           = self.conf.appenv,
                 hook_options   = (update_namelist, tboptions),
+                #hook_z         = (hook_gnam, {'NAMBLOCK':{'LKEY':True, RVALUE:0.}}),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
