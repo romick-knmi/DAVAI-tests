@@ -12,6 +12,7 @@ from common.util.hooks import update_namelist
 import davai
 
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_taskutil.hooks import hook_gnam
 
 
 class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -161,6 +162,7 @@ class StandaloneAlaroForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 format         = 'ascii',
                 genv           = self.conf.davaienv,
                 hook_options   = (update_namelist, tboptions),
+                #hook_z         = (hook_gnam, {'NAMBLOCK':{'LKEY':True, RVALUE:0.}}),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
