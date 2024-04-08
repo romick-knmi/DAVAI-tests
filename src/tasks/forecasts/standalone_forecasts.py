@@ -43,9 +43,10 @@ def setup(t, **kw):
                         StandaloneAlaroForecast(tag='forecast-alaro0-antwrp1300', ticket=t, on_error='delayed_fail', **kw),
                         StandaloneAlaroForecast(tag='forecast-alaro1-antwrp1300', ticket=t, on_error='delayed_fail', **kw),
                         ], **kw),
-                    Family(tag='chmh2325', ticket=t, nodes=[
-                        StandaloneAlaroForecast(tag='forecast-alaro1_sfx-chmh2325', ticket=t, **kw),
-                        ], **kw),
+                    # FIXME 49T2:
+                    #Family(tag='chmh2325', ticket=t, nodes=[
+                    #    StandaloneAlaroForecast(tag='forecast-alaro1_sfx-chmh2325', ticket=t, **kw),
+                    #    ], **kw),
                     ], **kw),
                 ], **kw),
         ],
