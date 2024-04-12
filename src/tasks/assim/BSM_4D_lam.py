@@ -24,12 +24,12 @@ def setup(t, **kw):
                         loopsuffix='.{}',
                         nodes=[
                         Family('BSM', ticket=t, on_error='delayed_fail', nodes=[
-#                            BatorODB(tag='batodb', ticket=t, **kw),
+                            BatorODB(tag='batodb', ticket=t, **kw),
+#                            AnalyseLAM4D(tag='AnalyseLAM4D', ticket=t, **kw),
 #                            Screening(tag='screening', ticket=t, **kw),
 #                             delayed_fail to let the minimOOPS run before raising error
 #                            MinimCNT0(tag='minimCNT0', ticket=t, on_error='delayed_fail', **kw),
-                            MinimOOPS(tag='minimOOPS', ticket=t, **kw),
-#                            AnalyseLAM4D(tag='AnalyseLAM4D', ticket=t, **kw),
+#                            MinimOOPS(tag='minimOOPS', ticket=t, **kw),
                             ], **kw),
                         ], **kw),
                     ], **kw),
@@ -37,6 +37,3 @@ def setup(t, **kw):
             ], **kw),
         ],
     )
-
-print("In BSM_4D_lam final")
-

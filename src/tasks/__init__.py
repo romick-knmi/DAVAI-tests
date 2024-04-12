@@ -26,7 +26,9 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
     def plugable_env_setup(self, t, **kw):  # @UnusedVariable
         t.env.MPIAUTOCONFIG = self.masterja.conf.mpiautoconfig
         t.env.DAVAI_SERVER = self.masterja.conf.davai_server
-        t.env.EC_MEMINFO = '0'  # FIXME: without, some exec crash at EC_MEMINFO setup... -> fixed in CY49 !
+        t.env.EC_MEMINFO = '1'  # FIXME: without, some exec crash at EC_MEMINFO setup... -> fixed in CY49 !
+        # setting ODB_MAXHANDLE different from default in env
+        t.env.ODB_MAXHANDLE = self.masterja.conf.odb_maxhandle
         # set token from file if not in env
         ciboulai_token = None
         if 'CIBOULAI_TOKEN' not in t.env:

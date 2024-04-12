@@ -3,6 +3,7 @@
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 from footprints import FPDict
+from footprints.util import rangex
 
 import vortex
 from vortex import toolbox
@@ -216,6 +217,17 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
             )
             #-------------------------------------------------------------------------------
             self._wrapped_input(
+                role           = 'OOPSFullposNamelists',
+                binary         = 'arome',
+                format         = 'ascii',
+                genv           = self.conf.appenv,
+                object         = ['26'],
+                kind           = 'namelist',
+                local          = 'fp_change_resol_[object].nam',
+                source         = 'objects/fp_change_resol_[object].nam',
+            )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
                 role           = 'OOPSModelObjectsNamelists',
                 binary         = 'arome',
                 format         = 'ascii',
@@ -223,7 +235,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'naml_[object]',
-                object         = ['nonlinear_model_4dv_ala', 'linear_model_ala', 'traj_model_4dv_ala'],
+                object         = ['nonlinear_model_4dv_ala', 'linear_model_ala', 'traj_model_4dv_ala', 'standard_geometry_2x'],
                 source         = 'objects/naml_[object]',
             )
             #-------------------------------------------------------------------------------
@@ -236,7 +248,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
-                source         = 'objects/naml_leftovers_aro',
+                source         = 'objects/naml_leftovers_ala',
             )
             #-------------------------------------------------------------------------------
 
@@ -253,6 +265,7 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
         if 'early-fetch' in self.steps or 'fetch' in self.steps:
             self._wrapped_input(
                 role           = 'Guess',
+#                block          = 'forecast',
                 block          = 'cplguess',
                 date           = '{}/-{}'.format(self.conf.rundate, self.conf.cyclestep),
                 experiment     = self.conf.input_shelf,
@@ -303,6 +316,16 @@ class Minim(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 local          = 'Const.Clim',
                 month          = self.conf.rundate.ymdh,
             )
+            #-------------------------------------------------------------------------------
+            self._wrapped_input(
+                role           = 'ClimAtmLR',
+                format         = 'fa',
+                genv           = self.conf.appenv_lam,
+                kind           = 'clim_model',
+                geometry       = 'nether20km',
+                local          = 'Const.Clim_2x',
+                month          = self.conf.rundate.ymdh,
+            )    
             #-------------------------------------------------------------------------------
             self._wrapped_input(
                 role           = 'ClimPGD',

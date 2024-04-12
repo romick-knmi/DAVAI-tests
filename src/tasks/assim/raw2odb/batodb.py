@@ -203,7 +203,9 @@ class BatorODB(Task, DavaiTaskMixin):
                 ntasks         = self.conf.ntasks,
                 parallel_const = self.conf.obs_paraconst,
                 slots          = self.obs_tslots,
-                taskset        = 'socketpacked',
+#                taskset        = 'socketpacked',
+                mpiname        = self.conf.mpiname, 
+                bindingmethod  = 'vortex',
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
             print()
