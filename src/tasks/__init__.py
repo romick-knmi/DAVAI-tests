@@ -66,8 +66,7 @@ class DavaiJobAssistantPlugin(JobAssistantPlugin):
         if self.masterja.conf.shelves2bucket:
             vortex_set_aside = dict(defaults=dict(namespace='vortex.archive.fr',
                                                   storage='shelves.bucket.localhost'),
-                                    includes=[self.masterja.conf.input_shelf_global,
-                                              self.masterja.conf.input_shelf_lam])
+                                    includes=[self.masterja.conf.input_shelf,])
             self.masterja.conf.vortex_set_aside = vortex_set_aside
             vortex.toolbox.defaults(vortex_set_aside=vortex_set_aside)
         # jobname for Algos, to broadcast this information to ciboulai
