@@ -10,6 +10,7 @@ from vortex import toolbox
 from vortex.layout.nodes import Task, Driver
 import davai
 from davai_taskutil.mixins import DavaiIALTaskMixin, IncludesTaskMixin
+from davai_taskutil.hooks import hook_gnam
 
 
 class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
@@ -98,6 +99,7 @@ class ArpegeLBCbyFullpos(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 #binary         = 'aladin',
                 format         = 'ascii',
                 genv           = self.conf.appenv_fullpos_partners,
+                #hook_z         = (hook_gnam, {'NAMBLOCK':{'LKEY':True, RVALUE:0.}}),
                 intent         = 'inout',
                 kind           = 'namelist',
                 local          = 'fort.4',
