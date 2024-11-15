@@ -19,9 +19,9 @@ objects:
     - ModelTL_arpege # TL model, adjoint test
 
 # mixs: jobs containing several tasks of various families
-mixs:
-    - PF  # Prep-Forecast (using older PGD)
-    - PPF  # PGD-Prep-Forecast (using new PGD)
+#mixs:
+#    - PF  # Prep-Forecast (using older PGD)
+#    - PPF  # PGD-Prep-Forecast (using new PGD)
 
 fullpos:
     - Fp_lbc  # Fp_lbc = Fullpos creation of LBC files
