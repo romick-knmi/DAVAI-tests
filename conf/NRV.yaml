@@ -1,24 +1,24 @@
 forecasts:
-    - canonical_forecasts  # canonical forecasts = close to operations, including extra components
+#    - canonical_forecasts  # canonical forecasts = close to operations, including extra components
     - standalone_forecasts  # standalone forecasts = "pure" toy models forecasts without any extra component (DFI, IAU, Fullpos...)
 
-assim:
-    - BSM_4D_arpege  # BSM = Bator+Screening+Minim
-    - BSM_3D_arome  # BSM = Bator+Screening+Minim
-    - BsC_arpege  # BsC = Bator_surf+Canari
+#assim:
+#    - BSM_4D_arpege  # BSM = Bator+Screening+Minim
+#    - BSM_3D_arome  # BSM = Bator+Screening+Minim
+#    - BsC_arpege  # BsC = Bator_surf+Canari
 
 # mixs: jobs containing several tasks of various families
 #mixs:
 #    - PF  # Prep-Forecast (using older PGD)
 #    - PPF  # PGD-Prep-Forecast (using new PGD)
 
-objects:
-    - Bmat_arpege  # Construction and reading of a B-matrix using an ensemble, EnVar unit tests
-    - ModelTL_arpege # TL model, adjoint test
+#objects:
+#    - Bmat_arpege  # Construction and reading of a B-matrix using an ensemble, EnVar unit tests
+#    - ModelTL_arpege # TL model, adjoint test
 
-fullpos:
-    - Fp_lbc  # Fp_lbc = Fullpos creation of LBC files
+#fullpos:
+#    - Fp_lbc  # Fp_lbc = Fullpos creation of LBC files
 
-surfex:
-    - PP_geo  # PP_geo = PGD+Prep on a range of Gauss & LAM geometries
+#surfex:
+#    - PP_geo  # PP_geo = PGD+Prep on a range of Gauss & LAM geometries
 
