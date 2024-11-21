@@ -295,6 +295,7 @@ class StandaloneAromeForecast(Task, DavaiIALTaskMixin, IncludesTaskMixin):
                 kind           = 'lamfc',
                 fcterm         = self.conf.fcst_term,
                 fcunit         = 'h',
+                mpiname        = self.conf.mpiname, 
                 timestep       = self.conf.timestep,
             )
             print(self.ticket.prompt, 'tbalgo =', tbalgo)
