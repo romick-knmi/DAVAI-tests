@@ -34,9 +34,11 @@ def setup(t, **kw):
                         StandaloneArpegeForecast(tag='forecast-arpege_nosfx-globaltst149c24', ticket=t, **kw),
                         ], **kw),
                     ], **kw),
-                Family(tag='arome', ticket=t, on_error='delayed_fail', nodes=[
-                    Family(tag='corsica2500', ticket=t, nodes=[
+                Family(tag='corsica2500', ticket=t, on_error='delayed_fail', nodes=[
+                    Family(tag='arome', ticket=t, on_error='delayed_fail', nodes=[
                         StandaloneAromeForecast(tag='forecast-arome-corsica2500', ticket=t, **kw),
+# romick-knmi : 2024-Nov : attempting to start a harmonie arome forecast - this currently will only try to load from 4dvarfr Arpege - might not work properly
+                        StandaloneAromeForecast(tag='forecast-harmoniearome-corsica2500', ticket=t, **kw),
                         ], **kw),
                     ], **kw),
                 Family(tag='alaro', ticket=t, on_error='delayed_fail', nodes=[
