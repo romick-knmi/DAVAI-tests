@@ -101,10 +101,10 @@ def hook_gnam(t, rh, gnam_as_dict):
     from bronx.datagrip.namelist import NamelistSet
     gnam = NamelistSet()
     for blockname, block in gnam_as_dict.items():
+        if blockname not in gnam:
+            gnam.newblock(blockname)
         for key, value in block.items():
             print("Gnam setting: {}:{} = {}".format(blockname, key, value))
-            if blockname not in gnam:
-                gnam.newblock(blockname)
             gnam[blockname][key] = value
     rh.contents.merge(gnam)
     rh.save()
